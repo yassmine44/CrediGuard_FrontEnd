@@ -2,9 +2,15 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  // FRONT
   {
     path: '',
+    redirectTo: 'auth/sign-in',
+    pathMatch: 'full'
+  },
+
+  // FRONT
+  {
+    path: 'front',
     loadComponent: () =>
       import('./layout/all-template-front/all-template-front.component')
         .then(m => m.AllTemplateFrontComponent),
@@ -23,43 +29,42 @@ export const routes: Routes = [
         path: 'contact',
         loadComponent: () =>
           import('./pages/contact/contact.component').then(m => m.ContactComponent)
-      }
-      ,
+      },
       {
-  path: 'credit',
-  loadComponent: () =>
-    import('./pages/credit/credit.component').then(m => m.CreditComponent)
-},
-{
-  path: 'crowdfunding',
-  loadComponent: () =>
-    import('./pages/crowdfunding/crowdfunding.component').then(m => m.CrowdfundingComponent)
-},
-{
-  path: 'finance',
-  loadComponent: () =>
-    import('./pages/finance-front/finance-front.component').then(m => m.FinanceFrontComponent)
-},
-{
-  path: 'partnership',
-  loadComponent: () =>
-    import('./pages/partnership/partnership.component').then(m => m.PartnershipComponent)
-},
-{
-  path: 'events',
-  loadComponent: () =>
-    import('./pages/events-front/events-front.component').then(m => m.EventsFrontComponent)
-},
-{
-  path: 'ecommerce',
-  loadComponent: () =>
-    import('./pages/ecommerce-front/ecommerce-front.component').then(m => m.EcommerceFrontComponent)
-},
-{
-  path: 'profile',
-  loadComponent: () =>
-    import('./pages/profile-front/profile-front.component').then(m => m.ProfileFrontComponent)
-}
+        path: 'credit',
+        loadComponent: () =>
+          import('./pages/credit/credit.component').then(m => m.CreditComponent)
+      },
+      {
+        path: 'crowdfunding',
+        loadComponent: () =>
+          import('./pages/crowdfunding/crowdfunding.component').then(m => m.CrowdfundingComponent)
+      },
+      {
+        path: 'finance',
+        loadComponent: () =>
+          import('./pages/finance-front/finance-front.component').then(m => m.FinanceFrontComponent)
+      },
+      {
+        path: 'partnership',
+        loadComponent: () =>
+          import('./pages/partnership/partnership.component').then(m => m.PartnershipComponent)
+      },
+      {
+        path: 'events',
+        loadComponent: () =>
+          import('./pages/events-front/events-front.component').then(m => m.EventsFrontComponent)
+      },
+      {
+        path: 'ecommerce',
+        loadComponent: () =>
+          import('./pages/ecommerce-front/ecommerce-front.component').then(m => m.EcommerceFrontComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/profile-front/profile-front.component').then(m => m.ProfileFrontComponent)
+      }
     ]
   },
 
@@ -184,6 +189,6 @@ export const routes: Routes = [
 
   {
     path: '**',
-    redirectTo: ''
+    redirectTo: 'auth/sign-in'
   }
 ];
