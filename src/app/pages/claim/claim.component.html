@@ -1,0 +1,64 @@
+<div class="finance-container">
+
+  <!-- HEADER -->
+  <header class="section-header">
+    <h2>🛡️ Demande d'assurance</h2>
+    <p>Soumettre une demande liée à votre achat</p>
+  </header>
+
+  <!-- CARD -->
+  <div class="form-card fade-in">
+
+    <!-- INFOS PRODUIT -->
+    <div class="info-box">
+      <p><strong>Produit :</strong> {{ product }}</p>
+      <p><strong>Montant :</strong> {{ price }} TND</p>
+      <p><strong>Voucher :</strong> {{ voucherCode }}</p>
+    </div>
+
+    <!-- ETAT VOUCHER -->
+    <div *ngIf="voucher" class="status-box success">
+      ✅ Voucher chargé (ID: {{ voucher.id }})
+    </div>
+
+    <div *ngIf="!voucher && !message" class="status-box loading">
+      ⏳ Chargement du voucher...
+    </div>
+    <div *ngIf="policy" class="status-box">
+  🏢 Assurance : {{ policy?.company?.name }}
+</div>
+<div *ngIf="voucher && policy" class="info-box">
+  <p><strong>Résumé :</strong></p>
+  <p>Produit : {{ product }}</p>
+  <p>Prix : {{ price }} TND</p>
+  <p>Assurance : {{ policy?.company?.name }}</p>
+</div>
+<div *ngIf="!policy && !loading" class="status-box error">
+  ❌ Aucune police d'assurance trouvée
+</div>
+<div *ngIf="voucher?.insuranceClaim" class="status-box error">
+  ⚠️ Ce voucher a déjà une demande d'assurance
+</div>
+
+    <!-- BOUTON -->
+   <button class="btn-submit"
+        (click)="submitClaim()"
+        [disabled]="loading || !voucher || !policy || voucher?.insuranceClaim">
+
+  {{ loading ? '⏳ Envoi en cours...' : '📄 Envoyer la demande' }}
+
+</button>
+
+    <!-- MESSAGE -->
+    <div *ngIf="message"
+         class="message-box"
+         [class.success]="message.includes('✅')"
+         [class.error]="message.includes('❌')">
+
+      {{ message }}
+
+    </div>
+
+  </div>
+
+</div>

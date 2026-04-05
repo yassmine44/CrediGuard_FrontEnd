@@ -602,9 +602,6 @@
   margin-top: 10px;
   display: block;
 }
-body {
-  background: red;
-}
 
 @media (max-width: 768px) {
 
@@ -619,6 +616,54 @@ body {
     .status-select {
         width: 100%;
     }
-   
+   /* ===== CLAIM MODULE ===== */
+
+.info-box {
+  background: #f7f7f7;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.status-box {
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.status-box.success {
+  background: #e6f9ec;
+  color: #1db954;
+}
+
+.status-box.loading {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.message-box {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.message-box.success {
+  background: #e6f9ec;
+  color: #1db954;
+}
+
+.message-box.error {
+  background: #ffe6e6;
+  color: #e60000;
+}
+.btn-submit:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
 
 }

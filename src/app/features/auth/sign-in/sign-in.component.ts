@@ -100,6 +100,7 @@ export class SignInComponent {
           this.errorMsg = 'Unexpected login response: token missing';
           return;
         }
+         localStorage.setItem("accessToken", token);
 
         this.authService.clearSession();
         this.authService.saveToken(token);

@@ -20,7 +20,7 @@ interface PendingOtpAuth {
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:8089/api/auth';
+  private apiUrl = 'http://localhost:8090/api/auth';
   private readonly tokenKey = 'accessToken';
   private readonly userKey = 'currentUser';
   private readonly emailKey = 'userEmail';

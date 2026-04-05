@@ -1,0 +1,169 @@
+<h2>📋 Claims</h2>
+
+<!-- ===== STATS ===== -->
+<div class="stats">
+  <div class="card">
+    <h4>Total</h4>
+    <p>{{ claims.length }}</p>
+  </div>
+
+  <div class="card">
+    <h4>Pending</h4>
+    <p>{{ pendingCount }}</p>
+  </div>
+
+  <div class="card">
+    <h4>Approved</h4>
+    <p>{{ approvedCount }}</p>
+  </div>
+
+  <div class="card">
+    <h4>Rejected</h4>
+    <p>{{ rejectedCount }}</p>
+  </div>
+</div>
+
+<div class="search-container">
+  <span class="icon">🔍</span>
+  <input 
+    type="text"
+    placeholder="Search claim..."
+    [(ngModel)]="search"
+  />
+</div>
+
+<!-- ===== TABLE ===== -->
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Reference</th>
+      <th>Status</th>
+      <th>Client</th>
+      <th>Voucher</th>
+      <th>Montant</th>
+      <th>Policy</th>
+      <th>Date</th>
+      <th>Reason</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let c of filteredClaims">
+
+      <td>{{ c.id }}</td>
+      <td>{{ c.claimReference }}</td>
+
+      <!-- STATUS -->
+      <td>
+        <span class="badge" [ngClass]="c.status.toLowerCase()">
+          {{ c.status }}
+        </span>
+      </td>
+
+      <!-- DATA -->
+      <td>{{ c.voucher?.client?.fullName }}</td>
+      <td>{{ c.voucher?.code }}</td>
+      <td>{{ c.voucher?.amount | number:'1.0-2' }} TND</td>
+      <td>{{ c.policy?.policyNumber }}</td>
+      <td>{{ c.createdAt | date:'short' }}</td>
+      <td>{{ c.reason || '-' }}</td>
+
+      <!-- ACTIONS -->
+      <td class="actions">
+
+        <button class="btn-view" (click)="openDetails(c)">
+          👁 View
+        </button>
+
+        <button 
+          class="btn-approve"
+          (click)="approve(c.id)"
+          [disabled]="c.status !== 'PENDING'">
+          ✔ Approve
+        </button>
+
+        <button 
+          class="btn-reject"
+          (click)="reject(c.id)"
+          [disabled]="c.status !== 'PENDING'">
+          ✖ Reject
+        </button>
+
+      </td>
+
+    </tr>
+  </tbody>
+</table>
+
+<!-- ===== EMPTY STATE ===== -->
+<div *ngIf="filteredClaims.length === 0" class="empty">
+  No claims found
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal" *ngIf="selectedClaim">
+
+  <div class="modal-content">
+
+    <!-- CLOSE -->
+    <button class="close-icon" (click)="closeDetails()">✖</button>
+
+    <h2>📋 Claim Details</h2>
+
+    <p><strong>Reference:</strong> {{ selectedClaim.claimReference }}</p>
+    <p><strong>Client:</strong> {{ selectedClaim.voucher?.client?.fullName }}</p>
+    <p><strong>Voucher:</strong> {{ selectedClaim.voucher?.code }}</p>
+    <p><strong>Amount:</strong> {{ selectedClaim.voucher?.amount }} TND</p>
+    <p><strong>Policy:</strong> {{ selectedClaim.policy?.policyNumber }}</p>
+
+    <!-- POLICY STATUS -->
+    <p>
+      <strong>Policy Status:</strong>
+      <span [ngClass]="isPolicyValid(selectedClaim) ? 'valid' : 'invalid'">
+        {{ isPolicyValid(selectedClaim) ? 'Valid' : 'Expired' }}
+      </span>
+    </p>
+
+    <!-- CLIENT CLAIMS -->
+    <p>
+      <strong>Client Claims:</strong>
+      {{ getClientClaimsCount(selectedClaim) }}
+    </p>
+
+    <!-- WARNINGS -->
+    <p *ngIf="!isPolicyValid(selectedClaim)" class="warning">
+      ⚠ Policy expired → cannot approve
+    </p>
+
+    <p *ngIf="getClientClaimsCount(selectedClaim) > 2" class="warning orange">
+      ⚠ High risk client (multiple claims)
+    </p>
+
+    <!-- ACTIONS -->
+    <div class="actions">
+
+      <button 
+        class="btn-approve"
+        (click)="approve(selectedClaim.id)"
+        [disabled]="!canApprove(selectedClaim)">
+        ✔ Approve
+      </button>
+
+      <button 
+        class="btn-reject"
+        (click)="reject(selectedClaim.id)">
+        ✖ Reject
+      </button>
+
+      <button 
+        class="btn-close"
+        (click)="closeDetails()">
+        Close
+      </button>
+
+    </div>
+
+  </div>
+</div>

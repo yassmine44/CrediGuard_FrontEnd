@@ -1,42 +1,69 @@
 <div class="module-page">
+
+  <!-- HEADER -->
   <div class="module-header">
-    <div>
-      <h1>Partners & Insurance Management</h1>
-      <p>Manage partners, contracts, insurance products, claims, and guarantees.</p>
-    </div>
+    <h1>Partners & Insurance Management</h1>
+    <p>Manage partners, insurance products, claims...</p>
   </div>
 
+  <!-- TOP STATS -->
   <div class="summary-grid">
-    <div class="summary-card">
-      <span>Total Partners</span>
-      <h2>0</h2>
-    </div>
-
-    <div class="summary-card">
-      <span>Insurance Products</span>
-      <h2>0</h2>
-    </div>
-
-    <div class="summary-card">
-      <span>Open Claims</span>
-      <h2>0</h2>
-    </div>
-
-    <div class="summary-card">
-      <span>Active Contracts</span>
-      <h2>0</h2>
+    <div class="summary-card" *ngFor="let stat of topStats">
+      <span>{{ stat.title }}</span>
+      <h2>{{ stat.value }}</h2>
     </div>
   </div>
 
+  <!-- CARDS BAS (🔥 IMPORTANT) -->
   <div class="module-grid">
     <div class="module-card" *ngFor="let card of cards">
+
       <div class="card-top">
         <h3>{{ card.title }}</h3>
         <span class="card-badge">{{ card.value }}</span>
       </div>
 
       <p>{{ card.description }}</p>
-      <button type="button">{{ card.action }}</button>
+
+      <button [routerLink]="[card.route]">
+        {{ card.action }}
+      </button>
+
     </div>
   </div>
+  <br>
+<div class="table-container">
+
+  <table class="partners-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let p of partners">
+        <td class="name-cell">
+          <div class="avatar">
+            {{ p.fullName.charAt(0) }}
+          </div>
+          <span>{{ p.fullName }}</span>
+        </td>
+
+        <td>{{ p.email }}</td>
+
+        <td>
+          <span class="badge" [ngClass]="p.partnerType.toLowerCase()">
+            {{ p.partnerType }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
+
+</div>
+<router-outlet></router-outlet>
+

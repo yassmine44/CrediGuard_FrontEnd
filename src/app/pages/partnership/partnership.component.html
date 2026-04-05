@@ -1,27 +1,186 @@
-<section class="module-page">
-  <div class="module-hero">
-    <span class="badge">Partnerships</span>
-    <h1>Strategic Collaboration Network</h1>
+<div class="finance-container">
+
+  <!-- ===================== -->
+  <!-- ÉTAPE 1 : TYPES -->
+  <!-- ===================== -->
+  <div *ngIf="!selectedType">
+
+    <header class="section-header">
+      <h2>🤝 Espace Partenaires</h2>
+      <p>Utilisez votre voucher chez nos partenaires.</p>
+    </header>
+
+    <div class="cards-section">
+
+      <div class="nav-card"
+           *ngFor="let type of partnerTypes"
+           (click)="selectType(type)">
+
+        <div class="card-content">
+
+          <div class="icon-circle">
+            {{ type === 'Produits' ? '🛒' :
+               type === 'Equipement' ? '🧰' : '🚚' }}
+          </div>
+
+          <h3>{{ type }}</h3>
+
+          <p>
+            {{
+              type === 'Produits' ? 'Achetez des produits pour votre activité' :
+              type === 'Equipement' ? 'Investissez dans du matériel professionnel' :
+              'Accédez à des services utiles à votre business'
+            }}
+          </p>
+
+          <span class="link-text">Accéder →</span>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- ÉTAPE 2 : PARTENAIRES -->
+  <!-- ===================== -->
+  <div *ngIf="selectedType && !selectedPartner">
+
+    <header class="section-header">
+      <h2>{{ selectedType }} — Choisir un partenaire</h2>
+    </header>
+
+    <button class="btn-back" (click)="selectedType = null">← Retour</button>
+
+    <div class="cards-section">
+
+      <div class="nav-card"
+           *ngFor="let p of partners"
+           (click)="selectPartner(p)">
+
+        <div class="card-content">
+          <div class="icon-circle">🏪</div>
+          <h3>{{ p.name }}</h3>
+          <span class="link-text">Choisir →</span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- ÉTAPE 3 : PRODUITS -->
+  <!-- ===================== -->
+  <div *ngIf="selectedPartner && !selectedProduct">
+
+    <header class="section-header">
+      <h2>{{ selectedPartner.name }} — Choisir un produit</h2>
+    </header>
+
+    <button class="btn-back" (click)="selectedPartner = null">← Retour</button>
+
+    <div class="cards-section">
+
+      <!-- ✅ FIX ICI -->
+      <div class="nav-card"
+           *ngFor="let p of products; trackBy: trackById"
+           (click)="selectProduct(p)">
+
+        <div class="card-content">
+          <div class="icon-circle">🛍️</div>
+          <h3>{{ p.name }}</h3>
+          <p class="price">{{ p.price }} TND</p>
+          <span class="link-text">Sélectionner →</span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ✅ message si vide -->
+    <div *ngIf="products.length === 0" class="empty-state">
+      Aucun produit disponible 😢
+    </div>
+
+  </div>
+
+  <!-- ===================== -->
+  <!-- ÉTAPE 4 : VOUCHER + ASSURANCE -->
+  <!-- ===================== -->
+  <div *ngIf="selectedProduct && !success">
+
+    <header class="section-header">
+      <h2>🎟️ Utiliser votre Voucher</h2>
+      <p>
+        Produit : <strong>{{ selectedProduct.name }}</strong>
+        — {{ selectedProduct.price }} TND
+      </p>
+    </header>
+
+    <button class="btn-back" (click)="selectedProduct = null">← Retour</button>
+
+    <div class="form-card fade-in">
+
+      <!-- Assurance -->
+      <div class="insurance-option">
+        <h3>🛡️ Couverture Assurance (optionnel)</h3>
+        <p>Souhaitez-vous couvrir cet achat avec votre assurance ?</p>
+
+        <button class="btn-insurance" (click)="goToInsurance()">
+          Utiliser mon assurance →
+        </button>
+      </div>
+
+      <div class="divider">— OU —</div>
+
+      <!-- Voucher -->
+      <h3>Payer avec Voucher</h3>
+
+      <div class="input-group">
+        <label>Code Voucher</label>
+        <input type="text"
+               [(ngModel)]="voucherCode"
+               placeholder="ex: VOUCHER001"
+               class="search-input">
+      </div>
+
+      <button class="btn-submit" (click)="buy()">
+        ✅ Valider l'achat
+      </button>
+
+      <div *ngIf="message"
+           class="message-box"
+           [class.success]="message.includes('✅')"
+           [class.error]="message.includes('❌')">
+
+        {{ message }}
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- ÉTAPE 5 : SUCCÈS -->
+  <!-- ===================== -->
+  <div *ngIf="success" class="form-card fade-in success-card">
+
+    <div class="icon-circle">🎉</div>
+
+    <h2>Achat Validé !</h2>
+
+    <p>Votre voucher a été utilisé avec succès.</p>
+
     <p>
-      Build stronger connections with institutions, businesses, and partners
-      to support growth and financial inclusion.
+      <strong>{{ selectedProduct?.name }}</strong>
+      — {{ selectedProduct?.price }} TND
     </p>
+
+    <button class="btn-submit" (click)="reset()">
+      Faire un nouvel achat
+    </button>
+
   </div>
 
-  <div class="module-grid">
-    <div class="module-card">
-      <h3>Institutional Links</h3>
-      <p>Connect with financial organizations and support programs.</p>
-    </div>
-
-    <div class="module-card">
-      <h3>Business Collaboration</h3>
-      <p>Develop new opportunities with trusted strategic partners.</p>
-    </div>
-
-    <div class="module-card">
-      <h3>Shared Innovation</h3>
-      <p>Encourage cooperation through digital tools and smarter ecosystems.</p>
-    </div>
-  </div>
-</section>
+</div>

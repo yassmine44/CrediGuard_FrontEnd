@@ -109,3 +109,114 @@
   color: #16a34a;
   font-weight: 700;
 }
+.table-container {
+  padding: 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* TABLE */
+.partners-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+/* HEADER */
+.partners-table thead {
+  background: #f5f7fa;
+}
+
+.partners-table th {
+  text-align: left;
+  padding: 15px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* BODY */
+.partners-table td {
+  padding: 15px;
+  border-top: 1px solid #eee;
+}
+
+/* ROW HOVER */
+.partners-table tbody tr:hover {
+  background: #f9fafc;
+}
+
+/* NAME CELL */
+.name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* AVATAR */
+.avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #1db954;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* BADGES */
+.badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* TYPES COLORS */
+.produits {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.equipement {
+  background: #e3f2fd;
+  color: #0d6efd;
+}
+
+.services {
+  background: #fff3cd;
+  color: #856404;
+}
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+  width: 300px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.search-container input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}
+
+.search-container .icon {
+  font-size: 16px;
+  color: gray;
+}
+.search-container:focus-within {
+  box-shadow: 0 0 0 2px #1db95433;
+}

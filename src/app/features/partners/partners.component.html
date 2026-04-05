@@ -1,0 +1,16 @@
+<h2>Partners Management</h2>
+
+<!-- TABLE ONLY -->
+<table border="1" cellpadding="10">
+  <tr>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Type</th>
+  </tr>
+
+  <tr *ngFor="let p of partners">
+    <td>{{ p.fullName }}</td>
+    <td>{{ p.email }}</td>
+    <td>{{ p.partnerType }}</td>
+  </tr>
+</table>
