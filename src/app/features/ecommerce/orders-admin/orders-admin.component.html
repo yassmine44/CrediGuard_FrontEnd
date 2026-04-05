@@ -1,97 +1,100 @@
 <div class="orders-admin-page">
+
+  <!-- Page Header -->
   <div class="page-header">
-    <div>
-      <h2>Orders Management</h2>
-      <p>Manage customer orders, track status, and view details.</p>
+    <a routerLink="/admin/ecommerce" class="back-btn">
+      ← Back to E-Commerce Dashboard
+    </a>
+
+    <div class="header-center">
+      <h1>Orders Management</h1>
+      <p>Track, manage and update customer orders status.</p>
     </div>
   </div>
 
+  <!-- Filters -->
   <div class="filters-card">
     <div class="filters-grid">
       <div class="form-group">
-        <label for="status">Status</label>
-        <select id="status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
-          <option value="">All</option>
+        <label>Status</label>
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="">All Statuses</option>
           <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="dateFrom">Date from</label>
-        <input
-          id="dateFrom"
-          type="date"
-          [ngModel]="dateFrom()"
-          (ngModelChange)="dateFrom.set($event)"
-        />
+        <label>Date From</label>
+        <input type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
       </div>
 
       <div class="form-group">
-        <label for="dateTo">Date to</label>
-        <input
-          id="dateTo"
-          type="date"
-          [ngModel]="dateTo()"
-          (ngModelChange)="dateTo.set($event)"
-        />
+        <label>Date To</label>
+        <input type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
       </div>
 
       <div class="form-group">
-        <label for="pageSize">Page size</label>
-        <select id="pageSize" [ngModel]="size()" (ngModelChange)="onPageSizeChange($event)">
+        <label>Items per page</label>
+        <select [ngModel]="size()" (ngModelChange)="onPageSizeChange($event)">
           <option [value]="5">5</option>
           <option [value]="10">10</option>
-          <option [value]="15">15</option>
+          <option [value]="20">20</option>
         </select>
       </div>
     </div>
 
     <div class="filter-actions">
-      <button class="btn primary" (click)="applyFilters()">Apply filters</button>
+      <button class="btn primary" (click)="applyFilters()">Apply Filters</button>
       <button class="btn secondary" (click)="resetFilters()">Reset</button>
     </div>
   </div>
 
+  <!-- Table -->
   <div class="table-card">
-    <div *ngIf="loading()" class="state-message">Loading orders...</div>
+    <div *ngIf="loading()" class="state-message loading">
+      <div class="spinner"></div>
+      <p>Loading orders...</p>
+    </div>
+
     <div *ngIf="error()" class="state-message error">{{ error() }}</div>
 
     <ng-container *ngIf="!loading() && hasOrders()">
-      <table>
+      <table class="orders-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Client</th>
+            <th>Order ID</th>
+            <th>Customer</th>
             <th>Email</th>
             <th>Total</th>
             <th>Status</th>
             <th>Items</th>
-            <th>Created at</th>
+            <th>Date</th>
             <th>Actions</th>
           </tr>
         </thead>
-
         <tbody>
           <tr *ngFor="let order of orders()">
             <td>#{{ order.id }}</td>
             <td>{{ order.clientName }}</td>
             <td>{{ order.clientEmail }}</td>
-            <td>{{ order.totalAmount | currency:'TND':'symbol':'1.2-2' }}</td>
+            <td class="price">{{ order.totalAmount | currency:'TND':'symbol':'1.2-2' }}</td>
             <td>
-              <span [ngClass]="getStatusClass(order.status)">
+              <span class="status-badge" [ngClass]="getStatusClass(order.status)">
                 {{ order.status }}
               </span>
             </td>
             <td>{{ order.itemCount }}</td>
             <td>{{ order.createdAt | date:'medium' }}</td>
             <td class="actions">
-              <button class="btn small" (click)="viewDetails(order.id)">Details</button>
-
-              <select
-                [ngModel]="order.status"
-                (ngModelChange)="changeStatus(order.id, $event)"
-              >
-                <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+              <button
+  class="btn small view-btn" 
+  (click)="viewDetails(order.id)">
+  View Details
+</button>
+              <select class="status-select" 
+                      [ngModel]="order.status" 
+                      (ngModelChange)="changeStatus(order.id, $event)">
+                <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
               </select>
             </td>
           </tr>
@@ -102,52 +105,67 @@
         <button class="btn secondary" [disabled]="!canGoPrevious()" (click)="goToPreviousPage()">
           Previous
         </button>
-
-        <span>Page {{ page() + 1 }} / {{ totalPages() || 1 }}</span>
-
+        <span>Page {{ page() + 1 }} of {{ totalPages() || 1 }}</span>
         <button class="btn secondary" [disabled]="!canGoNext()" (click)="goToNextPage()">
           Next
         </button>
       </div>
     </ng-container>
 
-    <div *ngIf="!loading() && !hasOrders()" class="state-message">
-      No orders found.
+    <div *ngIf="!loading() && !hasOrders()" class="empty-state">
+      No orders found with the selected filters.
     </div>
   </div>
 
-  <div class="details-card" *ngIf="selectedOrder() as order">
-    <div class="details-header">
-      <h3>Order #{{ order.id }}</h3>
-      <button class="btn secondary" (click)="closeDetails()">Close</button>
+  <!-- Order Details Modal -->
+  <div class="details-modal" *ngIf="selectedOrder() as order">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Order #{{ order.id }} — Invoice</h2>
+        <button class="close-btn" (click)="closeDetails()">✕</button>
+      </div>
+
+      <div class="invoice-header">
+        <div>
+          <strong>Customer:</strong> {{ order.clientName || 'N/A' }}<br>
+          <strong>Email:</strong> {{ order.clientEmail || 'N/A' }}
+        </div>
+        <div class="invoice-meta">
+          <p><strong>Status:</strong> 
+            <span class="status-badge big" [ngClass]="getStatusClass(order.status)">{{ order.status }}</span>
+          </p>
+          <p><strong>Date:</strong> {{ order.createdAt | date:'long' }}</p>
+        </div>
+      </div>
+
+      <table class="invoice-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Line Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of order.items">
+            <td>{{ item.productName }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unitPrice | currency:'TND':'symbol':'1.2-2' }}</td>
+            <td>{{ item.lineTotal | currency:'TND':'symbol':'1.2-2' }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3"><strong>Grand Total</strong></td>
+            <td><strong>{{ order.totalAmount | currency:'TND':'symbol':'1.2-2' }}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="modal-footer">
+        <button class="btn secondary" (click)="closeDetails()">Close</button>
+      </div>
     </div>
-
-    <div class="details-summary">
-      <p><strong>Status:</strong> {{ order.status }}</p>
-      <p><strong>Total:</strong> {{ order.totalAmount | currency:'TND':'symbol':'1.2-2' }}</p>
-      <p><strong>Created at:</strong> {{ order.createdAt | date:'medium' }}</p>
-      <p><strong>Finance ref:</strong> {{ order.financeReference || '—' }}</p>
-    </div>
-
-    <div *ngIf="detailsLoading()" class="state-message">Loading details...</div>
-
-    <table *ngIf="order.items.length">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Quantity</th>
-          <th>Unit price</th>
-          <th>Line total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of order.items">
-          <td>{{ item.productName }}</td>
-          <td>{{ item.quantity }}</td>
-          <td>{{ item.unitPrice | currency:'TND':'symbol':'1.2-2' }}</td>
-          <td>{{ item.lineTotal | currency:'TND':'symbol':'1.2-2' }}</td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </div>

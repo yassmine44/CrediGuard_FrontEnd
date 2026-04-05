@@ -1,6 +1,13 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
-import { provideAnimations } from '@angular/platform-browser/animations';
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+
+bootstrapApplication(AppComponent, {
+  ...appConfig,
+  providers: [
+    ...(appConfig.providers ?? []),
+    provideCharts(withDefaultRegisterables())
+  ]
+}).catch(err => console.error(err));

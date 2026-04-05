@@ -1,40 +1,123 @@
 <div class="ecommerce-front-page">
+  
+  <!-- Hero -->
   <div class="hero">
-    <h2>Explore Products</h2>
-    <p>Discover available products and view detailed information before ordering.</p>
-  </div>
-
-  <div *ngIf="loading()" class="state-message">Loading products...</div>
-  <div *ngIf="error()" class="state-message error">{{ error() }}</div>
-
-  <div class="products-grid" *ngIf="!loading() && products().length">
-    <div class="product-card" *ngFor="let product of products()">
-      <img
-        [src]="getImageUrl(product.imageUrl)"
-        [alt]="product.name"
-        (error)="onImageError($event)"
-      />
-
-      <div class="product-content">
-        <h3>{{ product.name }}</h3>
-        <p class="description">{{ product.description }}</p>
-
-        <div class="meta">
-          <span class="seller">Seller: {{ product.sellerName || 'Unknown' }}</span>
-          <span class="mode">{{ product.saleType || 'STANDARD' }}</span>
-        </div>
-
-        <div class="footer">
-         <span class="price">
-  {{ (product.currentPrice ?? product.basePrice) | currency:'TND':'symbol':'1.2-2' }}
-</span>
-          <a class="btn-details" [routerLink]="['/front/products', product.id]">View details</a>
-        </div>
+    <div class="hero-content">
+      <span class="hero-badge">Premium Collection</span>
+      <h1>Discover Our Products</h1>
+      <p>Explore our carefully curated collection and find exactly what you're looking for.</p>
+      
+      <div class="hero-actions">
+        <a routerLink="/front" class="btn-back">← Back to Home</a>
       </div>
     </div>
   </div>
 
-  <div *ngIf="!loading() && !products().length" class="state-message">
-    No products available.
+  <div class="content-wrapper">
+
+    <!-- Tabs -->
+    <div class="category-tabs" *ngIf="!loading() && !error() && categories().length > 0">
+      <button class="tab-btn" [class.active]="selectedCategory() === 'All'" (click)="selectCategory('All')">
+        All Products
+      </button>
+      <button class="tab-btn" *ngFor="let category of categories()" 
+              [class.active]="selectedCategory() === category"
+              (click)="selectCategory(category)">
+        {{ category }}
+      </button>
+    </div>
+
+    <!-- Featured Carousel - New Arrivals -->
+    <div *ngIf="selectedCategory() === 'All' && featuredProducts().length > 0 && !loading() && !error()" 
+         class="featured-section">
+      
+      <div class="section-header">
+        <h2 class="section-title">New Arrivals</h2>
+        <p class="section-subtitle">Freshly added products</p>
+      </div>
+
+      <div class="featured-carousel"
+           (mouseenter)="pauseCarousel()" 
+           (mouseleave)="resumeCarousel()">
+
+        <!-- Flèches de navigation (Option 2 & 3) -->
+        <button class="carousel-btn prev" (click)="prevSlide()">‹</button>
+        <button class="carousel-btn next" (click)="nextSlide()">›</button>
+
+        <div class="carousel-track" 
+             [style.transform]="'translateX(' + carouselOffset() + 'px)'">
+          
+          <article class="featured-card" 
+                   *ngFor="let product of featuredProducts(); trackBy: trackByProduct">
+            
+            <div class="featured-image-wrapper">
+              <img [src]="getImageUrl(product.imageUrl)" 
+                   [alt]="product.name"
+                   (error)="onImageError($event)"
+                   loading="lazy">
+              <div class="overlay"></div>
+            </div>
+
+            <div class="featured-content">
+              <h3>{{ product.name }}</h3>
+              <span class="featured-price">
+                {{ getDisplayPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+              </span>
+              <a class="btn-featured" 
+                 [routerLink]="['/front/products', product.id]">
+                View Details →
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <!-- States -->
+    <div *ngIf="loading()" class="state-message loading-state">
+      <div class="spinner"></div>
+      <p>Loading our collection...</p>
+    </div>
+
+    <div *ngIf="error()" class="state-message error">{{ error() }}</div>
+
+    <div *ngIf="!loading() && !error() && filteredProducts().length === 0" class="state-message empty-state">
+      <h3>No products found</h3>
+      <p>Try selecting another category.</p>
+    </div>
+
+    <!-- Main Products Grid -->
+    <div *ngIf="!loading() && !error() && filteredProducts().length > 0" class="products-grid">
+      <article class="product-card" 
+               *ngFor="let product of filteredProducts(); trackBy: trackByProduct">
+        
+        <div class="product-badges">
+          <span class="badge new" *ngIf="isNewProduct(product)">NEW</span>
+          <span class="badge preorder" *ngIf="isPreorderProduct(product)">PREORDER</span>
+        </div>
+
+        <div class="product-image-wrapper">
+          <img [src]="getImageUrl(product.imageUrl)" 
+               [alt]="product.name"
+               (error)="onImageError($event)"
+               loading="lazy">
+        </div>
+
+        <div class="product-content">
+          <h3 class="product-title">{{ product.name }}</h3>
+          <p class="description">{{ product.description || 'No description available.' }}</p>
+          
+          <div class="meta">
+            <span class="seller">{{ product.sellerName || 'Unknown' }}</span>
+            <span class="mode">{{ product.saleType || 'STANDARD' }}</span>
+          </div>
+
+          <div class="footer">
+            <div class="price">{{ getDisplayPrice(product) | currency:'TND':'symbol':'1.2-2' }}</div>
+            <a class="btn-details" [routerLink]="['/front/products', product.id]">View Details</a>
+          </div>
+        </div>
+      </article>
+    </div>
   </div>
 </div>

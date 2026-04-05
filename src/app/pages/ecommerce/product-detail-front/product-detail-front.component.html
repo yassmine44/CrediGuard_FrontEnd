@@ -1,87 +1,115 @@
 <div class="product-detail-page">
-  <div *ngIf="loading()" class="state-message">Loading product details...</div>
-  <div *ngIf="error()" class="state-message error">{{ error() }}</div>
+<!-- Back Button -->
+  <div class="back-button-container">
+    <a routerLink="/front/ecommerce" class="back-button">
+      ← Back to Shop
+    </a>
+  </div>
+  <!-- Loading -->
+  <div *ngIf="loading()" class="state-message loading">
+    <div class="spinner"></div>
+    <p>Loading product details...</p>
+  </div>
 
-  <ng-container *ngIf="product() as product">
-    <div class="product-detail-card">
-      <img
-        [src]="getImageUrl(product.imageUrl)"
-        [alt]="product.name"
-        (error)="onImageError($event)"
-      />
+  <!-- Error -->
+  <div *ngIf="error()" class="state-message error">
+    {{ error() }}
+  </div>
 
-      <div class="info">
-        <h2>{{ product.name }}</h2>
-        <p class="description">{{ product.description }}</p>
+  <ng-container *ngIf="product() as p">
 
-        <div class="info-grid">
-          <p>
-            <strong>Price:</strong>
-            {{ (product.currentPrice ?? product.basePrice) | currency:'TND':'symbol':'1.2-2' }}
-          </p>
+    <div class="product-detail-container">
 
-          <p>
-            <strong>Sale mode:</strong>
-            {{ product.saleType || 'STANDARD' }}
-          </p>
+      <!-- Image principale -->
+      <div class="image-section">
+        <div class="main-image-wrapper">
+          <img [src]="getImageUrl(p.imageUrl)"
+               [alt]="p.name"
+               (error)="onImageError($event)"
+               class="main-image">
+        </div>
+      </div>
 
-          <p>
-            <strong>Seller:</strong>
-            {{ product.sellerName || 'Unknown' }}
-          </p>
+      <!-- Informations produit -->
+      <div class="info-section">
+
+        <h1 class="product-name">{{ p.name }}</h1>
+
+        <div class="price">
+          {{ (p.currentPrice ?? p.basePrice) | currency:'TND':'symbol':'1.2-2' }}
         </div>
 
-        <div class="cart-section">
-          <label for="quantity"><strong>Quantity:</strong></label>
+        <p class="description">{{ p.description || 'No description available.' }}</p>
 
-          <input
-            id="quantity"
-            type="number"
-            min="1"
-            [(ngModel)]="quantity"
-          />
+        <div class="meta-info">
+          <div class="meta-item">
+            <span class="label">Sale Mode</span>
+            <span class="value">{{ p.saleType || 'STANDARD' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Seller</span>
+            <span class="value">{{ p.sellerName || 'Unknown Seller' }}</span>
+          </div>
+        </div>
 
-          <button
-            type="button"
-            (click)="addToCart(product.id)"
-            [disabled]="addingToCart"
-          >
-            {{ addingToCart ? 'Adding...' : 'Add to cart' }}
+        <!-- Section Ajout au panier -->
+        <div class="add-to-cart-section">
+          <div class="quantity-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" 
+                   id="quantity"
+                   min="1"
+                   [(ngModel)]="quantity"
+                   class="quantity-input">
+          </div>
+
+          <button class="add-to-cart-btn"
+                  (click)="addToCart(p.id)"
+                  [disabled]="addingToCart">
+            {{ addingToCart ? 'Adding to cart...' : 'Add to Cart' }}
           </button>
 
-          <div *ngIf="addToCartMessage" class="cart-feedback">
-            <p class="cart-message">{{ addToCartMessage }}</p>
-
-            <a
-              *ngIf="addToCartMessage === 'Product added to cart successfully.'"
-              routerLink="/front/cart"
-              class="go-cart-link"
-            >
-              Go to cart
+          <div *ngIf="addToCartMessage" 
+               class="cart-feedback"
+               [class.success]="addToCartMessage.includes('successfully')">
+            {{ addToCartMessage }}
+            
+            <a *ngIf="addToCartMessage.includes('successfully')"
+               routerLink="/front/cart"
+               class="go-to-cart">
+              Go to Cart →
             </a>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="seller-products" *ngIf="sellerProducts().length">
-      <h3>Other products from this seller</h3>
+    <!-- Autres produits du vendeur -->
+    <div class="seller-products" *ngIf="sellerProducts().length > 0">
+      <h2>Other products from this seller</h2>
+      
+      <div class="seller-products-grid">
+        <div class="seller-product-card" 
+             *ngFor="let item of sellerProducts()">
+          
+          <div class="seller-image-wrapper">
+            <img [src]="getImageUrl(item.imageUrl)"
+                 [alt]="item.name"
+                 (error)="onImageError($event)">
+          </div>
 
-      <div class="products-grid">
-        <div class="product-card" *ngFor="let item of sellerProducts()">
-          <img
-            [src]="getImageUrl(item.imageUrl)"
-            [alt]="item.name"
-            (error)="onImageError($event)"
-          />
-
-          <div class="product-content">
+          <div class="seller-content">
             <h4>{{ item.name }}</h4>
-            <p>{{ (item.currentPrice ?? item.basePrice) | currency:'TND':'symbol':'1.2-2' }}</p>
-            <a [routerLink]="['/front/products', item.id]">View details</a>
+            <p class="seller-price">
+              {{ (item.currentPrice ?? item.basePrice) | currency:'TND':'symbol':'1.2-2' }}
+            </p>
+            <a [routerLink]="['/front/products', item.id]" class="view-btn">
+              View Details
+            </a>
           </div>
         </div>
       </div>
     </div>
+
   </ng-container>
 </div>

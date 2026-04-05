@@ -29,6 +29,9 @@ export class PaymentsAdminComponent implements OnInit {
   ngOnInit(): void {
     this.loadPayments();
   }
+  goBack(): void {
+  window.history.back();
+}
 
   loadPayments(): void {
     this.loading.set(true);

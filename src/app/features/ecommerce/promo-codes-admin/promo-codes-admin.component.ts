@@ -161,4 +161,7 @@ export class PromoCodesAdminComponent implements OnInit {
       }
     });
   }
+  goBack(): void {
+  window.history.back();
+}
 }

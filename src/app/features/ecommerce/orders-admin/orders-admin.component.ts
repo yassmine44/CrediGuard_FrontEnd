@@ -1,17 +1,20 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+
 import { OrderAdmin, OrderDetail, OrderStatus } from '../models/order.model';
 import { OrderService } from '../services/order.service';
 
 @Component({
   selector: 'app-orders-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, NgClass],
+  imports: [CommonModule, FormsModule, DatePipe, NgClass, RouterModule],
   templateUrl: './orders-admin.component.html',
   styleUrl: './orders-admin.component.scss'
 })
 export class OrdersAdminComponent implements OnInit {
+
   private orderService = inject(OrderService);
 
   orders = signal<OrderAdmin[]>([]);
@@ -38,6 +41,9 @@ export class OrdersAdminComponent implements OnInit {
   ngOnInit(): void {
     this.loadOrders();
   }
+ goBack(): void {
+  window.history.back();
+}
 
   loadOrders(): void {
     this.loading.set(true);
@@ -51,13 +57,14 @@ export class OrdersAdminComponent implements OnInit {
       this.dateTo()
     ).subscribe({
       next: (res) => {
-        this.orders.set(res.content);
-        this.totalElements.set(res.totalElements);
-        this.totalPages.set(res.totalPages);
+        this.orders.set(res.content || []);
+        this.totalElements.set(res.totalElements || 0);
+        this.totalPages.set(res.totalPages || 0);
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set('Failed to load orders.');
+      error: (err) => {
+        console.error('Failed to load orders:', err);
+        this.error.set('Failed to load orders. Please try again.');
         this.loading.set(false);
       }
     });
@@ -103,42 +110,39 @@ export class OrdersAdminComponent implements OnInit {
         this.selectedOrder.set(order);
         this.detailsLoading.set(false);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Failed to load order details:', err);
         this.detailsLoading.set(false);
       }
     });
   }
 
-changeStatus(orderId: number, status: OrderStatus): void {
-  this.error.set(null);
+  changeStatus(orderId: number, status: OrderStatus): void {
+    this.error.set(null);
 
-  this.orderService.updateAdminOrderStatus(orderId, { status }).subscribe({
-    next: (updated) => {
-      this.error.set(null);
+    this.orderService.updateAdminOrderStatus(orderId, { status }).subscribe({
+      next: (updated) => {
+        // Mise à jour dans la liste principale
+        this.orders.update(list =>
+          list.map(order =>
+            order.id === orderId
+              ? { ...order, status: updated.status, updatedAt: updated.updatedAt }
+              : order
+          )
+        );
 
-      this.orders.update(list =>
-        list.map(order =>
-          order.id === orderId
-            ? {
-                ...order,
-                status: updated.status,
-                updatedAt: updated.updatedAt
-              }
-            : order
-        )
-      );
-
-      const current = this.selectedOrder();
-      if (current && current.id === orderId) {
-        this.selectedOrder.set(updated);
+        // Mise à jour dans la modal si ouverte
+        const current = this.selectedOrder();
+        if (current && current.id === orderId) {
+          this.selectedOrder.set(updated);
+        }
+      },
+      error: (err) => {
+        console.error('Update status error:', err);
+        this.error.set('Failed to update order status.');
       }
-    },
-    error: (err) => {
-      console.error('Update status error:', err);
-      this.error.set('Failed to update order status.');
-    }
-  });
-}
+    });
+  }
 
   closeDetails(): void {
     this.selectedOrder.set(null);
@@ -146,18 +150,12 @@ changeStatus(orderId: number, status: OrderStatus): void {
 
   getStatusClass(status: OrderStatus): string {
     switch (status) {
-      case 'PENDING':
-        return 'badge pending';
-      case 'PAID':
-        return 'badge paid';
-      case 'SHIPPED':
-        return 'badge shipped';
-      case 'DELIVERED':
-        return 'badge delivered';
-      case 'CANCELED':
-        return 'badge canceled';
-      default:
-        return 'badge';
+      case 'PENDING':   return 'pending';
+      case 'PAID':      return 'paid';
+      case 'SHIPPED':   return 'shipped';
+      case 'DELIVERED': return 'delivered';
+      case 'CANCELED':  return 'canceled';
+      default:          return '';
     }
   }
 }

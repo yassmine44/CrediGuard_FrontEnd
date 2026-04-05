@@ -1,21 +1,26 @@
 <div class="product-form-page">
+
+  <!-- Header -->
   <div class="page-header">
-    <div>
-      <h2>{{ isEditMode() ? 'Edit Product' : 'Add Product' }}</h2>
+    <div class="header-left">
+      <span class="eyebrow">ADMIN DASHBOARD</span>
+      <h1>{{ isEditMode() ? 'Edit Product' : 'Add New Product' }}</h1>
       <p>
-        {{ isEditMode()
-          ? 'Update product information, pricing, and availability.'
-          : 'Create a new product and assign it to a category.' }}
+        {{ isEditMode() 
+          ? 'Update product details, pricing, stock and availability.' 
+          : 'Create a new product and make it visible on the marketplace.' }}
       </p>
     </div>
 
-    <button type="button" class="secondary-btn" (click)="cancel()">
-      Back to Products
+    <button type="button" class="back-btn" (click)="cancel()">
+      ← Back to My Products
     </button>
   </div>
 
-  <div *ngIf="loading()" class="info-message">
-    Loading product...
+  <!-- Messages -->
+  <div *ngIf="loading()" class="message loading">
+    <div class="spinner"></div>
+    <p>Loading product information...</p>
   </div>
 
   <div *ngIf="error()" class="message error">
@@ -26,188 +31,137 @@
     {{ success() }}
   </div>
 
+  <!-- Main Form -->
   <div class="form-card" *ngIf="!loading()">
-    <div class="form-grid">
-      <div class="form-group">
-        <label for="categoryId">Category</label>
-        <select id="categoryId" [(ngModel)]="formData.categoryId">
-          <option [ngValue]="null">Select category</option>
-          <option *ngFor="let category of categories()" [ngValue]="category.id">
-            {{ category.name }}
-          </option>
-        </select>
-      </div>
 
-      <div class="form-group">
-        <label for="saleType">Sale Type</label>
-        <select id="saleType" [(ngModel)]="formData.saleType" (change)="onSaleTypeChange()">
-          <option *ngFor="let type of saleTypes" [ngValue]="type">
-            {{ type }}
-          </option>
-        </select>
-      </div>
-
-      <div class="form-group full-width">
-        <label for="productImage">Product Image</label>
-        <input
-          id="productImage"
-          type="file"
-          accept="image/*"
-          (change)="onFileSelected($event)"
-        />
-      </div>
-
-      <div class="form-group full-width" *ngIf="imagePreview()">
-        <label>Preview</label>
-        <img
-          [src]="imagePreview()"
-          alt="Preview"
-          class="product-image-preview"
-          (error)="onImagePreviewError($event)"
-        />
-      </div>
-
-      <div class="form-group full-width">
-        <label for="name">Product Name</label>
-        <input
-          id="name"
-          type="text"
-          [(ngModel)]="formData.name"
-          placeholder="e.g. iPhone 17"
-        />
-      </div>
-
-      <div class="form-group full-width">
-        <label for="description">Description</label>
-        <textarea
-          id="description"
-          rows="4"
-          [(ngModel)]="formData.description"
-          placeholder="Write product description"
-        ></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="basePrice">Base Price</label>
-        <input
-          id="basePrice"
-          type="number"
-          [(ngModel)]="formData.basePrice"
-          min="0"
-          step="0.01"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="stockQuantity">Stock Quantity</label>
-        <input
-          id="stockQuantity"
-          type="number"
-          [(ngModel)]="formData.stockQuantity"
-          min="0"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="paymentMode">Payment Mode</label>
-        <select id="paymentMode" [(ngModel)]="formData.paymentMode">
-          <option [ngValue]="null">Select payment mode</option>
-          <option *ngFor="let mode of paymentTypes" [ngValue]="mode">
-            {{ mode.replace('_', ' ') }}
-          </option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="depositPercentage">Deposit Percentage</label>
-        <input
-          id="depositPercentage"
-          type="number"
-          [(ngModel)]="formData.depositPercentage"
-          min="0"
-          max="1"
-          step="0.01"
-          placeholder="e.g. 0.2"
-        />
-      </div>
-
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" [(ngModel)]="formData.dynamicPricingEnabled" />
-          Enable Dynamic Pricing
-        </label>
-      </div>
-
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" [(ngModel)]="formData.expressDeliveryAvailable" />
-          Express Delivery Available
-        </label>
-      </div>
-
-      <div class="form-group">
-        <label for="expressDeliveryFee">Express Delivery Fee</label>
-        <input
-          id="expressDeliveryFee"
-          type="number"
-          [(ngModel)]="formData.expressDeliveryFee"
-          min="0"
-          step="0.01"
-        />
-      </div>
-    </div>
-
-    <div class="preorder-section" *ngIf="formData.saleType === 'PREORDER'">
-      <h3>Preorder Settings</h3>
+    <form (ngSubmit)="saveProduct()">
 
       <div class="form-grid">
-        <div class="form-group">
-          <label for="preorderQuota">Preorder Quota</label>
-          <input
-            id="preorderQuota"
-            type="number"
-            [(ngModel)]="formData.preorderQuota"
-            min="1"
-          />
+
+        <!-- Left Column -->
+        <div class="left-column">
+
+          <div class="form-section">
+            <h3>Basic Information</h3>
+
+            <div class="form-group">
+              <label>Product Name <span class="required">*</span></label>
+              <input type="text" [(ngModel)]="formData.name" name="name" placeholder="Product name" required>
+            </div>
+
+            <div class="form-group">
+              <label>Description</label>
+              <textarea [(ngModel)]="formData.description" name="description" rows="5" placeholder="Detailed description of the product..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Category <span class="required">*</span></label>
+              <select [(ngModel)]="formData.categoryId" name="categoryId" required>
+                <option [ngValue]="null">Select a category</option>
+                <option *ngFor="let cat of categories()" [ngValue]="cat.id">
+                  {{ cat.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Pricing & Stock</h3>
+
+            <div class="form-group">
+              <label>Base Price (TND) <span class="required">*</span></label>
+              <input type="number" step="0.001" [(ngModel)]="formData.basePrice" name="basePrice" required>
+            </div>
+
+            <div class="form-group">
+              <label>Sale Type</label>
+              <select [(ngModel)]="formData.saleType" name="saleType" (change)="onSaleTypeChange()">
+                <option value="STANDARD">Standard Sale</option>
+                <option value="PREORDER">Preorder</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Stock Quantity</label>
+              <input type="number" [(ngModel)]="formData.stockQuantity" name="stockQuantity" min="0">
+            </div>
+
+            <div class="form-group" *ngIf="formData.saleType === 'PREORDER'">
+              <label>Preorder Quota</label>
+              <input type="number" [(ngModel)]="formData.preorderQuota" name="preorderQuota" min="1">
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Delivery & Advanced</h3>
+
+            <label class="checkbox">
+              <input type="checkbox" [(ngModel)]="formData.expressDeliveryAvailable" name="expressDeliveryAvailable">
+              <span>Express Delivery Available</span>
+            </label>
+
+            <div class="form-group" *ngIf="formData.expressDeliveryAvailable">
+              <label>Express Delivery Fee (TND)</label>
+              <input type="number" step="0.001" [(ngModel)]="formData.expressDeliveryFee" name="expressDeliveryFee">
+            </div>
+
+            <label class="checkbox">
+              <input type="checkbox" [(ngModel)]="formData.dynamicPricingEnabled" name="dynamicPricingEnabled">
+              <span>Enable Dynamic Pricing</span>
+            </label>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="preorderStartDate">Preorder Start Date</label>
-          <input
-            id="preorderStartDate"
-            type="datetime-local"
-            [(ngModel)]="formData.preorderStartDate"
-          />
-        </div>
+        <!-- Right Column - Image -->
+        <div class="right-column">
+          <div class="image-section">
+            <h3>Product Image</h3>
 
-        <div class="form-group">
-          <label for="preorderEndDate">Preorder End Date</label>
-          <input
-            id="preorderEndDate"
-            type="datetime-local"
-            [(ngModel)]="formData.preorderEndDate"
-          />
-        </div>
+            <div class="preview-box">
+              <img [src]="imagePreview()" alt="Preview" class="preview-image" *ngIf="imagePreview()">
+              <div class="placeholder" *ngIf="!imagePreview()">
+                <mat-icon>image</mat-icon>
+                <p>No image selected</p>
+              </div>
+            </div>
 
-        <div class="form-group">
-          <label for="expectedReleaseDate">Expected Release Date</label>
-          <input
-            id="expectedReleaseDate"
-            type="datetime-local"
-            [(ngModel)]="formData.expectedReleaseDate"
-          />
+            <label class="upload-area">
+              <span>Upload Product Image</span>
+              <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
+            </label>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="form-actions">
-      <button type="button" class="primary-btn" (click)="saveProduct()" [disabled]="saving()">
-        {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Product' : 'Create Product') }}
-      </button>
+      <!-- Preorder Settings -->
+      <div class="preorder-section" *ngIf="formData.saleType === 'PREORDER'">
+        <h3>Preorder Settings</h3>
+        <div class="form-grid-small">
+          <div class="form-group">
+            <label>Preorder Start Date</label>
+            <input type="datetime-local" [(ngModel)]="formData.preorderStartDate" name="preorderStartDate">
+          </div>
+          <div class="form-group">
+            <label>Preorder End Date</label>
+            <input type="datetime-local" [(ngModel)]="formData.preorderEndDate" name="preorderEndDate">
+          </div>
+          <div class="form-group">
+            <label>Expected Release Date</label>
+            <input type="datetime-local" [(ngModel)]="formData.expectedReleaseDate" name="expectedReleaseDate">
+          </div>
+        </div>
+      </div>
 
-      <button type="button" class="secondary-btn" (click)="cancel()">
-        Cancel
-      </button>
-    </div>
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="cancel()">
+          Cancel
+        </button>
+        <button type="submit" class="save-btn" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Product' : 'Publish Product') }}
+        </button>
+      </div>
+
+    </form>
   </div>
 </div>

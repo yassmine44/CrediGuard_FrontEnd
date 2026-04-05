@@ -162,6 +162,21 @@ tbody td {
   background: #edf7ed;
   color: #2e7d32;
 }
+.back-btn {
+    padding: 12px 28px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50px;
+    background: white;
+    color: #475569;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #f1f5f9;
+      color: #1e40af;
+    }
+  }
 
 @media (max-width: 1050px) {
   .page-layout {

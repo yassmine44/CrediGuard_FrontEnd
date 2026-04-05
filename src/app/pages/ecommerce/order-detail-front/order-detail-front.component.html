@@ -1,0 +1,99 @@
+<div class="order-detail-page">
+
+  <!-- Back Button -->
+  <div class="back-button-container">
+    <a routerLink="/front/orders" class="back-button">
+      ← Back to My Orders
+    </a>
+  </div>
+
+  <div class="order-detail-header">
+    <div>
+      <h1>Order #{{ order()?.id }}</h1>
+      <p class="order-date">
+        Placed on {{ order()?.createdAt | date:'mediumDate' }} at {{ order()?.createdAt | date:'shortTime' }}
+      </p>
+    </div>
+    <span class="status-badge" [class]="getOrderStatusClass(order()?.status || '')">
+      {{ order()?.status }}
+    </span>
+  </div>
+
+  <div class="order-detail-content">
+
+    <!-- Order Items -->
+    <div class="order-items-section">
+      <h2>Order Items ({{ order()?.items?.length || 0 }})</h2>
+      
+      <div class="items-list">
+        <div class="order-item" *ngFor="let item of order()?.items">
+          <div class="item-left">
+            <div class="item-image-wrapper">
+              <img [src]="getImageUrl(item)" 
+                   [alt]="item.productName"
+                   (error)="onImageError($event)">
+            </div>
+            <div class="item-info">
+              <h4>{{ item.productName }}</h4>
+              <p>Quantity: <strong>{{ item.quantity }}</strong></p>
+              <p>Unit price: {{ item.unitPrice | currency:'TND':'symbol':'1.2-2' }}</p>
+            </div>
+          </div>
+          <div class="item-total">
+            {{ item.lineTotal | currency:'TND':'symbol':'1.2-2' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side Info -->
+    <div class="side-info">
+
+      <div class="info-card">
+        <h3>Delivery</h3>
+        <div *ngIf="delivery() as del; else noDelivery">
+          <p><strong>Type:</strong> {{ del.deliveryType }}</p>
+          <p><strong>Slot:</strong> {{ del.deliverySlot }}</p>
+          <p><strong>Fee:</strong> {{ del.deliveryFee | currency:'TND':'symbol':'1.2-2' }}</p>
+          <p><strong>Status:</strong> 
+            <span [class]="deliveryStatusClass(del.deliveryStatus)">{{ del.deliveryStatus }}</span>
+          </p>
+
+          <div class="address-box" *ngIf="del.address">
+            <h4>Delivery Address</h4>
+            <p><strong>{{ del.address.fullName }}</strong></p>
+            <p>{{ del.address.phone }}</p>
+            <p>{{ del.address.city }}</p>
+            <p>{{ del.address.addressLine }}</p>
+            <p *ngIf="del.address.additionalInfo">{{ del.address.additionalInfo }}</p>
+          </div>
+        </div>
+        <ng-template #noDelivery>
+          <p class="muted">Delivery information will be available soon.</p>
+        </ng-template>
+      </div>
+
+      <div class="info-card">
+        <h3>Payment</h3>
+        <div *ngIf="payment() as pay; else noPayment">
+          <p><strong>Method:</strong> {{ pay.paymentType }}</p>
+          <p><strong>Status:</strong> 
+            <span [class]="paymentStatusClass(pay.paymentStatus)">{{ pay.paymentStatus }}</span>
+          </p>
+          <p><strong>Amount:</strong> {{ pay.amount | currency:'TND':'symbol':'1.2-2' }}</p>
+        </div>
+        <ng-template #noPayment>
+          <p class="muted">Payment information will be available soon.</p>
+        </ng-template>
+      </div>
+
+      <div class="total-card">
+        <h3>Total Amount</h3>
+        <div class="grand-total">
+          {{ order()?.totalAmount | currency:'TND':'symbol':'1.2-2' }}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

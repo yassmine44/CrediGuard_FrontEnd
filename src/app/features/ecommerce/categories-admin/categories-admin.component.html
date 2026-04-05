@@ -1,17 +1,26 @@
 <div class="categories-admin-page">
+
+  <!-- Header avec Back Button fonctionnel -->
   <div class="page-header">
-    <div>
-      <h2>Category Management</h2>
-      <p>Add, edit, and organize product categories.</p>
+    <a routerLink="/admin/ecommerce" class="back-btn">
+      ← Back to E-Commerce Dashboard
+    </a>
+
+    <div class="header-center">
+      <h1>Category Management</h1>
+      <p>Create, edit, and organize product categories with hierarchy support.</p>
     </div>
 
     <button type="button" class="primary-btn" (click)="openCreateForm()">
-      + Add Category
+      <i class="fas fa-plus"></i>
+      Add New Category
     </button>
   </div>
 
-  <div *ngIf="loading()" class="info-message">
-    Loading categories...
+  <!-- Messages -->
+  <div *ngIf="loading()" class="message loading">
+    <div class="spinner"></div>
+    <p>Loading categories...</p>
   </div>
 
   <div *ngIf="error()" class="message error">
@@ -22,62 +31,58 @@
     {{ success() }}
   </div>
 
-  <div class="form-card" *ngIf="showForm()">
-    <h3>
-      {{ editingCategoryId() !== null ? 'Edit Category' : 'Add Category' }}
-    </h3>
+ <!-- Form Card - Version Améliorée -->
+<div class="form-card" *ngIf="showForm()">
 
-    <div class="form-grid">
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input
-          id="name"
-          type="text"
-          [(ngModel)]="formData.name"
-          placeholder="e.g. Electronics"
-        />
-      </div>
+  <h3>{{ editingCategoryId() !== null ? 'Edit Category' : 'Create New Category' }}</h3>
 
-      <div class="form-group">
-        <label for="parentId">Parent Category</label>
-        <select id="parentId" [(ngModel)]="formData.parentId">
-          <option [ngValue]="null">None</option>
-          <option
-            *ngFor="let category of availableParents(editingCategoryId())"
-            [ngValue]="category.id"
-          >
-            {{ category.name }}
-          </option>
-        </select>
-      </div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Name <span class="required">*</span></label>
+      <input 
+        type="text" 
+        [(ngModel)]="formData.name" 
+        placeholder="Category name (e.g. Smartphones)" 
+        required>
     </div>
 
     <div class="form-group">
-      <label for="description">Description</label>
-      <textarea
-        id="description"
-        rows="4"
-        [(ngModel)]="formData.description"
-        placeholder="Category description"
-      ></textarea>
-    </div>
-
-    <div class="form-actions">
-      <button type="button" class="primary-btn" (click)="saveCategory()">
-        Save
-      </button>
-      <button type="button" class="secondary-btn" (click)="cancelForm()">
-        Cancel
-      </button>
+      <label>Parent Category</label>
+      <select [(ngModel)]="formData.parentId">
+        <option [ngValue]="null">No parent (Root category)</option>
+        <option *ngFor="let cat of availableParents(editingCategoryId())" [ngValue]="cat.id">
+          {{ cat.name }}
+        </option>
+      </select>
     </div>
   </div>
 
+  <div class="form-group">
+    <label>Description</label>
+    <textarea 
+      [(ngModel)]="formData.description" 
+      rows="4" 
+      placeholder="Optional description..."></textarea>
+  </div>
+
+  <!-- Boutons Améliorés -->
+  <div class="form-actions">
+    <button type="button" class="cancel-btn" (click)="cancelForm()">
+      Cancel
+    </button>
+    <button type="button" class="save-btn" (click)="saveCategory()">
+      {{ editingCategoryId() !== null ? 'Update Category' : 'Create Category' }}
+    </button>
+  </div>
+</div>
+
+  <!-- Table -->
   <div class="table-card" *ngIf="!loading() && categories().length > 0">
     <table class="categories-table">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Name</th>
+          <th>Category Name</th>
           <th>Description</th>
           <th>Parent</th>
           <th>Children</th>
@@ -85,20 +90,19 @@
           <th>Actions</th>
         </tr>
       </thead>
-
       <tbody>
         <tr *ngFor="let category of categories()">
           <td>{{ category.id }}</td>
           <td>{{ category.name }}</td>
-          <td>{{ category.description || '-' }}</td>
+          <td>{{ category.description || '—' }}</td>
           <td>{{ getParentName(category.parentId) }}</td>
-          <td>{{ category.childrenCount }}</td>
-          <td>{{ category.createdAt | date:'short' }}</td>
+          <td>{{ category.childrenCount || 0 }}</td>
+          <td>{{ category.createdAt | date:'medium' }}</td>
           <td class="actions-cell">
-            <button type="button" class="edit-btn" (click)="openEditForm(category)">
+            <button class="edit-btn" (click)="openEditForm(category)">
               Edit
             </button>
-            <button type="button" class="delete-btn" (click)="deleteCategory(category.id)">
+            <button class="delete-btn" (click)="deleteCategory(category.id)">
               Delete
             </button>
           </td>
@@ -107,7 +111,13 @@
     </table>
   </div>
 
+  <!-- Empty State -->
   <div *ngIf="!loading() && categories().length === 0" class="empty-state">
-    No categories found.
+    <i class="fas fa-folder-open"></i>
+    <h3>No categories yet</h3>
+    <p>Start by creating your first category.</p>
+    <button class="primary-btn" (click)="openCreateForm()">
+      + Create First Category
+    </button>
   </div>
 </div>

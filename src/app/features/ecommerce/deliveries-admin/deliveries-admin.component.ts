@@ -56,7 +56,9 @@ export class DeliveriesAdminComponent implements OnInit {
       }
     });
   }
-
+goBack(): void {
+  window.history.back();
+}
   editDelivery(delivery: DeliveryResponse): void {
     this.editingId = delivery.id;
     this.deliveryType = delivery.deliveryType;

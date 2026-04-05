@@ -24,6 +24,13 @@
     <li>
       <a routerLink="/front/orders" routerLinkActive="active">My Orders</a>
     </li>
+    <li *ngIf="canSell()">
+  <a routerLink="/front/seller/products" routerLinkActive="active">My Products</a>
+</li>
+
+<li *ngIf="canSell()">
+  <a routerLink="/front/seller/products/new" routerLinkActive="active">Sell Product</a>
+</li>
   </ul>
 
   <div class="nav-actions">

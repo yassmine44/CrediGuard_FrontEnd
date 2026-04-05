@@ -1,8 +1,21 @@
 <div class="cart-page">
-  <h2>My Cart</h2>
 
-  <div *ngIf="loading()" class="state-message">
-    Loading cart...
+  <div class="back-button-container">
+    <a routerLink="/front/ecommerce" class="back-button">
+      ← Back to Shop
+    </a>
+  </div>
+
+  <div class="cart-header">
+    <h1>My Cart</h1>
+    <p *ngIf="cart()?.items?.length" class="item-count">
+      {{ cart()?.items?.length }} item{{ cart()?.items?.length !== 1 ? 's' : '' }}
+    </p>
+  </div>
+
+  <div *ngIf="loading()" class="state-message loading">
+    <div class="spinner"></div>
+    <p>Loading your cart...</p>
   </div>
 
   <div *ngIf="error()" class="state-message error">
@@ -10,54 +23,64 @@
   </div>
 
   <ng-container *ngIf="cart() as cartData">
+
     <div *ngIf="!cartData.items.length" class="empty-cart">
-      <p>Your cart is empty.</p>
-      <a routerLink="/front/ecommerce" class="continue-btn">Continue shopping</a>
+      <div class="empty-icon">🛒</div>
+      <h2>Your cart is empty</h2>
+      <p>Looks like you haven't added anything yet.</p>
+      <a routerLink="/front/ecommerce" class="continue-btn">
+        Continue Shopping
+      </a>
     </div>
 
     <div *ngIf="cartData.items.length" class="cart-content">
+
       <div class="cart-items">
         <div class="cart-item" *ngFor="let item of cartData.items">
+
           <div class="item-left">
-            <img
-              [src]="getImageUrl(item.imageUrl)"
-              [alt]="item.productName"
-              (error)="onImageError($event)"
-              class="cart-item-image"
-            />
+            <div class="item-image-wrapper">
+              <img
+                [src]="getImageUrl(item.imageUrl)"
+                [alt]="item.productName"
+                (error)="onImageError($event)"
+                class="cart-item-image"
+              >
+            </div>
 
             <div class="item-info">
               <h4>{{ item.productName }}</h4>
-              <p>
-                Unit price:
-                {{ item.unitPrice | currency:'TND':'symbol':'1.2-2' }}
-              </p>
-              <p>
-                Line total:
-                {{ item.lineTotal | currency:'TND':'symbol':'1.2-2' }}
+              <p class="unit-price">
+                Unit price: {{ item.unitPrice | currency:'TND':'symbol':'1.2-2' }}
               </p>
             </div>
           </div>
 
           <div class="item-actions">
-            <div class="qty-box">
+            <div class="quantity-control">
               <button
                 type="button"
+                class="qty-btn"
                 (click)="decreaseQuantity(item.id, item.quantity)"
                 [disabled]="actionLoading()"
               >
-                -
+                −
               </button>
 
-              <span>{{ item.quantity }}</span>
+              <span class="quantity">{{ item.quantity }}</span>
 
               <button
                 type="button"
+                class="qty-btn"
                 (click)="increaseQuantity(item.id, item.quantity)"
                 [disabled]="actionLoading()"
               >
                 +
               </button>
+            </div>
+
+            <div class="line-total">
+              {{ item.lineTotal | currency:'TND':'symbol':'1.2-2' }}
             </div>
 
             <button
@@ -73,11 +96,17 @@
       </div>
 
       <div class="cart-summary">
-        <h3>Order summary</h3>
-        <p>
-          <strong>Total:</strong>
-          {{ cartData.total | currency:'TND':'symbol':'1.2-2' }}
-        </p>
+        <h3>Order Summary</h3>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>{{ cartData.total | currency:'TND':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <div class="summary-row total">
+          <strong>Total</strong>
+          <strong>{{ cartData.total | currency:'TND':'symbol':'1.2-2' }}</strong>
+        </div>
 
         <div class="summary-actions">
           <button
@@ -86,11 +115,11 @@
             (click)="clearCart()"
             [disabled]="actionLoading()"
           >
-            Clear cart
+            Clear Cart
           </button>
 
           <a routerLink="/front/checkout" class="checkout-btn">
-            Proceed to checkout
+            Proceed to Checkout
           </a>
         </div>
       </div>

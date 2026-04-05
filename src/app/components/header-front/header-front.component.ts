@@ -1,5 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  Inject,
+  PLATFORM_ID
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,7 +26,8 @@ export class HeaderFrontComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
   ngOnInit(): void {
@@ -27,11 +35,13 @@ export class HeaderFrontComponent implements OnInit {
       this.cartCount.set(count);
     });
 
-    this.cartService.getMyCart().subscribe({
-      error: () => {
-        this.cartCount.set(0);
-      }
-    });
+    if (isPlatformBrowser(this.platformId)) {
+      this.cartService.getMyCart().subscribe({
+        error: () => {
+          this.cartCount.set(0);
+        }
+      });
+    }
   }
 
   logout(): void {
@@ -44,6 +54,33 @@ export class HeaderFrontComponent implements OnInit {
       this.router.navigate(['/admin/profile']);
     } else {
       this.router.navigate(['/front/profile']);
+    }
+  }
+
+  canSell(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+
+    const rawUser =
+      localStorage.getItem('currentUser') ||
+      localStorage.getItem('user');
+
+    if (!rawUser) {
+      return false;
+    }
+
+    try {
+      const user = JSON.parse(rawUser);
+      const role = String(user?.userType ?? user?.role ?? '').toUpperCase();
+
+      return (
+        role === 'ADMIN' ||
+        role === 'BENEFICIARY' ||
+        role === 'PARTNER'
+      );
+    } catch {
+      return false;
     }
   }
 }

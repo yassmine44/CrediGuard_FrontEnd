@@ -26,6 +26,8 @@ export interface OrderItem {
 export interface OrderDetail {
   id: number;
   userId: number;
+  clientName?: string;      // ← Ajoute ceci
+  clientEmail?: string;     // ← Ajoute ceci
   status: OrderStatus;
   totalAmount: number;
   promoCodeId?: number | null;

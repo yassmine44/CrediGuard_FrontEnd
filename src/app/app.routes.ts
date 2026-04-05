@@ -1,13 +1,15 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
+import { ECOMMERCE_FRONT_ROUTES } from './pages/ecommerce/ecommerce-front.routes';
+import { ECOMMERCE_ADMIN_ROUTES } from './features/ecommerce/ecommerce-admin.routes';
 
 export const routes: Routes = [
-   {
+  {
     path: '',
     redirectTo: 'auth/sign-in',
     pathMatch: 'full'
   },
-  // FRONT
+
   {
     path: 'front',
     loadComponent: () =>
@@ -28,69 +30,43 @@ export const routes: Routes = [
         path: 'contact',
         loadComponent: () =>
           import('./pages/contact/contact.component').then(m => m.ContactComponent)
-      }, 
+      },
       {
-  path: 'credit',
-  loadComponent: () =>
-    import('./pages/credit/credit.component').then(m => m.CreditComponent)
-},
-{
-  path: 'crowdfunding',
-  loadComponent: () =>
-    import('./pages/crowdfunding/crowdfunding.component').then(m => m.CrowdfundingComponent)
-},
-{
-  path: 'finance',
-  loadComponent: () =>
-    import('./pages/finance-front/finance-front.component').then(m => m.FinanceFrontComponent)
-},
-{
-  path: 'partnership',
-  loadComponent: () =>
-    import('./pages/partnership/partnership.component').then(m => m.PartnershipComponent)
-},
-{
-  path: 'events',
-  loadComponent: () =>
-    import('./pages/events-front/events-front.component').then(m => m.EventsFrontComponent)
-},
-{
-  path: 'ecommerce',
-  loadComponent: () =>
-    import('./pages/ecommerce/ecommerce-front/ecommerce-front.component')
-      .then(m => m.EcommerceFrontComponent)
-},
-{
-  path: 'products/:id',
-  loadComponent: () =>
-    import('./pages/ecommerce/product-detail-front/product-detail-front.component')
-      .then(m => m.ProductDetailFrontComponent)
-},
-{
-  path: 'cart',
-  loadComponent: () =>
-    import('./pages/ecommerce/cart/cart.component').then(m => m.CartComponent)
-},
-{
-  path: 'orders',
-  loadComponent: () =>
-    import('./pages/ecommerce/orders-front/orders-front.component').then(m => m.OrdersFrontComponent)
-},
-{
-  path: 'checkout',
-  loadComponent: () =>
-    import('./pages/ecommerce/checkout/checkout.component').then(m => m.CheckoutComponent)
-},
+        path: 'credit',
+        loadComponent: () =>
+          import('./pages/credit/credit.component').then(m => m.CreditComponent)
+      },
+      {
+        path: 'crowdfunding',
+        loadComponent: () =>
+          import('./pages/crowdfunding/crowdfunding.component').then(m => m.CrowdfundingComponent)
+      },
+      {
+        path: 'finance',
+        loadComponent: () =>
+          import('./pages/finance-front/finance-front.component').then(m => m.FinanceFrontComponent)
+      },
+      {
+        path: 'partnership',
+        loadComponent: () =>
+          import('./pages/partnership/partnership.component').then(m => m.PartnershipComponent)
+      },
+      {
+        path: 'events',
+        loadComponent: () =>
+          import('./pages/events-front/events-front.component').then(m => m.EventsFrontComponent)
+      },
 
-{
-  path: 'profile',
-  loadComponent: () =>
-    import('./pages/profile-front/profile-front.component').then(m => m.ProfileFrontComponent)
-}
+      ...ECOMMERCE_FRONT_ROUTES,
+
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/profile-front/profile-front.component').then(m => m.ProfileFrontComponent)
+      }
     ]
   },
 
-  // AUTH
   {
     path: 'auth',
     children: [
@@ -129,10 +105,9 @@ export const routes: Routes = [
         redirectTo: 'sign-in',
         pathMatch: 'full'
       }
-    ],
+    ]
   },
 
-  // ADMIN
   {
     path: 'admin',
     loadComponent: () =>
@@ -165,60 +140,8 @@ export const routes: Routes = [
           import('./features/security/security.component')
             .then(m => m.SecurityComponent)
       },
-      {
-        path: 'ecommerce',
-        loadComponent: () =>
-          import('./features/ecommerce/ecommerce.component')
-            .then(m => m.EcommerceComponent)
-      },
-      {
-  path: 'ecommerce/categories',
-  loadComponent: () =>
-    import('./features/ecommerce/categories-admin/categories-admin.component')
-      .then(m => m.CategoriesAdminComponent)
-},
-{
-  path: 'ecommerce/products',
-  loadComponent: () =>
-    import('./features/ecommerce/products-admin/products-admin.component')
-      .then(m => m.ProductsAdminComponent)
-},
-{
-  path: 'ecommerce/products/new',
-  loadComponent: () =>
-    import('./features/ecommerce/product-form-admin/product-form-admin.component')
-      .then(m => m.ProductFormAdminComponent)
-},
-{
-  path: 'ecommerce/products/edit/:id',
-  loadComponent: () =>
-    import('./features/ecommerce/product-form-admin/product-form-admin.component')
-      .then(m => m.ProductFormAdminComponent)
-},
-{
-  path: 'ecommerce/orders',
-  loadComponent: () =>
-    import('./features/ecommerce/orders-admin/orders-admin.component')
-      .then(m => m.OrdersAdminComponent)
-},
-{
-  path: 'ecommerce/promo-codes',
-  loadComponent: () =>
-    import('./features/ecommerce/promo-codes-admin/promo-codes-admin.component')
-      .then(m => m.PromoCodesAdminComponent)
-},
-{
-  path: 'ecommerce/payments',
-  loadComponent: () =>
-    import('./features/ecommerce/payments-admin/payments-admin.component')
-      .then(m => m.PaymentsAdminComponent)
-},
-{
-  path: 'ecommerce/deliveries',
-  loadComponent: () =>
-    import('./features/ecommerce/deliveries-admin/deliveries-admin.component')
-      .then(m => m.DeliveriesAdminComponent)
-},
+
+      ...ECOMMERCE_ADMIN_ROUTES,
 
       {
         path: 'finance',
@@ -260,6 +183,6 @@ export const routes: Routes = [
 
   {
     path: '**',
-     redirectTo: 'auth/sign-in'
+    redirectTo: 'auth/sign-in'
   }
 ];

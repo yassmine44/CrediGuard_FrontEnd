@@ -15,7 +15,6 @@ export class ProductService {
   private readonly apiBaseUrl = 'http://localhost:8089';
   private readonly defaultImageUrl = 'assets/default-product.png';
 
-  // garde cette URL si ton backend tourne avec /api/api
   private apiUrl = `${this.apiBaseUrl}/api/products`;
 
   getAll(): Observable<Product[]> {
@@ -24,6 +23,10 @@ export class ProductService {
 
   getById(id: number): Observable<Product> {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
+  }
+
+  getMine(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/mine`);
   }
 
   create(payload: ProductCreateRequest): Observable<Product> {
@@ -49,11 +52,11 @@ export class ProductService {
       .pipe(map((imageUrl) => this.normalizeImageValue(imageUrl) ?? ''));
   }
 
-  getBySellerId(sellerId: number) {
+  getBySellerId(sellerId: number): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/seller/${sellerId}`);
   }
 
-  getBySeller(sellerId: number) {
+  getBySeller(sellerId: number): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/seller/${sellerId}`);
   }
 
@@ -87,7 +90,14 @@ export class ProductService {
       return sanitizedImageUrl;
     }
 
-    const normalizedPath = sanitizedImageUrl.replace(/^\/+/, '');
-    return `${this.apiBaseUrl}/${normalizedPath}`;
+    if (sanitizedImageUrl.startsWith('/uploads/')) {
+      return `${this.apiBaseUrl}/api${sanitizedImageUrl}`;
+    }
+
+    if (sanitizedImageUrl.startsWith('uploads/')) {
+      return `${this.apiBaseUrl}/api/${sanitizedImageUrl}`;
+    }
+
+    return `${this.apiBaseUrl}/${sanitizedImageUrl.replace(/^\/+/, '')}`;
   }
 }

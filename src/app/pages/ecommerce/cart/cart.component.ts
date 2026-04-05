@@ -113,26 +113,27 @@ export class CartComponent implements OnInit {
       }
     });
   }
+
   getImageUrl(imageUrl?: string | null): string {
-  if (!imageUrl || !imageUrl.trim()) {
+    if (!imageUrl || !imageUrl.trim()) {
+      return 'assets/default-product.png';
+    }
+
+    const value = imageUrl.trim().replace(/^"+|"+$/g, '');
+
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+
+    if (value.startsWith('/uploads/')) {
+      return `http://localhost:8089/api${value}`;
+    }
+
     return 'assets/default-product.png';
   }
 
-  const value = imageUrl.trim().replace(/^"+|"+$/g, '');
-
-  if (value.startsWith('http://') || value.startsWith('https://')) {
-    return value;
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/default-product.png';
   }
-
-  if (value.startsWith('/uploads/')) {
-    return `http://localhost:8089/api${value}`;
-  }
-
-  return 'assets/default-product.png';
-}
-
-onImageError(event: Event): void {
-  const img = event.target as HTMLImageElement;
-  img.src = 'assets/default-product.png';
-}
 }

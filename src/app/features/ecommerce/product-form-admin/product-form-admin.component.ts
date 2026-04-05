@@ -11,11 +11,12 @@ import {
   ProductUpdateRequest,
   SaleMode
 } from '../models/product.model';
+import { MatIcon } from "@angular/material/icon";
 
 @Component({
   selector: 'app-product-form-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatIcon],
   templateUrl: './product-form-admin.component.html',
   styleUrl: './product-form-admin.component.scss'
 })
