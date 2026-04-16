@@ -1,0 +1,179 @@
+.my-claims-container {
+  max-width: 1000px;
+  margin: 50px auto;
+  padding: 0 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.page-header {
+  margin-bottom: 40px;
+  text-align: center;
+  
+  h1 { font-size: 2.2rem; font-weight: 800; color: #1e293b; margin: 15px 0 5px; }
+  p { color: #64748b; font-size: 1.1rem; }
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  &:hover { background: #eff6ff; }
+}
+
+.claims-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.claim-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  display: flex;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.01);
+  }
+}
+
+.card-status-strip {
+  width: 8px;
+  &.pending { background: #f59e0b; }
+  &.approved { background: #10b981; }
+  &.rejected { background: #ef4444; }
+}
+
+.card-body {
+  flex: 1;
+  padding: 25px 30px;
+}
+
+.claim-main {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 15px;
+
+  .label { display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
+  .value { font-size: 1.1rem; font-weight: 700; color: #1e293b; font-family: monospace; }
+  
+  .date-section .value { font-family: 'Inter', sans-serif; color: #64748b; font-size: 0.95rem; }
+}
+
+.claim-details {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 25px;
+
+  .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    .icon { font-size: 1.5rem; }
+    .label { display: block; font-size: 0.7rem; font-weight: 700; color: #94a3b8; }
+    .value { font-weight: 800; color: #334155; }
+  }
+}
+
+.claim-status-box {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 14px;
+
+  .status-pill {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    
+    &.pending { background: #fef3c7; color: #92400e; }
+    &.approved { background: #d1fae5; color: #065f46; }
+    &.rejected { background: #fee2e2; color: #991b1b; }
+  }
+
+  .rejection-alert {
+    background: #fff;
+    border-left: 4px solid #ef4444;
+    padding: 12px 15px;
+    color: #b91c1c;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .hint, .hint-success {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 8px 0 0;
+  }
+  .hint-success { color: #10b981; font-weight: 600; }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    font-size: 2.5rem;
+  }
+
+  h2 { color: #1e293b; margin-bottom: 10px; }
+  p { color: #64748b; margin-bottom: 30px; }
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover { transform: scale(1.05); background: #2563eb; }
+}
+
+.loader-box {
+  text-align: center;
+  padding: 50px;
+  p { color: #64748b; margin-top: 20px; }
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.fade-in { animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

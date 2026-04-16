@@ -1,186 +1,195 @@
 <div class="finance-container">
 
+  <div class="top-nav-actions">
+     <button class="btn-track" (click)="router.navigate(['/front/my-claims'])">
+       📋 Suivre mes demandes d'assurance
+     </button>
+  </div>
+
   <!-- ===================== -->
   <!-- ÉTAPE 1 : TYPES -->
   <!-- ===================== -->
-  <div *ngIf="!selectedType">
-
+  <div *ngIf="!selectedType && !showCheckout && !success" class="fade-in">
     <header class="section-header">
       <h2>🤝 Espace Partenaires</h2>
       <p>Utilisez votre voucher chez nos partenaires.</p>
     </header>
 
     <div class="cards-section">
-
-      <div class="nav-card"
-           *ngFor="let type of partnerTypes"
-           (click)="selectType(type)">
-
+      <div class="nav-card" *ngFor="let type of partnerTypes" (click)="selectType(type)">
         <div class="card-content">
-
           <div class="icon-circle">
-            {{ type === 'Produits' ? '🛒' :
-               type === 'Equipement' ? '🧰' : '🚚' }}
+            {{ type === 'Produits' ? '🛒' : type === 'Equipement' ? '🧰' : '🚚' }}
           </div>
-
           <h3>{{ type }}</h3>
-
           <p>
-            {{
-              type === 'Produits' ? 'Achetez des produits pour votre activité' :
-              type === 'Equipement' ? 'Investissez dans du matériel professionnel' :
-              'Accédez à des services utiles à votre business'
-            }}
+            {{ type === 'Produits' ? 'Achetez des produits pour votre activité' : 
+               type === 'Equipement' ? 'Investissez dans du matériel professionnel' : 
+               'Accédez à des services utiles' }}
           </p>
-
           <span class="link-text">Accéder →</span>
-
         </div>
       </div>
-
     </div>
   </div>
 
   <!-- ===================== -->
   <!-- ÉTAPE 2 : PARTENAIRES -->
   <!-- ===================== -->
-  <div *ngIf="selectedType && !selectedPartner">
-
+  <div *ngIf="selectedType && !selectedPartner && !showCheckout && !success" class="fade-in">
     <header class="section-header">
       <h2>{{ selectedType }} — Choisir un partenaire</h2>
     </header>
-
     <button class="btn-back" (click)="selectedType = null">← Retour</button>
 
     <div class="cards-section">
-
-      <div class="nav-card"
-           *ngFor="let p of partners"
-           (click)="selectPartner(p)">
-
+      <div class="nav-card" *ngFor="let p of partners" (click)="selectPartner(p)">
         <div class="card-content">
           <div class="icon-circle">🏪</div>
           <h3>{{ p.name }}</h3>
           <span class="link-text">Choisir →</span>
         </div>
-
       </div>
-
     </div>
   </div>
 
   <!-- ===================== -->
-  <!-- ÉTAPE 3 : PRODUITS -->
+  <!-- ÉTAPE 3 : PRODUITS (Multi-sélection) -->
   <!-- ===================== -->
-  <div *ngIf="selectedPartner && !selectedProduct">
-
+  <div *ngIf="selectedPartner && !showCheckout && !success" class="fade-in">
     <header class="section-header">
-      <h2>{{ selectedPartner.name }} — Choisir un produit</h2>
+      <h2>{{ selectedPartner.name }} — Sélection des produits</h2>
+      <p>Sélectionnez tous les produits que vous souhaitez commander.</p>
     </header>
-
     <button class="btn-back" (click)="selectedPartner = null">← Retour</button>
 
     <div class="cards-section">
-
-      <!-- ✅ FIX ICI -->
-      <div class="nav-card"
-           *ngFor="let p of products; trackBy: trackById"
+      <div class="nav-card" 
+           *ngFor="let p of products; trackBy: trackById" 
+           [class.selected]="isSelected(p)"
            (click)="selectProduct(p)">
-
         <div class="card-content">
           <div class="icon-circle">🛍️</div>
           <h3>{{ p.name }}</h3>
           <p class="price">{{ p.price }} TND</p>
-          <span class="link-text">Sélectionner →</span>
+          <span class="link-text">{{ isSelected(p) ? 'Retirer ❌' : 'Ajouter ➕' }}</span>
         </div>
-
       </div>
-
     </div>
 
-    <!-- ✅ message si vide -->
     <div *ngIf="products.length === 0" class="empty-state">
-      Aucun produit disponible 😢
+      Aucun produit disponible pour ce partenaire.
     </div>
 
+    <!-- Barre d'action fixe en bas ou bouton large -->
+    <div style="text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05);" *ngIf="selectedProducts.length > 0">
+       <h3 style="margin-bottom: 15px;">Total sélectionné : <span class="text-success">{{ totalAmount }} TND</span></h3>
+       <button class="btn-submit" (click)="finalizeSelection()" style="width: auto; padding: 15px 60px; font-size: 1.1rem;">
+         Confirmer ces {{ selectedProducts.length }} produit(s) →
+       </button>
+    </div>
   </div>
 
   <!-- ===================== -->
-  <!-- ÉTAPE 4 : VOUCHER + ASSURANCE -->
+  <!-- ÉTAPE 4 : CHECKOUT (Voucher + Assurance) -->
   <!-- ===================== -->
-  <div *ngIf="selectedProduct && !success">
+  <div *ngIf="showCheckout && !success" class="fade-in">
+    <div class="section-header-row">
+      <button class="btn-back" (click)="showCheckout = false">← Revenir au choix des produits</button>
+      <header class="section-header">
+        <h2>🎟️ Finaliser votre commande</h2>
+        <p>Récapitulatif et Paiement</p>
+      </header>
+      <div style="width: 100px;"></div>
+    </div>
 
-    <header class="section-header">
-      <h2>🎟️ Utiliser votre Voucher</h2>
-      <p>
-        Produit : <strong>{{ selectedProduct.name }}</strong>
-        — {{ selectedProduct.price }} TND
-      </p>
-    </header>
-
-    <button class="btn-back" (click)="selectedProduct = null">← Retour</button>
-
-    <div class="form-card fade-in">
-
-      <!-- Assurance -->
-      <div class="insurance-option">
-        <h3>🛡️ Couverture Assurance (optionnel)</h3>
-        <p>Souhaitez-vous couvrir cet achat avec votre assurance ?</p>
-
-        <button class="btn-insurance" (click)="goToInsurance()">
-          Utiliser mon assurance →
-        </button>
+    <div class="form-card">
+      <!-- Recap -->
+      <div style="background: #f0f7ff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #cce5ff;">
+        <h4 style="margin-top: 0;">Votre panier :</h4>
+        <div *ngFor="let p of selectedProducts" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+           <span>{{ p.name }}</span>
+           <span style="font-weight: bold;">{{ p.price }} TND</span>
+        </div>
+        <hr style="border: none; border-top: 1px solid #b8daff; margin: 10px 0;">
+        <div style="display: flex; justify-content: space-between; font-size: 1.2rem;">
+           <strong>TOTAL</strong>
+           <strong class="text-success">{{ totalAmount }} TND</strong>
+        </div>
       </div>
-
-      <div class="divider">— OU —</div>
 
       <!-- Voucher -->
-      <h3>Payer avec Voucher</h3>
-
-      <div class="input-group">
-        <label>Code Voucher</label>
-        <input type="text"
-               [(ngModel)]="voucherCode"
-               placeholder="ex: VOUCHER001"
-               class="search-input">
+      <div class="voucher-payment">
+        <h3>1. Entrez votre Code Voucher</h3>
+        <div class="input-group">
+          <label>Identifiant unique du voucher</label>
+          <div style="position: relative;">
+            <input type="text" [(ngModel)]="voucherCode" placeholder="Ex: VOUCHER-123" class="search-input" style="padding-left: 45px;">
+            <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%);">🎟️</span>
+          </div>
+        </div>
       </div>
 
-      <button class="btn-submit" (click)="buy()">
-        ✅ Valider l'achat
-      </button>
+      <!-- Progressive Reveal -->
+      <div *ngIf="voucherCode.length >= 3" class="fade-in">
+        <div class="divider">2. CHOISISSEZ VOTRE MODE DE VALIDATION</div>
 
-      <div *ngIf="message"
-           class="message-box"
-           [class.success]="message.includes('✅')"
-           [class.error]="message.includes('❌')">
+        <div style="display: flex; gap: 15px; flex-direction: column;">
+            <button class="btn-submit" (click)="buy()" style="margin-top: 0; background: #28a745;">
+                ✅ Payer directement avec Voucher
+            </button>
 
+            <div class="insurance-option" style="margin-bottom: 0; background: #fff;">
+                <h3>🛡️ Utiliser mon Assurance</h3>
+                <p *ngIf="policy" style="font-size: 0.9rem;">
+                  Assurance active : <strong>{{ policy.company?.name }}</strong>
+                </p>
+                <p *ngIf="!policy" style="color: #666; font-size: 0.85rem;">Aucune police détectée. Vous pouvez toujours payer par voucher.</p>
+                
+                <button class="btn-insurance" (click)="submitClaimInPartnership()" [disabled]="claimLoading || !policy">
+                    {{ claimLoading ? '⏳ Traitement...' : '🛡️ Couvrir cet achat via Assurance' }}
+                </button>
+            </div>
+        </div>
+      </div>
+
+      <div *ngIf="message" class="message-box" [class.success]="message.includes('✅')" [class.error]="message.includes('❌')">
         {{ message }}
-
       </div>
-
     </div>
   </div>
 
   <!-- ===================== -->
-  <!-- ÉTAPE 5 : SUCCÈS -->
+  <!-- ÉTAPE 5 : SUCCÈS / STATUT -->
   <!-- ===================== -->
-  <div *ngIf="success" class="form-card fade-in success-card">
+  <div *ngIf="success" class="form-card fade-in success-card" [class.insurance-pending]="isInsuranceMode">
+    
+    <div *ngIf="!isInsuranceMode">
+      <div class="icon-circle">🎉</div>
+      <h2>Commande Confirmée !</h2>
+      <p>Votre achat de {{ selectedProducts.length }} produit(s) a été validé.</p>
+      <p class="text-success" style="font-size: 1.5rem; font-weight: bold;">{{ totalAmount }} TND payés</p>
+    </div>
 
-    <div class="icon-circle">🎉</div>
+    <div *ngIf="isInsuranceMode">
+      <div class="icon-circle" style="background: #fff8e1; color: #f57f17;">🛡️</div>
+      <h2>Demande en cours...</h2>
+      <p>Votre achat de {{ selectedProducts.length }} produit(s) est en attente d'approbation d'assurance.</p>
+      <div style="margin: 20px 0; background: #fff3e0; color: #ef6c00; padding: 10px; border-radius: 8px; font-weight: 700; display: inline-block;">
+        ⏳ STATUT : PENDING (Analyse en cours)
+      </div>
+      <p style="font-size: 0.9rem; color: #666;">
+        Notre moteur de risque intelligent traite votre demande. <br>
+        Vous recevrez une notification dès que l'assureur aura validé ou refusé votre dossier.
+      </p>
+    </div>
 
-    <h2>Achat Validé !</h2>
-
-    <p>Votre voucher a été utilisé avec succès.</p>
-
-    <p>
-      <strong>{{ selectedProduct?.name }}</strong>
-      — {{ selectedProduct?.price }} TND
-    </p>
-
-    <button class="btn-submit" (click)="reset()">
-      Faire un nouvel achat
-    </button>
-
+    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+    
+    <div style="display: flex; gap: 15px; justify-content: center;">
+      <button class="btn-submit" (click)="reset()" style="width: auto; padding: 12px 40px; margin: 0;">Faire un nouvel achat</button>
+      <button *ngIf="isInsuranceMode" class="btn-track" (click)="router.navigate(['/front/my-claims'])" style="padding: 10px 30px;">Voir mes dossiers</button>
+    </div>
   </div>
 
 </div>

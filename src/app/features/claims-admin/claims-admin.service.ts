@@ -28,6 +28,15 @@ export class ClaimsAdminService {
     }).then(res => res.json());
   }
 
+  getByClient(clientId: number) {
+    if (!this.isBrowser()) return Promise.resolve([]);
+
+    return this.getAll().then((claims: any[]) => {
+      // Filtrage local car le endpoint by-client pour les claims peut ne pas exister
+      return claims.filter(c => c.voucher?.client?.id === clientId);
+    });
+  }
+
   approve(id: number) {
     return fetch(`${this.api}/approve/${id}`, {
       method: 'PUT',

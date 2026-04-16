@@ -1,0 +1,72 @@
+<div class="my-claims-container">
+  <header class="page-header">
+    <button class="btn-back" (click)="goBack()">← Retour au Shop</button>
+    <h1>🛡️ Suivi de mes demandes</h1>
+    <p>Consultez l'état de vos demandes d'assurance en temps réel.</p>
+  </header>
+
+  <div *ngIf="loading" class="loader-box">
+    <div class="spinner"></div>
+    <p>Chargement de vos dossiers...</p>
+  </div>
+
+  <div *ngIf="!loading && userClaims.length > 0" class="claims-list fade-in">
+    <div class="claim-card" *ngFor="let c of userClaims">
+      <div class="card-status-strip" [ngClass]="c.status?.toLowerCase()"></div>
+      
+      <div class="card-body">
+        <div class="claim-main">
+          <div class="ref-section">
+            <span class="label">Référence</span>
+            <span class="value">{{ c.claimReference }}</span>
+          </div>
+          <div class="date-section">
+            <span class="label">Date de demande</span>
+            <span class="value">{{ c.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <div class="claim-details">
+          <div class="detail-item">
+            <span class="icon">🎟️</span>
+            <div class="text">
+              <span class="label">Voucher</span>
+              <span class="value">{{ c.voucher?.code }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <span class="icon">💰</span>
+            <div class="text">
+              <span class="label">Montant</span>
+              <span class="value">{{ c.voucher?.amount }} TND</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="claim-status-box">
+          <div class="status-pill" [ngClass]="c.status?.toLowerCase()">
+             {{ getStatusLabel(c.status) }}
+          </div>
+          
+          <div *ngIf="c.status === 'REJECTED'" class="rejection-alert">
+             <strong>Motif du rejet :</strong> {{ getRejectionReason(c) }}
+          </div>
+          
+          <p *ngIf="c.status === 'PENDING'" class="hint">
+            Notre moteur de risque analyse votre dossier. Une réponse vous sera apportée sous peu.
+          </p>
+          <p *ngIf="c.status === 'APPROVED'" class="hint-success">
+            Votre achat a été validé et couvert par votre assurance.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && userClaims.length === 0" class="empty-state fade-in">
+    <div class="icon-circle">📜</div>
+    <h2>Aucun dossier trouvé</h2>
+    <p>Vous n'avez pas encore effectué de demande de couverture d'assurance.</p>
+    <button class="btn-primary" (click)="goBack()">Commencer mes achats</button>
+  </div>
+</div>

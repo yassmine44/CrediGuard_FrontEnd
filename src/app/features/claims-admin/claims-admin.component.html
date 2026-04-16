@@ -1,169 +1,156 @@
-<h2>📋 Claims</h2>
-
-<!-- ===== STATS ===== -->
-<div class="stats">
-  <div class="card">
-    <h4>Total</h4>
-    <p>{{ claims.length }}</p>
+<div class="claims-admin-container">
+  <!-- 🔥 ANALYTICS HEADER -->
+  <div class="analytics-header">
+    <div class="title-section">
+       <h1>📑 Moteur de Décision Assurance</h1>
+       <p>Gestion intelligente des réclamations via règles métier</p>
+    </div>
+    
+    <div class="analytics-toggle">
+       <div class="indicator" [class.active]="autoAnalysisEnabled"></div>
+       <label class="switch">
+         <input type="checkbox" [(ngModel)]="autoAnalysisEnabled" (change)="toggleAutoAnalysis()">
+         <span class="slider round"></span>
+       </label>
+       <span class="label">Approbation Auto {{ autoAnalysisEnabled ? 'ON' : 'OFF' }}</span>
+    </div>
   </div>
 
-  <div class="card">
-    <h4>Pending</h4>
-    <p>{{ pendingCount }}</p>
-  </div>
-
-  <div class="card">
-    <h4>Approved</h4>
-    <p>{{ approvedCount }}</p>
-  </div>
-
-  <div class="card">
-    <h4>Rejected</h4>
-    <p>{{ rejectedCount }}</p>
-  </div>
-</div>
-
-<div class="search-container">
-  <span class="icon">🔍</span>
-  <input 
-    type="text"
-    placeholder="Search claim..."
-    [(ngModel)]="search"
-  />
-</div>
-
-<!-- ===== TABLE ===== -->
-<table class="table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Reference</th>
-      <th>Status</th>
-      <th>Client</th>
-      <th>Voucher</th>
-      <th>Montant</th>
-      <th>Policy</th>
-      <th>Date</th>
-      <th>Reason</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr *ngFor="let c of filteredClaims">
-
-      <td>{{ c.id }}</td>
-      <td>{{ c.claimReference }}</td>
-
-      <!-- STATUS -->
-      <td>
-        <span class="badge" [ngClass]="c.status.toLowerCase()">
-          {{ c.status }}
-        </span>
-      </td>
-
-      <!-- DATA -->
-      <td>{{ c.voucher?.client?.fullName }}</td>
-      <td>{{ c.voucher?.code }}</td>
-      <td>{{ c.voucher?.amount | number:'1.0-2' }} TND</td>
-      <td>{{ c.policy?.policyNumber }}</td>
-      <td>{{ c.createdAt | date:'short' }}</td>
-      <td>{{ c.reason || '-' }}</td>
-
-      <!-- ACTIONS -->
-      <td class="actions">
-
-        <button class="btn-view" (click)="openDetails(c)">
-          👁 View
-        </button>
-
-        <button 
-          class="btn-approve"
-          (click)="approve(c.id)"
-          [disabled]="c.status !== 'PENDING'">
-          ✔ Approve
-        </button>
-
-        <button 
-          class="btn-reject"
-          (click)="reject(c.id)"
-          [disabled]="c.status !== 'PENDING'">
-          ✖ Reject
-        </button>
-
-      </td>
-
-    </tr>
-  </tbody>
-</table>
-
-<!-- ===== EMPTY STATE ===== -->
-<div *ngIf="filteredClaims.length === 0" class="empty">
-  No claims found
-</div>
-
-<!-- ===== MODAL ===== -->
-<div class="modal" *ngIf="selectedClaim">
-
-  <div class="modal-content">
-
-    <!-- CLOSE -->
-    <button class="close-icon" (click)="closeDetails()">✖</button>
-
-    <h2>📋 Claim Details</h2>
-
-    <p><strong>Reference:</strong> {{ selectedClaim.claimReference }}</p>
-    <p><strong>Client:</strong> {{ selectedClaim.voucher?.client?.fullName }}</p>
-    <p><strong>Voucher:</strong> {{ selectedClaim.voucher?.code }}</p>
-    <p><strong>Amount:</strong> {{ selectedClaim.voucher?.amount }} TND</p>
-    <p><strong>Policy:</strong> {{ selectedClaim.policy?.policyNumber }}</p>
-
-    <!-- POLICY STATUS -->
-    <p>
-      <strong>Policy Status:</strong>
-      <span [ngClass]="isPolicyValid(selectedClaim) ? 'valid' : 'invalid'">
-        {{ isPolicyValid(selectedClaim) ? 'Valid' : 'Expired' }}
-      </span>
-    </p>
-
-    <!-- CLIENT CLAIMS -->
-    <p>
-      <strong>Client Claims:</strong>
-      {{ getClientClaimsCount(selectedClaim) }}
-    </p>
-
-    <!-- WARNINGS -->
-    <p *ngIf="!isPolicyValid(selectedClaim)" class="warning">
-      ⚠ Policy expired → cannot approve
-    </p>
-
-    <p *ngIf="getClientClaimsCount(selectedClaim) > 2" class="warning orange">
-      ⚠ High risk client (multiple claims)
-    </p>
-
-    <!-- ACTIONS -->
-    <div class="actions">
-
-      <button 
-        class="btn-approve"
-        (click)="approve(selectedClaim.id)"
-        [disabled]="!canApprove(selectedClaim)">
-        ✔ Approve
-      </button>
-
-      <button 
-        class="btn-reject"
-        (click)="reject(selectedClaim.id)">
-        ✖ Reject
-      </button>
-
-      <button 
-        class="btn-close"
-        (click)="closeDetails()">
-        Close
-      </button>
-
+  <div class="top-row">
+    <!-- STATS CARDS -->
+    <div class="stats-cards">
+      <div class="stat-card info">
+        <span class="label">Sinistres Payés</span>
+        <span class="value">{{ approvedCount }}</span>
+      </div>
+      <div class="stat-card warning">
+        <span class="label">Alertes Fraude</span>
+        <span class="value text-danger">{{ highRiskCount }}</span>
+      </div>
+      <div class="stat-card risk">
+        <span class="label">Risque Moyen Global</span>
+        <span class="value">{{ totalRiskScore }}%</span>
+        <div class="risk-gauge"><div [style.width.%]="totalRiskScore" [ngClass]="getRiskLevel(totalRiskScore)"></div></div>
+      </div>
     </div>
 
+    <!-- 📊 TREND CHART -->
+    <div class="trend-section">
+       <div class="chart-header">
+         <h3>📈 Évolution du Risque (7 derniers jours)</h3>
+         <p>Moyenne pondérée des scores de risque quotidiens</p>
+       </div>
+       <div class="chart-container">
+          <div class="bar-wrapper" *ngFor="let point of riskTrend">
+             <div class="bar-value" [style.height.%]="point.avgScore" [ngClass]="getRiskLevel(point.avgScore)">
+                <span class="tooltip">{{ point.avgScore }}%</span>
+             </div>
+             <span class="bar-label">{{ point.day }}</span>
+          </div>
+       </div>
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" [(ngModel)]="search" placeholder="Filtrer par référence ou nom client...">
+  </div>
+
+  <div class="table-container">
+    <table class="claims-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Référence</th>
+          <th>Client</th>
+          <th>Score de Risque</th>
+          <th>Analyse IA</th>
+          <th>Recommandations</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of filteredClaims" [class.critical-row]="c.riskScore >= 70">
+          <td>#{{ c.id }}</td>
+          <td class="ref-col">{{ c.claimReference }}</td>
+          <td>{{ c.voucher?.client?.fullName || 'N/A' }}</td>
+          <td>
+            <div class="risk-pill" [ngClass]="c.riskLevel">
+               {{ c.riskScore }} pts
+            </div>
+          </td>
+          <td>
+            <span class="level-indicator" [ngClass]="c.riskLevel">
+               {{ c.riskLevel }}
+            </span>
+          </td>
+          <td class="reco-col">{{ c.recommendation }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="c.status?.toLowerCase()">
+              {{ c.status }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn btn-detail" (click)="openDetails(c)">🔍 Détails</button>
+            <ng-container *ngIf="c.status === 'PENDING'">
+              <button class="btn btn-approve" (click)="approve(c.id)">✅ Approuver</button>
+              <button class="btn btn-reject" (click)="reject(c.id)">❌ Rejeter</button>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- -------------------- -->
+  <!-- MODAL DE DÉTAILS IA  -->
+  <!-- -------------------- -->
+  <div class="modal-overlay" *ngIf="selectedClaim" (click)="closeDetails()">
+     <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+           <h2>🧪 Analyse de Risque Détaillée — {{ selectedClaim.claimReference }}</h2>
+           <button class="close-btn" (click)="closeDetails()">×</button>
+        </div>
+        
+        <div class="modal-body">
+           <div class="risk-summary">
+              <div class="risk-circle" [ngClass]="selectedClaim.riskLevel">
+                 <span class="pts">{{ selectedClaim.riskScore }}</span>
+                 <span class="lvl">SCORE FINAL</span>
+              </div>
+              <div class="info-grid">
+                 <div><strong>Client:</strong> {{ selectedClaim.voucher?.client?.fullName }}</div>
+                 <div><strong>Montant:</strong> {{ selectedClaim.voucher?.amount }} TND</div>
+                 <div><strong>Date:</strong> {{ selectedClaim.createdAt | date:'medium' }}</div>
+                 <div><strong>Catégorie:</strong> {{ selectedClaim.voucher?.product?.category || 'PRODUIT' }}</div>
+              </div>
+           </div>
+
+           <div class="breakdown-section">
+              <h3>📜 Décomposition du score</h3>
+              <div class="rule-row" *ngFor="let r of selectedClaim.breakdown">
+                 <div class="rule-name">
+                    <span class="tag">{{ r.rule }}</span>
+                    {{ r.description }}
+                 </div>
+                 <div class="rule-pts">+{{ r.points }} pts</div>
+              </div>
+              <div class="no-rules" *ngIf="selectedClaim.breakdown.length === 0">
+                 Aucun facteur de risque identifié ✅
+              </div>
+           </div>
+
+           <div class="recommendation-box" [ngClass]="selectedClaim.riskLevel">
+              <h3>🏁 Conclusion du moteur :</h3>
+              <p>{{ selectedClaim.recommendation }}</p>
+           </div>
+        </div>
+
+        <div class="modal-footer" *ngIf="selectedClaim.status === 'PENDING'">
+           <button class="btn btn-secondary" (click)="closeDetails()">Fermer</button>
+           <button class="btn btn-reject" (click)="reject(selectedClaim.id)">Rejeter Sinistre</button>
+           <button class="btn btn-approve" (click)="approve(selectedClaim.id)">Valider Sinistre</button>
+        </div>
+     </div>
   </div>
 </div>

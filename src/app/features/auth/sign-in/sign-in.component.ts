@@ -100,18 +100,17 @@ export class SignInComponent {
           this.errorMsg = 'Unexpected login response: token missing';
           return;
         }
-         localStorage.setItem("accessToken", token);
 
         this.authService.clearSession();
         this.authService.saveToken(token);
         this.authService.saveUserFromAuthResponse(response, payload.email);
         this.authService.saveUserEmail(email);
 
-        if (userType === 'ADMIN') {
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          this.router.navigate(['/']);
-        }
+       if (userType=== 'ADMIN') {
+  this.router.navigate(['/admin/dashboard']);
+} else {
+  this.router.navigate(['/front']);
+}
       },
       error: (err) => {
         this.loading = false;

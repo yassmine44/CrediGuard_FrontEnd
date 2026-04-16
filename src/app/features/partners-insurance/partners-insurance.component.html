@@ -8,9 +8,12 @@
 
   <!-- TOP STATS -->
   <div class="summary-grid">
-    <div class="summary-card" *ngFor="let stat of topStats">
-      <span>{{ stat.title }}</span>
-      <h2>{{ stat.value }}</h2>
+    <div class="summary-card" *ngFor="let stat of topStats" [class.alert]="stat.alert">
+      <div class="stat-icon">{{ stat.icon }}</div>
+      <div class="stat-info">
+        <span class="stat-title">{{ stat.title }}</span>
+        <h2 class="stat-value">{{ stat.value }}</h2>
+      </div>
     </div>
   </div>
 

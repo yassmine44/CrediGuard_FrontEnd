@@ -11,19 +11,23 @@
   </a>
 
   <ul class="nav-links">
-    <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a></li>
-    <li><a routerLink="/about" routerLinkActive="active">About</a></li>
-    <li><a routerLink="/contact" routerLinkActive="active">Contact</a></li>
+    <li><a routerLink="/front" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a></li>
+    <li><a routerLink="/front/about" routerLinkActive="active">About</a></li>
+    <li><a routerLink="/front/contact" routerLinkActive="active">Contact</a></li>
 
-    <li><a routerLink="/credit" routerLinkActive="active">Credit</a></li>
-    <li><a routerLink="/crowdfunding" routerLinkActive="active">Crowdfunding</a></li>
-    <li><a routerLink="/finance" routerLinkActive="active">Finance</a></li>
-    <li><a routerLink="/partnership" routerLinkActive="active">Partnership</a></li>
-    <li><a routerLink="/events" routerLinkActive="active">Events</a></li>
-    <li><a routerLink="/ecommerce" routerLinkActive="active">E-Commerce</a></li>
+    <li><a routerLink="/front/credit" routerLinkActive="active">Credit</a></li>
+    <li><a routerLink="/front/crowdfunding" routerLinkActive="active">Crowdfunding</a></li>
+    <li><a routerLink="/front/finance" routerLinkActive="active">Finance</a></li>
+    <li><a routerLink="/front/partnership" routerLinkActive="active">Partnership</a></li>
+    <li><a routerLink="/front/events" routerLinkActive="active">Events</a></li>
+    <li><a routerLink="/front/ecommerce" routerLinkActive="active">E-Commerce</a></li>
+  
+ 
   </ul>
 
   <div class="nav-actions">
+   
+
     <button
       *ngIf="authService.isLoggedIn()"
       type="button"

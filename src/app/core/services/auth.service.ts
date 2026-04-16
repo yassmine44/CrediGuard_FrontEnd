@@ -136,15 +136,18 @@ export class AuthService {
     return normalizedUser;
   }
 
-  saveUserFromAuthResponse(response: any, fallbackEmail?: string): AuthUser | null {
-    return this.saveUser(
-      response?.user ?? response?.currentUser ?? null,
-      {
-        email: response?.email ?? fallbackEmail,
-        userType: this.getUserTypeFromAuthResponse(response)
-      }
-    );
-  }
+saveUserFromAuthResponse(response: any, fallbackEmail?: string): AuthUser | null {
+
+  const userData = {
+    id: response.id,
+    email: response.email ?? fallbackEmail,
+    role: response.role || response.userType
+  };
+
+  localStorage.setItem('currentUser', JSON.stringify(userData)); // 🔥 DIRECT
+
+  return userData;
+}
 
   getUser(): AuthUser | null {
     const rawUser = this.storage?.getItem(this.userKey);

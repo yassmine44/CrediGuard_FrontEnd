@@ -11,48 +11,70 @@ import { PartnerProduct } from '../../../services/partner-product.service';
   selector: 'app-product-dialog',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    ReactiveFormsModule, 
-    MatDialogModule, 
-    MatFormFieldModule, 
-    MatInputModule, 
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatButtonModule
   ],
+
   template: `
-    <h2 mat-dialog-title>{{ data ? 'Modifier' : 'Ajouter' }} un Produit</h2>
-    <mat-dialog-content>
-      <form [formGroup]="productForm" class="product-form">
-        <mat-form-field appearance="outline">
-          <mat-label>Nom du Produit</mat-label>
-          <input matInput formControlName="name" placeholder="Ex: Assurance Vie">
-          <mat-error *ngIf="productForm.get('name')?.hasError('required')">Le nom est obligatoire</mat-error>
-        </mat-form-field>
+  <h2 mat-dialog-title>{{ data ? 'Modifier' : 'Ajouter' }} un Produit</h2>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Prix (TND)</mat-label>
-          <input matInput type="number" formControlName="price" placeholder="0.00">
-          <mat-error *ngIf="productForm.get('price')?.hasError('required')">Le prix est obligatoire</mat-error>
-        </mat-form-field>
+  <mat-dialog-content>
+    <form [formGroup]="productForm" class="product-form">
 
-        <mat-form-field appearance="outline">
-          <mat-label>Catégorie</mat-label>
-          <input matInput formControlName="category" placeholder="Ex: Santé, Auto...">
-        </mat-form-field>
+      <!-- NAME -->
+      <mat-form-field appearance="outline">
+        <mat-label>Nom du Produit</mat-label>
+        <input matInput formControlName="name">
+        <mat-error *ngIf="productForm.get('name')?.hasError('required')">
+          Nom obligatoire
+        </mat-error>
+      </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="3" placeholder="Description du produit..."></textarea>
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Annuler</button>
-      <button mat-raised-button color="primary" [disabled]="productForm.invalid" (click)="onSave()">
-        {{ data ? 'Mettre à jour' : 'Ajouter' }}
-      </button>
-    </mat-dialog-actions>
+      <!-- PRICE -->
+      <mat-form-field appearance="outline">
+        <mat-label>Prix (TND)</mat-label>
+        <input matInput type="number" formControlName="price">
+        <mat-error *ngIf="productForm.get('price')?.hasError('required')">
+          Prix obligatoire
+        </mat-error>
+      </mat-form-field>
+
+     
+
+      <!-- DESCRIPTION -->
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description"></textarea>
+      </mat-form-field>
+
+      <!-- 🔥 PARTNER ID (IMPORTANT) -->
+      <mat-form-field appearance="outline">
+        <mat-label>Partner ID</mat-label>
+        <input matInput type="number" formControlName="partnerId">
+        <mat-error *ngIf="productForm.get('partnerId')?.hasError('required')">
+          Partner ID obligatoire
+        </mat-error>
+      </mat-form-field>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Annuler</button>
+
+    <button mat-raised-button color="primary"
+            [disabled]="productForm.invalid"
+            (click)="onSave()">
+      {{ data ? 'Mettre à jour' : 'Ajouter' }}
+    </button>
+  </mat-dialog-actions>
   `,
+
   styles: [`
     .product-form {
       display: flex;
@@ -64,6 +86,7 @@ import { PartnerProduct } from '../../../services/partner-product.service';
   `]
 })
 export class ProductDialogComponent {
+
   productForm: FormGroup;
 
   constructor(
@@ -71,22 +94,37 @@ export class ProductDialogComponent {
     private dialogRef: MatDialogRef<ProductDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: PartnerProduct | null
   ) {
+
     this.productForm = this.fb.group({
       name: [data?.name || '', Validators.required],
       price: [data?.price || '', [Validators.required, Validators.min(0)]],
-      category: [data?.category || ''],
+  
       description: [data?.description || ''],
-      partnerId: [data?.partnerId || null]
+      partnerId: [data?.partnerId || null, Validators.required] // 🔥 FIX
     });
+
   }
 
   onCancel(): void {
     this.dialogRef.close();
   }
 
-  onSave(): void {
-    if (this.productForm.valid) {
-      this.dialogRef.close({ ...this.data, ...this.productForm.value });
-    }
+onSave(): void {
+  if (this.productForm.valid) {
+
+    const formValue = this.productForm.value;
+
+    const payload = {
+      ...this.data,
+      ...formValue,
+      partner: { id: formValue.partnerId } // 🔥 FIX IMPORTANT
+    };
+
+    delete payload.partnerId; // optionnel
+
+    console.log("SENDING:", payload);
+
+    this.dialogRef.close(payload);
   }
+}
 }

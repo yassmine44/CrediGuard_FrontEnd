@@ -1,0 +1,75 @@
+<div class="container">
+  <h2>📋 Insurance Policies</h2>
+
+  <!-- ===== STATS ===== -->
+  <div class="stats">
+    <div class="card">
+      <h4>Total Policies</h4>
+      <p>{{ policies.length }}</p>
+    </div>
+
+    <div class="card">
+      <h4>Active</h4>
+      <p>{{ getActiveCount() }}</p>
+    </div>
+
+    <div class="card">
+      <h4>Expired</h4>
+      <p>{{ getExpiredCount() }}</p>
+    </div>
+  </div>
+
+  <!-- ===== SEARCH ===== -->
+  <div class="search-container">
+    <span class="icon">🔍</span>
+    <input 
+      type="text"
+      placeholder="Search by policy number, client, or company..."
+      [(ngModel)]="search"
+    />
+  </div>
+
+  <!-- ===== TABLE ===== -->
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Policy Number</th>
+          <th>Client</th>
+          <th>Company</th>
+          <th>Premium</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let p of filteredPolicies">
+          <td>{{ p.id }}</td>
+          <td class="bold">{{ p.policyNumber }}</td>
+          <td>{{ p.client?.fullName || '-' }}</td>
+          <td>{{ p.company?.name || '-' }}</td>
+          <td>{{ p.premium | number:'1.0-2' }} TND</td>
+          <td>{{ p.startDate | date:'shortDate' }}</td>
+          <td>{{ p.endDate | date:'shortDate' }}</td>
+          <td>
+            <span [ngClass]="getStatusBadgeClass(p.status)">
+              {{ p.status | uppercase }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn-reject" (click)="p.id && deletePolicy(p.id)">
+              ✖ Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="loading" class="empty">⏳ Loading policies...</div>
+    <div *ngIf="!loading && filteredPolicies.length === 0" class="empty">No policies found.</div>
+  </div>
+</div>

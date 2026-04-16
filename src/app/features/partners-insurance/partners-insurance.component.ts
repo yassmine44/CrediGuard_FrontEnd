@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ClaimsAdminService } from '../claims-admin/claims-admin.service';
+import { PolicyService } from '../../services/policy.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-partners-insurance',
@@ -12,13 +14,17 @@ import { ClaimsAdminService } from '../claims-admin/claims-admin.service';
 })
 export class PartnersInsuranceComponent implements OnInit {
 
-  constructor(private claimsService: ClaimsAdminService) {}
+  constructor(
+    private claimsService: ClaimsAdminService,
+    private policyService: PolicyService
+  ) {}
   topStats = [
-  { title: 'Total Partners', value: 0 },
-  { title: 'Products', value: 0 },
-  { title: 'Claims', value: 0 },
-  { title: 'Insurances', value: 0 }
-];
+    { title: 'Total Partners', value: 0, icon: '🏪' },
+    { title: 'Products', value: 0, icon: '🛍️' },
+    { title: 'Active Policies', value: 0, icon: '📜' },
+    { title: 'Risk Alerts', value: 0, icon: '🚨', alert: true },
+    { title: 'Claims', value: 0, icon: '📋' }
+  ];
   partners: any[] = [];
 
 
@@ -37,19 +43,20 @@ export class PartnersInsuranceComponent implements OnInit {
       action: 'Open Products',
       route: '/admin/partners-insurance/products'
     },
-    {
-      title: 'Insurances',
-      description: 'Manage insurance offers...',
-      value: 0,
-      action: 'Open Insurances',
-      route: '/admin/insurances'
-    },
+   
     {
       title: 'Claims',
       description: 'Manage insurance claims...',
       value: 0,
       action: 'Open Claims',
       route: '/admin/partners-insurance/claims'
+    },
+    {
+      title: 'Policies',
+      description: 'Manage insurance policies...',
+      value: 0,
+      action: 'Open Policies',
+      route: '/admin/partners-insurance/policies'
     }
   ];
 
@@ -71,32 +78,41 @@ export class PartnersInsuranceComponent implements OnInit {
     .catch(err => console.error("ERROR:", err));
 }
 
-async loadStats() {
-  try {
+  async loadStats() {
+    try {
+      const claims = await this.claimsService.getAll();
+      const partnersCount = await this.claimsService.getPartnersCount();
+      const products = await this.claimsService.getProducts();
+      const policies = await firstValueFrom(this.policyService.getAll()).catch(() => []);
 
-    const claims = await this.claimsService.getAll();
-    const partnersCount = await this.claimsService.getPartnersCount();
-    const products = await this.claimsService.getProducts();
-    const insurances = await this.claimsService.getInsurances();
+      // Calculate risk scores locally to show alerts on dashboard
+      const alertsCount = claims.filter((c: any) => {
+        let score = 0;
+        if ((c.voucher?.amount || 0) > 1000) score += 30;
+        const historyCount = claims.filter((x: any) => x.voucher?.client?.id === c.voucher?.client?.id).length;
+        if (historyCount > 5) score += 40;
+        return score > 60;
+      }).length;
 
-    // ===== CARDS BAS =====
-    this.updateCard('Claims', claims.length);
-    this.updateCard('Partners', partnersCount);
-    this.updateCard('Products', products.length);
-    this.updateCard('Insurances', insurances.length);
+      // Update Top Stats
+      this.topStats = [
+        { title: 'Total Partners', value: partnersCount, icon: '🏪' },
+        { title: 'Products', value: products.length, icon: '🛍️' },
+        { title: 'Active Policies', value: policies.length, icon: '📜' },
+        { title: 'Risk Alerts', value: alertsCount, icon: '🚨', alert: true },
+        { title: 'Claims', value: claims.length, icon: '📋' }
+      ];
 
-    // ===== CARDS HAUT (🔥 AJOUT) =====
-    this.topStats = [
-      { title: 'Total Partners', value: partnersCount },
-      { title: 'Products', value: products.length },
-      { title: 'Claims', value: claims.length },
-      { title: 'Insurances', value: insurances.length }
-    ];
+      // Update Bottom Cards
+      this.updateCard('Claims', claims.length);
+      this.updateCard('Products', products.length);
+      this.updateCard('Policies', policies.length);
+      this.updateCard('Risk Alerts', alertsCount);
 
-  } catch (error) {
-    console.error('Erreur chargement stats:', error);
+    } catch (error) {
+      console.error('Erreur chargement stats:', error);
+    }
   }
-}
 
   updateCard(title: string, value: number) {
     this.cards = this.cards.map(card =>

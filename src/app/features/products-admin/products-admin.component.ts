@@ -35,7 +35,7 @@ export class ProductsComponent implements OnInit {
   loading = false;
   search: string = '';
 
-  displayedColumns: string[] = ['name', 'price', 'category', 'actions'];
+  displayedColumns: string[] = ['name', 'price', 'actions'];
 
   constructor(
     private partnerProductService: PartnerProductService,
@@ -127,17 +127,20 @@ console.log("filtered:", this.filteredProducts.length);
       });
   }
 
-  delete(id: number) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
-      this.loading = true;
-      this.partnerProductService.delete(id)
-        .pipe(finalize(() => this.loading = false))
-        .subscribe({
-          next: () => {
-            this.load();
-          },
-          error: (err) => console.error('Error deleting product:', err)
-        });
-    }
+delete(id?: number) {
+  if (!id) {
+    console.error("ID UNDEFINED ❌");
+    return;
   }
+
+  if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+    this.loading = true;
+    this.partnerProductService.delete(id)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe({
+        next: () => this.load(),
+        error: (err) => console.error('Error deleting product:', err)
+      });
+  }
+}
 }
