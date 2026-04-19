@@ -4,6 +4,7 @@ import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 
 interface AuthUser {
+  id?: number;
   email?: string;
   userType?: string | null;
   role?: string | null;
@@ -52,6 +53,13 @@ export class AuthService {
       ? { ...(user as AuthUser) }
       : {};
 
+    const id =
+      typeof source.id === 'number'
+        ? source.id
+        : typeof fallback.id === 'number'
+          ? fallback.id
+          : undefined;
+
     const email = typeof source.email === 'string'
       ? source.email
       : typeof fallback.email === 'string'
@@ -62,12 +70,13 @@ export class AuthService {
       source.userType ?? source.role ?? fallback.userType ?? fallback.role
     );
 
-    if (Object.keys(source).length === 0 && !email && !userType) {
+    if (Object.keys(source).length === 0 && id === undefined && !email && !userType) {
       return null;
     }
 
     return {
       ...source,
+      ...(id !== undefined ? { id } : {}),
       ...(email ? { email } : {}),
       ...(userType ? { userType, role: userType } : {})
     };
@@ -104,17 +113,17 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/verify-otp`, data);
   }
 
-enable2fa(email: string): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/enable-2fa`, { email });
-}
+  enable2fa(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/enable-2fa?email=${email}`, {});
+  }
 
-disable2fa(email: string): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/disable-2fa`, { email });
-}
+  disable2fa(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/disable-2fa?email=${email}`, {});
+  }
 
-get2faStatus(email: string): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/2fa-status`, { email });
-}
+  get2faStatus(email: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/2fa-status?email=${email}`);
+  }
 
   saveToken(token: string): void {
     this.storage?.setItem(this.tokenKey, token);
@@ -140,6 +149,7 @@ get2faStatus(email: string): Observable<any> {
     return this.saveUser(
       response?.user ?? response?.currentUser ?? null,
       {
+        id: response?.user?.id ?? response?.currentUser?.id ?? response?.id,
         email: response?.email ?? fallbackEmail,
         userType: this.getUserTypeFromAuthResponse(response)
       }
@@ -183,6 +193,7 @@ get2faStatus(email: string): Observable<any> {
     const user = this.buildStoredUser(
       response?.user ?? response?.currentUser ?? null,
       {
+        id: response?.user?.id ?? response?.currentUser?.id ?? response?.id,
         email,
         userType: this.getUserTypeFromAuthResponse(response)
       }

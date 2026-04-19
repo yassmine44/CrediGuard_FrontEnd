@@ -25,10 +25,7 @@ export class ProfileComponent implements OnInit {
     this.form = this.fb.group({
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [
-    Validators.required,
-    Validators.pattern(/^(\+216)?[24579]\d{7}$/)
-  ]]
+      phone: ['']
     });
   }
 

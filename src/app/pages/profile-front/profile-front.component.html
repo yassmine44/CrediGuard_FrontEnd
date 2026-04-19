@@ -42,23 +42,9 @@
         </div>
 
         <div class="form-group">
-  <label>Phone</label>
-  <input
-    type="text"
-    formControlName="phone"
-    placeholder="20123456 ou +21620123456"
-    inputmode="numeric"
-    maxlength="12"
-  />
-
-  <small class="err" *ngIf="form.get('phone')?.touched && form.get('phone')?.hasError('required')">
-    Le numéro de téléphone est obligatoire
-  </small>
-
-  <small class="err" *ngIf="form.get('phone')?.touched && form.get('phone')?.hasError('pattern')">
-    Numéro tunisien invalide : 20123456 ou +21620123456
-  </small>
-</div>
+          <label>Phone</label>
+          <input type="text" formControlName="phone" />
+        </div>
 
         <button type="submit" class="save-btn" [disabled]="saving">
           {{ saving ? 'Saving...' : 'Save Changes' }}

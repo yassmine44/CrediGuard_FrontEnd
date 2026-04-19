@@ -1,0 +1,109 @@
+<section class="wallet-page">
+  <div class="container">
+    <div class="top-actions">
+      <button class="back-btn" type="button" (click)="goBackToCreditHome()">
+        ← Back to Credit Space
+      </button>
+    </div>
+
+    <div class="page-header">
+      <div class="header-badge">Client Credit Overview</div>
+      <h1>My Credit Wallet</h1>
+      <p>Review your active credits, repayment profile, and financing details.</p>
+    </div>
+
+    <div *ngIf="loading()" class="message info">
+      Loading your credits...
+    </div>
+
+    <div *ngIf="error()" class="message error">
+      {{ error() }}
+    </div>
+
+    <div *ngIf="!loading() && !error() && credits().length === 0" class="empty-state">
+      <div class="empty-icon">⌁</div>
+      <h3>No active credit found</h3>
+      <p>Your credit wallet is currently empty.</p>
+      <button class="back-btn secondary" type="button" (click)="goBackToCreditHome()">
+        Return to Credit Page
+      </button>
+    </div>
+
+    <div class="wallet-grid" *ngIf="!loading() && !error() && credits().length > 0">
+      <div class="wallet-card" *ngFor="let credit of credits()">
+        <div class="card-top">
+          <div>
+            <p class="card-label">Credit Account</p>
+            <h3>Credit #{{ credit.id }}</h3>
+          </div>
+
+          <span
+            class="status-badge"
+            [ngClass]="{
+              'active': credit.statut === 'ACTIF',
+              'closed': credit.statut === 'TERMINE' || credit.statut === 'CLOTURE',
+              'pending': credit.statut === 'EN_ATTENTE',
+              'suspended': credit.statut === 'SUSPENDU'
+            }"
+          >
+            {{ credit.statut }}
+          </span>
+        </div>
+
+        <div class="wallet-summary">
+          <div class="summary-box">
+            <span>Approved</span>
+            <strong>{{ credit.montantAccorde | number:'1.0-2' }} TND</strong>
+          </div>
+
+          <div class="summary-box">
+            <span>Remaining</span>
+            <strong>{{ credit.montantRestant | number:'1.0-2' }} TND</strong>
+          </div>
+
+          <div class="summary-box">
+            <span>Total</span>
+            <strong>{{ credit.montantTotal | number:'1.0-2' }} TND</strong>
+          </div>
+        </div>
+
+        <div class="info-list">
+          <div class="info-row">
+            <span>Repayment Rate</span>
+            <strong>{{ credit.tauxRemboursement }} %</strong>
+          </div>
+
+          <div class="info-row">
+            <span>Repayment Mode</span>
+            <strong>{{ credit.modeRemboursement }}</strong>
+          </div>
+
+          <div class="info-row">
+            <span>Start Date</span>
+            <strong>{{ credit.dateDebut | date:'mediumDate' }}</strong>
+          </div>
+
+          <div class="info-row">
+            <span>End Date</span>
+            <strong>{{ credit.dateFin | date:'mediumDate' }}</strong>
+          </div>
+
+          <div class="info-row">
+            <span>Linked Request</span>
+            <strong>#{{ credit.demandeId }}</strong>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button
+            type="button"
+            class="action-btn primary"
+            (click)="viewSchedule(credit.id)"
+          >
+            View Repayment Schedule
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

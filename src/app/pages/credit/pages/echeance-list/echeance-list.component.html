@@ -1,0 +1,89 @@
+<section class="echeance-page">
+  <div class="container">
+    <div class="top-actions">
+      <button type="button" class="back-btn" (click)="goBack()">
+        ← Back to Credit Wallet
+      </button>
+    </div>
+
+    <div class="page-header">
+      <div class="header-badge">Repayment Schedule</div>
+      <h1>Credit Installments</h1>
+      <p>Review and manage the repayment schedule for credit #{{ creditId }}.</p>
+    </div>
+
+    <div *ngIf="loading()" class="message info">
+      Loading repayment schedule...
+    </div>
+
+    <div *ngIf="error()" class="message error">
+      {{ error() }}
+    </div>
+
+    <div *ngIf="success()" class="message success">
+      {{ success() }}
+    </div>
+
+    <div *ngIf="!loading() && !error() && echeances().length === 0" class="empty-state">
+      <div class="empty-icon">⌁</div>
+      <h3>No installments found</h3>
+      <p>No repayment schedule is currently available for this credit.</p>
+    </div>
+
+    <div class="schedule-card" *ngIf="!loading() && echeances().length > 0">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Due Date</th>
+              <th>Capital</th>
+              <th>Interest</th>
+              <th>Total Due</th>
+              <th>Status</th>
+              <th class="actions-col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let echeance of echeances(); trackBy: trackById">
+              <td class="ref">#{{ echeance.id }}</td>
+              <td>{{ echeance.dateEcheance | date:'mediumDate' }}</td>
+              <td>{{ echeance.capitalDu | number:'1.0-2' }} TND</td>
+              <td>{{ echeance.interetDu | number:'1.0-2' }} TND</td>
+              <td class="total-cell">
+                {{ getTotalDue(echeance) | number:'1.0-2' }} TND
+              </td>
+              <td>
+                <span
+                  class="status-badge"
+                  [ngClass]="{
+                    'status-due': echeance.statut === 'A_PAYER',
+                    'status-paid': echeance.statut === 'PAYEE',
+                    'status-late': echeance.statut === 'EN_RETARD'
+                  }"
+                >
+                  {{ echeance.statut }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button
+                  *ngIf="canPay(echeance)"
+                  type="button"
+                  class="btn btn-primary"
+                  [disabled]="payingId() === echeance.id"
+                  (click)="payEcheance(echeance)"
+                >
+                  {{ payingId() === echeance.id ? 'Processing...' : 'Pay Now' }}
+                </button>
+
+                <span *ngIf="!canPay(echeance)" class="paid-label">
+                  Completed
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,139 @@
+<div class="detail-page">
+  <div class="page-header">
+    <div>
+      <h1>Credit Request Dossier</h1>
+      <p>Review the full application before making a final decision.</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="goBack()">Back to List</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="state-box">Loading request details...</div>
+  <div *ngIf="error()" class="state-box error">{{ error() }}</div>
+
+  <div class="dossier-card" *ngIf="!loading() && demande() as d">
+    <div class="dossier-top">
+      <div>
+        <span class="section-label">Request Reference</span>
+        <h2>{{ d.reference }}</h2>
+        <p>Submitted on {{ d.dateCreation | date:'mediumDate' }}</p>
+      </div>
+
+      <div class="status-area">
+        <span
+          class="status-badge"
+          [ngClass]="{
+            'status-soumise': d.statut === 'SOUMISE',
+            'status-etude': d.statut === 'EN_COURS_D_ETUDE',
+            'status-approved': d.statut === 'APPROUVEE',
+            'status-rejected': d.statut === 'REJETEE'
+          }"
+        >
+          {{ d.statut }}
+        </span>
+      </div>
+    </div>
+
+    <div class="dossier-grid">
+      <div class="info-card">
+        <h3>Client Information</h3>
+        <div class="info-row">
+          <span>Client Name</span>
+          <strong>{{ d.clientName || ('Client #' + d.clientId) }}</strong>
+        </div>
+        <div class="info-row">
+          <span>Client ID</span>
+          <strong>#{{ d.clientId }}</strong>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Credit Information</h3>
+        <div class="info-row">
+          <span>Type of Credit</span>
+          <strong>{{ d.typeCredit }}</strong>
+        </div>
+        <div class="info-row">
+          <span>Requested Amount</span>
+          <strong>{{ d.montantDemande | number:'1.0-2' }}</strong>
+        </div>
+        <div class="info-row">
+          <span>Duration</span>
+          <strong>{{ d.dureeMois }} months</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="purpose-card">
+      <h3>Credit Purpose</h3>
+      <p>{{ d.objetCredit }}</p>
+    </div>
+
+    <div class="decision-card">
+      <div class="decision-header">
+        <div>
+          <h3>Administrative Decision</h3>
+          <p>Update the status of this request according to the review process.</p>
+        </div>
+      </div>
+
+      <div class="decision-actions">
+        <button class="btn btn-light" (click)="goToEdit()">Edit Request</button>
+      
+        <button
+          class="btn btn-warning"
+          *ngIf="d.statut === 'SOUMISE'"
+          (click)="updateStatus('EN_COURS_D_ETUDE')"
+        >
+          Start Review
+        </button>
+      
+        <button
+          type="button"
+          class="btn btn-primary"
+          [routerLink]="['/admin/credit/demandes', d.id, 'profil']">
+          Credit Profile
+        </button>
+      
+        <button
+          type="button"
+          class="btn btn-light"
+          [routerLink]="['/admin/credit/demandes', d.id, 'evaluation']">
+          Result Details
+        </button>
+      
+        <button
+          type="button"
+          class="btn btn-light"
+          [routerLink]="['/admin/credit/demandes', d.id, 'plan']">
+          Plan d'utilisation
+        </button>
+      
+        <button
+          type="button"
+          class="btn btn-primary"
+          [routerLink]="['/admin/credit/demandes', d.id, 'decision']">
+          Credit Decision
+        </button>
+      
+        <button
+          type="button"
+          class="btn btn-success"
+          *ngIf="d.statut === 'APPROUVEE'"
+          [routerLink]="['/admin/credit/demandes', d.id, 'credit']">
+          Credit
+        </button>
+      
+        <button
+          type="button"
+          class="btn btn-light"
+          [routerLink]="['/admin/credit/wallet', d.clientId]">
+          Client Wallet
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>

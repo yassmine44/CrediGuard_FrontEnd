@@ -1,0 +1,97 @@
+<div class="profil-page">
+    <div class="page-header">
+      <div>
+        <h1>Client Credit Profile</h1>
+        <p>Review the credit profile submitted by the client before launching the risk analysis.</p>
+      </div>
+  
+      <button class="btn btn-secondary" type="button" (click)="goBack()">
+        Back to Dossier
+      </button>
+    </div>
+  
+    <div *ngIf="loading()" class="state-box">
+      Loading credit profile...
+    </div>
+  
+    <div *ngIf="error()" class="state-box error">
+      {{ error() }}
+    </div>
+  
+    <div *ngIf="!loading() && demande() as d" class="summary-card">
+      <div>
+        <span class="section-label">Request Reference</span>
+        <h2>{{ d.reference }}</h2>
+        <p>Client {{ d.clientName || ('#' + d.clientId) }} • {{ d.typeCredit }} • {{ d.montantDemande | number:'1.0-2' }} TND</p>
+      </div>
+  
+      <div class="status-box-inline">
+        <span class="status-pill" *ngIf="evaluation()">Prediction available</span>
+        <span class="status-pill warning" *ngIf="!evaluation()">Prediction pending</span>
+      </div>
+    </div>
+  
+    <div *ngIf="profilMissing()" class="empty-card">
+      <h3>No credit profile found</h3>
+      <p>This client has no registered credit profile yet for administrative review.</p>
+    </div>
+  
+    <ng-container *ngIf="!loading() && profil() as p">
+      <div class="grid-two">
+        <div class="info-card">
+          <h3>Personal Profile</h3>
+  
+          <div class="info-row"><span>Age</span><strong>{{ p.personAge }}</strong></div>
+          <div class="info-row"><span>Annual Income</span><strong>{{ p.personIncomeAnnual | number:'1.0-2' }} TND</strong></div>
+          <div class="info-row"><span>Home Ownership</span><strong>{{ p.personHomeOwnership }}</strong></div>
+          <div class="info-row"><span>Employment Length</span><strong>{{ p.personEmploymentLength }} years</strong></div>
+          <div class="info-row"><span>Previous Default</span><strong>{{ p.previousDefaultOnFile }}</strong></div>
+          <div class="info-row"><span>Credit History</span><strong>{{ p.creditHistoryLength }} years</strong></div>
+          <div class="info-row"><span>Loan Intent</span><strong>{{ p.loanIntent }}</strong></div>
+        </div>
+  
+        <div class="info-card">
+          <h3>Financial & Project Indicators</h3>
+  
+          <div class="info-row"><span>Monthly Fixed Charges</span><strong>{{ p.monthlyFixedCharges | number:'1.0-2' }}</strong></div>
+          <div class="info-row"><span>Existing Loan Payments</span><strong>{{ p.existingLoanMonthlyPayments | number:'1.0-2' }}</strong></div>
+          <div class="info-row"><span>Outstanding Old Debt</span><strong>{{ p.outstandingOldDebt | number:'1.0-2' }}</strong></div>
+          <div class="info-row"><span>Project Delay</span><strong>{{ p.projectStartDelayMonths }} months</strong></div>
+          <div class="info-row"><span>Expected Monthly Revenue</span><strong>{{ p.expectedMonthlyRevenueAfterStart | number:'1.0-2' }}</strong></div>
+          <div class="info-row"><span>Existing Clients</span><strong>{{ p.hasExistingClients ? 'Yes' : 'No' }}</strong></div>
+          <div class="info-row"><span>Needs Grace Period</span><strong>{{ p.needsGracePeriod ? 'Yes' : 'No' }}</strong></div>
+        </div>
+      </div>
+  
+      <div class="prediction-card">
+        <div class="prediction-header">
+          <div>
+            <h3>Risk Prediction</h3>
+            <p>Use the client profile and request dossier as the basis for model evaluation.</p>
+          </div>
+        </div>
+  
+        <div class="prediction-state success" *ngIf="evaluation()">
+          A prediction result already exists for this request.
+        </div>
+  
+        <div class="prediction-state warning" *ngIf="!evaluation()">
+          No prediction result has been saved yet for this request.
+        </div>
+  
+        <div class="actions">
+          <button class="btn btn-warning" type="button" (click)="startPrediction()">
+            Start Prediction
+          </button>
+  
+          <button
+            class="btn btn-primary"
+            type="button"
+            (click)="goToEvaluation()">
+            Result Details
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+  

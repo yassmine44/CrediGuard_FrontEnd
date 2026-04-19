@@ -54,23 +54,12 @@
         </div>
 
         <div class="field">
-  <label>Phone</label>
-  <input
-    type="text"
-    formControlName="phone"
-    placeholder="20123456 ou +21620123456"
-    inputmode="numeric"
-    maxlength="12"
-  />
-
-  <small class="err" *ngIf="phone?.touched && phone?.errors?.['required']">
-    Le numéro de téléphone est obligatoire
-  </small>
-
-  <small class="err" *ngIf="phone?.touched && phone?.errors?.['pattern']">
-    Numéro tunisien invalide : 20123456 ou +21620123456
-  </small>
-</div>
+          <label>Phone</label>
+          <input type="text" formControlName="phone" placeholder="8 chiffres (optionnel)" />
+          <small class="err" *ngIf="phone?.touched && phone?.invalid">
+            Téléphone doit contenir 8 chiffres
+          </small>
+        </div>
 
         <label class="terms">
           <input type="checkbox" formControlName="agree" />

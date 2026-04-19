@@ -1,0 +1,87 @@
+<section class="history-page">
+  <div class="container">
+    <div class="top-actions">
+      <button type="button" class="back-btn" (click)="goBackToCreditHome()">
+        Back to Credit Space
+      </button>
+    </div>
+
+    <div class="page-header">
+      <div class="header-badge">Request Tracking</div>
+      <h1>My Credit Requests</h1>
+      <p>Review the history and current status of your credit requests.</p>
+    </div>
+
+    <div class="page-actions">
+      <a routerLink="/front/credit/request" class="btn btn-primary">New Request</a>
+      <button type="button" class="btn btn-light" (click)="goToProfile()">
+        My Credit Profile
+      </button>
+    </div>
+
+    <div *ngIf="loading()" class="message info">Loading requests...</div>
+    <div *ngIf="error()" class="message error">{{ error() }}</div>
+
+    <div class="history-card" *ngIf="!loading() && !error() && demandes().length > 0">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Duration</th>
+              <th>Purpose</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th class="actions-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let demande of demandes(); trackBy: trackById">
+              <td class="ref">{{ demande.reference }}</td>
+              <td>{{ demande.typeCredit }}</td>
+              <td>{{ demande.montantDemande | number:'1.0-2' }} TND</td>
+              <td>{{ demande.dureeMois }} months</td>
+              <td class="purpose-cell">{{ demande.objetCredit }}</td>
+              <td>
+                <span
+                  class="status-badge"
+                  [ngClass]="{
+                    'status-soumise': demande.statut === 'SOUMISE',
+                    'status-etude': demande.statut === 'EN_COURS_D_ETUDE',
+                    'status-approved': demande.statut === 'APPROUVEE',
+                    'status-rejected': demande.statut === 'REJETEE'
+                  }"
+                >
+                  {{ demande.statut }}
+                </span>
+              </td>
+              <td>{{ demande.dateCreation | date:'mediumDate' }}</td>
+              <td class="actions-cell">
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  [routerLink]="['/front/credit/history', demande.id, 'plan']">
+                  Plan Utilization
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div *ngIf="!loading() && !error() && demandes().length === 0" class="empty-state">
+      <div class="empty-icon">⌁</div>
+      <h3>No requests yet</h3>
+      <p>You have not submitted any credit request yet.</p>
+      <div class="empty-actions">
+        <button type="button" class="btn btn-light" (click)="goToProfile()">
+          My Credit Profile
+        </button>
+        <a routerLink="/front/credit/request" class="btn btn-primary">Create Request</a>
+      </div>
+    </div>
+  </div>
+</section>

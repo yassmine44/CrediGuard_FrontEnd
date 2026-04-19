@@ -34,10 +34,7 @@ export class AddUserDialogComponent {
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-     phone: ['', [
-  Validators.required,
-  Validators.pattern(/^(\+216)?[24579]\d{7}$/)
-]],
+      phone: ['', [Validators.pattern(/^[0-9]{8}$/)]],
       userType: ['CLIENT', Validators.required]
     });
   }

@@ -34,7 +34,7 @@ export class SignUpComponent {
       fullName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      phone: ['', [ Validators.pattern(/^(\+216)?[24579]\d{7}$/)]],
+      phone: ['', [Validators.pattern(/^[0-9]{8}$/)]],
       agree: [false, [Validators.requiredTrue]]
     });
   }

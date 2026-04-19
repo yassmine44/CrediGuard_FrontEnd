@@ -1,0 +1,67 @@
+<div class="plan-page">
+  <div class="page-header">
+    <div>
+      <h1>Plan d'utilisation du crédit</h1>
+      <p>Consultation du plan lié à la demande #{{ demandeId }}</p>
+    </div>
+
+    <button class="btn btn-secondary" type="button" (click)="goBack()">
+      Retour au dossier
+    </button>
+  </div>
+
+  <div *ngIf="loading()" class="state-box">
+    Chargement du plan...
+  </div>
+
+  <div *ngIf="error()" class="state-box error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="notFound()" class="empty-card">
+    <h3>Aucun plan trouvé</h3>
+    <p>Aucun plan d’utilisation n’est encore enregistré pour cette demande.</p>
+  </div>
+
+  <div *ngIf="!loading() && plan() as p" class="plan-card">
+    <div class="info-row">
+      <span>Description du projet</span>
+      <strong>{{ p.descriptionProjet }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Objectif du crédit</span>
+      <strong>{{ p.objectifCredit }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Montant d’investissement</span>
+      <strong>{{ p.montantInvestissement | number:'1.0-2' }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Revenu mensuel prévu</span>
+      <strong>{{ p.revenuMensuelPrevu | number:'1.0-2' }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Profit mensuel prévu</span>
+      <strong>{{ p.profitMensuelPrevu | number:'1.0-2' }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Délai de rentabilité</span>
+      <strong>{{ p.delaiRentabiliteMois }} mois</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Nature de l’activité</span>
+      <strong>{{ p.natureActivite }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>ID Demande</span>
+      <strong>#{{ p.demandeId }}</strong>
+    </div>
+  </div>
+</div>
