@@ -1,76 +1,82 @@
-<section class="credit-form-page">
+<section class="request-page">
   <div class="container">
     <div class="top-actions">
       <button type="button" class="back-btn" (click)="goBackToCreditHome()">
-        ← Back to Credit Space
+        Back to Credit Space
       </button>
     </div>
 
     <div class="page-header">
-      <div class="header-badge">Credit Application</div>
-      <h1>Submit a Credit Request</h1>
-      <p>
-        Complete the form below to submit your financing request for review and approval.
-      </p>
+      <div class="header-badge">Credit Request</div>
+      <h1>Submit a new credit request</h1>
+      <p>Your credit profile must be completed before this request can be sent.</p>
+    </div>
+
+    <div *ngIf="loadingProfile()" class="message info">
+      Checking your credit profile...
     </div>
 
     <div *ngIf="error()" class="message error">{{ error() }}</div>
     <div *ngIf="success()" class="message success">{{ success() }}</div>
 
-    <div class="form-card">
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="typeCredit">Type of Credit</label>
-            <select id="typeCredit" formControlName="typeCredit">
-              <option [ngValue]="null">Select type</option>
-              <option *ngFor="let type of typeCredits" [ngValue]="type">
-                {{ type }}
-              </option>
-            </select>
-          </div>
+    <div class="locked-card" *ngIf="!loadingProfile() && !hasProfile()">
+      <h3>Credit profile required</h3>
+      <p>
+        You cannot submit a credit request until your credit profile is completed.
+      </p>
 
-          <div class="form-group">
-            <label for="montantDemande">Requested Amount</label>
-            <input
-              id="montantDemande"
-              type="number"
-              formControlName="montantDemande"
-              placeholder="Enter requested amount"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="dureeMois">Duration (months)</label>
-            <input
-              id="dureeMois"
-              type="number"
-              formControlName="dureeMois"
-              placeholder="Enter duration in months"
-            />
-          </div>
-
-          <div class="form-group full-width">
-            <label for="objetCredit">Purpose of Credit</label>
-            <textarea
-              id="objetCredit"
-              rows="5"
-              formControlName="objetCredit"
-              placeholder="Describe the purpose of your financing request"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn btn-light" (click)="goToHistory()">
-            View My Requests
-          </button>
-
-          <button type="submit" class="btn btn-primary" [disabled]="saving()">
-            {{ saving() ? 'Submitting...' : 'Submit Request' }}
-          </button>
-        </div>
-      </form>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" (click)="goToProfile()">
+          Complete Credit Profile
+        </button>
+        <button type="button" class="btn btn-light" (click)="goBackToCreditHome()">
+          Back
+        </button>
+      </div>
     </div>
+
+    <form
+      class="request-card"
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      *ngIf="!loadingProfile() && hasProfile()"
+    >
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Type of credit</label>
+          <select formControlName="typeCredit">
+            <option [ngValue]="null">Select...</option>
+            <option *ngFor="let type of typeCredits" [ngValue]="type">
+              {{ type }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Requested amount</label>
+          <input type="number" formControlName="montantDemande" />
+        </div>
+
+        <div class="form-field">
+          <label>Duration (months)</label>
+          <input type="number" formControlName="dureeMois" />
+        </div>
+
+        <div class="form-field full-width">
+          <label>Credit purpose</label>
+          <textarea rows="5" formControlName="objetCredit"></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-light" (click)="goToHistory()">
+          My Requests
+        </button>
+
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          {{ saving() ? 'Submitting...' : 'Submit Credit Request' }}
+        </button>
+      </div>
+    </form>
   </div>
 </section>

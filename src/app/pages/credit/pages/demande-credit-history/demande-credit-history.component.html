@@ -2,7 +2,7 @@
   <div class="container">
     <div class="top-actions">
       <button type="button" class="back-btn" (click)="goBackToCreditHome()">
-        ← Back to Credit Space
+        Back to Credit Space
       </button>
     </div>
 
@@ -10,6 +10,13 @@
       <div class="header-badge">Request Tracking</div>
       <h1>My Credit Requests</h1>
       <p>Review the history and current status of your credit requests.</p>
+    </div>
+
+    <div class="page-actions">
+      <a routerLink="/front/credit/request" class="btn btn-primary">New Request</a>
+      <button type="button" class="btn btn-light" (click)="goToProfile()">
+        My Credit Profile
+      </button>
     </div>
 
     <div *ngIf="loading()" class="message info">Loading requests...</div>
@@ -70,8 +77,8 @@
       <h3>No requests yet</h3>
       <p>You have not submitted any credit request yet.</p>
       <div class="empty-actions">
-        <button type="button" class="btn btn-light" (click)="goBackToCreditHome()">
-          Back to Credit Space
+        <button type="button" class="btn btn-light" (click)="goToProfile()">
+          My Credit Profile
         </button>
         <a routerLink="/front/credit/request" class="btn btn-primary">Create Request</a>
       </div>

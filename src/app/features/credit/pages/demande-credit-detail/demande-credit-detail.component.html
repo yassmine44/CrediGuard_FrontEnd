@@ -81,7 +81,7 @@
 
       <div class="decision-actions">
         <button class="btn btn-light" (click)="goToEdit()">Edit Request</button>
-
+      
         <button
           class="btn btn-warning"
           *ngIf="d.statut === 'SOUMISE'"
@@ -89,41 +89,51 @@
         >
           Start Review
         </button>
-<button
-  type="button"
-  class="btn btn-light"
-  [routerLink]="['/admin/credit/demandes', d.id, 'plan']">
-  Plan d'utilisation
-</button>
+      
         <button
+          type="button"
+          class="btn btn-primary"
+          [routerLink]="['/admin/credit/demandes', d.id, 'profil']">
+          Credit Profile
+        </button>
+      
+        <button
+          type="button"
+          class="btn btn-light"
+          [routerLink]="['/admin/credit/demandes', d.id, 'evaluation']">
+          Result Details
+        </button>
+      
+        <button
+          type="button"
+          class="btn btn-light"
+          [routerLink]="['/admin/credit/demandes', d.id, 'plan']">
+          Plan d'utilisation
+        </button>
+      
+        <button
+          type="button"
+          class="btn btn-primary"
+          [routerLink]="['/admin/credit/demandes', d.id, 'decision']">
+          Credit Decision
+        </button>
+      
+        <button
+          type="button"
           class="btn btn-success"
-          *ngIf="d.statut === 'EN_COURS_D_ETUDE'"
-          (click)="updateStatus('APPROUVEE')"
-        >
-          Approve Request
+          *ngIf="d.statut === 'APPROUVEE'"
+          [routerLink]="['/admin/credit/demandes', d.id, 'credit']">
+          Credit
         </button>
-
+      
         <button
-          class="btn btn-danger"
-          *ngIf="d.statut === 'EN_COURS_D_ETUDE'"
-          (click)="updateStatus('REJETEE')"
-        >
-          Reject Request
+          type="button"
+          class="btn btn-light"
+          [routerLink]="['/admin/credit/wallet', d.clientId]">
+          Client Wallet
         </button>
-        <button
-  type="button"
-  class="btn btn-primary"
-  [routerLink]="['/admin/credit/demandes', d.id, 'decision']">
-  Credit Decision
-</button>
-<button
-  type="button"
-  class="btn btn-success"
-  *ngIf="d.statut === 'APPROUVEE'"
-  [routerLink]="['/admin/credit/demandes', d.id, 'credit']">
-  Credit
-</button>
       </div>
+      
     </div>
   </div>
 </div>

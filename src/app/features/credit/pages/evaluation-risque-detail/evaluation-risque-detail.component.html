@@ -1,0 +1,108 @@
+<div class="evaluation-page">
+    <div class="page-header">
+      <div>
+        <h1>Risk Prediction Result</h1>
+        <p>Detailed model result for the selected credit request.</p>
+      </div>
+  
+      <div class="header-actions">
+        <button class="btn btn-secondary" type="button" (click)="goToProfil()">
+          Credit Profile
+        </button>
+        <button class="btn btn-secondary" type="button" (click)="goBack()">
+          Back to Dossier
+        </button>
+      </div>
+    </div>
+  
+    <div *ngIf="loading()" class="state-box">
+      Loading prediction result...
+    </div>
+  
+    <div *ngIf="error()" class="state-box error">
+      {{ error() }}
+    </div>
+  
+    <div *ngIf="notFound()" class="empty-card">
+      <h3>No prediction result available</h3>
+      <p>No risk evaluation has been saved yet for this request.</p>
+  
+      <div class="actions">
+        <button class="btn btn-secondary" type="button" (click)="goToProfil()">
+          Back to Credit Profile
+        </button>
+        <button class="btn btn-light" type="button" (click)="downloadPdf()">
+          Download Detail PDF
+        </button>
+      </div>
+    </div>
+  
+    <div *ngIf="!loading() && evaluation() as e" class="evaluation-card">
+      <div class="evaluation-top">
+        <div>
+          <span class="section-label">Request Analysis</span>
+          <h2 *ngIf="demande() as d">{{ d.reference }}</h2>
+          <p *ngIf="demande() as d">
+            {{ d.clientName || ('Client #' + d.clientId) }} • {{ d.typeCredit }} • {{ d.montantDemande | number:'1.0-2' }} TND
+          </p>
+        </div>
+  
+        <span class="result-pill">{{ e.niveauRisque }}</span>
+      </div>
+  
+      <div class="metrics-grid">
+        <div class="metric-card blue">
+          <span>Model Score</span>
+          <strong>{{ e.score | number:'1.0-2' }}</strong>
+        </div>
+  
+        <div class="metric-card orange">
+          <span>Default Probability</span>
+          <strong>{{ e.probabiliteDefaut | percent:'1.0-2' }}</strong>
+        </div>
+  
+        <div class="metric-card green">
+          <span>Suggested Decision</span>
+          <strong>{{ e.decisionSuggeree }}</strong>
+        </div>
+  
+        <div class="metric-card">
+          <span>Model Version</span>
+          <strong>{{ e.versionModele }}</strong>
+        </div>
+      </div>
+  
+      <div class="detail-card">
+        <h3>Evaluation Details</h3>
+  
+        <div class="info-row">
+          <span>Risk Level</span>
+          <strong>{{ e.niveauRisque }}</strong>
+        </div>
+  
+        <div class="info-row">
+          <span>Evaluation Date</span>
+          <strong>{{ e.dateEvaluation | date:'medium' }}</strong>
+        </div>
+  
+        <div class="info-row">
+          <span>Request ID</span>
+          <strong>#{{ e.demandeId }}</strong>
+        </div>
+      </div>
+  
+      <div class="action-card">
+        <div>
+          <h3>Detailed Result Export</h3>
+          <p>This button is already placed in the interface and will be connected to PDF export later.</p>
+        </div>
+  
+        <div class="actions">
+          <button class="btn btn-light" type="button" (click)="downloadPdf()">
+            Download Detail PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

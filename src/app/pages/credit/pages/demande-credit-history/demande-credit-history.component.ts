@@ -27,6 +27,10 @@ export class DemandeCreditHistoryComponent implements OnInit {
     this.router.navigate(['/front/credit']);
   }
 
+  goToProfile(): void {
+    this.router.navigate(['/front/credit/profile']);
+  }
+
   loadDemandes(): void {
     this.loading.set(true);
     this.error.set('');

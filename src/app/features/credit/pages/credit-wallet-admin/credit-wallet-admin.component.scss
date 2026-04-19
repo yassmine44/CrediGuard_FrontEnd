@@ -1,0 +1,77 @@
+.wallet-page {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.page-header p {
+  margin-top: 0.5rem;
+  color: #6b7280;
+}
+
+.message,
+.empty-state,
+.wallet-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.25rem;
+}
+
+.message {
+  margin-bottom: 1rem;
+}
+
+.message.error {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.wallet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1rem;
+}
+
+.wallet-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #ececec;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
