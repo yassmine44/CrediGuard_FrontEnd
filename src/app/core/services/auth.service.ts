@@ -4,7 +4,7 @@ import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 
 interface AuthUser {
-  id?: number;
+  id?: number;           // ✅ ajouté en V2
   email?: string;
   userType?: string | null;
   role?: string | null;
@@ -53,6 +53,7 @@ export class AuthService {
       ? { ...(user as AuthUser) }
       : {};
 
+    // ✅ Extraction de l'id (ajouté en V2)
     const id =
       typeof source.id === 'number'
         ? source.id
@@ -70,13 +71,14 @@ export class AuthService {
       source.userType ?? source.role ?? fallback.userType ?? fallback.role
     );
 
+    // ✅ Condition de nullité mise à jour pour inclure id (V2)
     if (Object.keys(source).length === 0 && id === undefined && !email && !userType) {
       return null;
     }
 
     return {
       ...source,
-      ...(id !== undefined ? { id } : {}),
+      ...(id !== undefined ? { id } : {}),   // ✅ V2
       ...(email ? { email } : {}),
       ...(userType ? { userType, role: userType } : {})
     };
@@ -113,6 +115,7 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/verify-otp`, data);
   }
 
+  // ✅ V2 : email passé en query param + disable via query param + get2faStatus devient GET
   enable2fa(email: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/enable-2fa?email=${email}`, {});
   }
@@ -145,6 +148,7 @@ export class AuthService {
     return normalizedUser;
   }
 
+  // ✅ V2 : propagation de l'id dans le fallback
   saveUserFromAuthResponse(response: any, fallbackEmail?: string): AuthUser | null {
     return this.saveUser(
       response?.user ?? response?.currentUser ?? null,
@@ -188,6 +192,7 @@ export class AuthService {
     return this.storage?.getItem(this.emailKey) ?? null;
   }
 
+  // ✅ V2 : propagation de l'id dans le fallback
   savePendingOtpAuth(response: any, fallbackEmail: string): void {
     const email = response?.email || fallbackEmail;
     const user = this.buildStoredUser(

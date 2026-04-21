@@ -5,15 +5,18 @@
     </ng-container>
   </div>
 
+
   <a routerLink="/" class="brand">
     <div class="logo-icon">/</div>
     CREDIGUARD
   </a>
 
+
   <ul class="nav-links">
-    <li><a routerLink="/front" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a></li>
+    <li><a routerLink="/front" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">home</a></li>
     <li><a routerLink="/front/about" routerLinkActive="active">About</a></li>
     <li><a routerLink="/front/contact" routerLinkActive="active">Contact</a></li>
+
 
     <li><a routerLink="/front/credit" routerLinkActive="active">Credit</a></li>
     <li><a routerLink="/front/crowdfunding" routerLinkActive="active">Crowdfunding</a></li>
@@ -21,9 +24,29 @@
     <li><a routerLink="/front/partnership" routerLinkActive="active">Partnership</a></li>
     <li><a routerLink="/front/events" routerLinkActive="active">Events</a></li>
     <li><a routerLink="/front/ecommerce" routerLinkActive="active">E-Commerce</a></li>
+    <li>
+      <a routerLink="/front/orders" routerLinkActive="active">My Orders</a>
+    </li>
+    <li *ngIf="canSell()">
+  <a routerLink="/front/seller/products" routerLinkActive="active">My Products</a>
+</li>
+
+
+<li *ngIf="canSell()">
+  <a routerLink="/front/seller/products/new" routerLinkActive="active">Sell Product</a>
+</li>
   </ul>
 
+
   <div class="nav-actions">
+    <a routerLink="/front/cart" routerLinkActive="active" class="cart-link" aria-label="Cart">
+      <mat-icon>shopping_cart</mat-icon>
+      <span *ngIf="cartCount() > 0" class="cart-badge">
+        {{ cartCount() }}
+      </span>
+    </a>
+
+
     <button
       *ngIf="authService.isLoggedIn()"
       type="button"
@@ -33,8 +56,12 @@
       <mat-icon>account_circle</mat-icon>
     </button>
 
+
     <button type="button" class="icon-btn btn-notify" aria-label="Notifications">
       <mat-icon>notifications</mat-icon>
     </button>
   </div>
 </nav>
+
+
+

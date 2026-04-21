@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-
 export const ECOMMERCE_ADMIN_ROUTES: Routes = [
   {
     path: 'ecommerce',
@@ -87,3 +86,4 @@ export const ECOMMERCE_ADMIN_ROUTES: Routes = [
       .then(m => m.AdminProductRequestDetailComponent)
 }
 ];
+

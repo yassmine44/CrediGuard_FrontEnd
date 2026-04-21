@@ -13,6 +13,7 @@ import {
 } from '../models/product.model';
 import { MatIcon } from "@angular/material/icon";
 
+
 @Component({
   selector: 'app-product-form-admin',
   standalone: true,
@@ -27,6 +28,7 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private previewObjectUrl: string | null = null;
 
+
   categories = signal<Category[]>([]);
   loading = signal(false);
   saving = signal(false);
@@ -35,8 +37,10 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
   isEditMode = signal(false);
   productId = signal<number | null>(null);
 
+
   selectedFile: File | null = null;
   imagePreview = signal<string>('');
+
 
   paymentTypes = [
     'CARD',
@@ -45,7 +49,9 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     'WALLET'
   ];
 
+
   saleTypes: SaleMode[] = ['STANDARD', 'PREORDER'];
+
 
   formData: ProductCreateRequest = {
     categoryId: null,
@@ -67,8 +73,10 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     expectedReleaseDate: null
   };
 
+
   ngOnInit(): void {
     this.loadCategories();
+
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
@@ -78,9 +86,11 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     }
   }
 
+
   ngOnDestroy(): void {
     this.revokePreviewObjectUrl();
   }
+
 
   loadCategories(): void {
     this.categoryService.getAll().subscribe({
@@ -92,9 +102,11 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     });
   }
 
+
   loadProduct(id: number): void {
     this.loading.set(true);
     this.error.set('');
+
 
     this.productService.getById(id).subscribe({
       next: (product) => {
@@ -109,9 +121,11 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     });
   }
 
+
   patchForm(product: Product): void {
     this.revokePreviewObjectUrl();
     this.selectedFile = null;
+
 
     this.formData = {
   categoryId: product.categoryId ?? null,
@@ -133,12 +147,15 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
   expectedReleaseDate: this.toDatetimeLocal(product.expectedReleaseDate)
 };
 
+
     this.imagePreview.set(this.productService.getImageUrl(product.imageUrl));
   }
+
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files && input.files.length > 0 ? input.files[0] : null;
+
 
     if (!file) {
       this.selectedFile = null;
@@ -149,16 +166,19 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
       return;
     }
 
+
     this.selectedFile = file;
     this.revokePreviewObjectUrl();
     this.previewObjectUrl = URL.createObjectURL(file);
     this.imagePreview.set(this.previewObjectUrl);
   }
 
+
   onImagePreviewError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = this.productService.getImageUrl();
   }
+
 
   onSaleTypeChange(): void {
     if (this.formData.saleType === 'STANDARD') {
@@ -173,9 +193,11 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     }
   }
 
+
   saveProduct(): void {
     this.error.set('');
     this.success.set('');
+
 
     const validationError = this.validateForm();
     if (validationError) {
@@ -183,7 +205,9 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
       return;
     }
 
+
     this.saving.set(true);
+
 
     if (this.selectedFile) {
       this.productService.uploadImage(this.selectedFile).subscribe({
@@ -202,12 +226,15 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     }
   }
 
+
   private saveProductData(): void {
     const payload = this.buildPayload();
     const id = this.productId();
 
+
     if (this.isEditMode() && id !== null) {
       const updatePayload: ProductUpdateRequest = { ...payload };
+
 
       this.productService.update(id, updatePayload).subscribe({
         next: () => {
@@ -241,10 +268,12 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     }
   }
 
+
   cancel(): void {
     this.clearSelectedFile();
     this.router.navigate(['/admin/ecommerce/products']);
   }
+
 
   private validateForm(): string | null {
     if (!this.formData.categoryId) return 'Category is required.';
@@ -257,6 +286,7 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     }
     if (!this.formData.saleType) return 'Sale type is required.';
 
+
     if (this.formData.saleType === 'PREORDER') {
       const preorderQuota = this.formData.preorderQuota;
       if (preorderQuota == null || preorderQuota <= 0) {
@@ -264,18 +294,22 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
       }
     }
 
+
     const depositPercentage = this.formData.depositPercentage;
     if (depositPercentage != null && (depositPercentage <= 0 || depositPercentage > 1)) {
       return 'Deposit percentage must be between 0 and 1.';
     }
+
 
     const expressDeliveryFee = this.formData.expressDeliveryFee;
     if (expressDeliveryFee != null && expressDeliveryFee < 0) {
       return 'Express delivery fee must be greater than or equal to 0.';
     }
 
+
     return null;
   }
+
 
   private buildPayload(): ProductCreateRequest {
     return {
@@ -313,16 +347,20 @@ export class ProductFormAdminComponent implements OnInit, OnDestroy {
     };
   }
 
+
   private toIsoOrNull(value: string | null | undefined): string | null {
     if (!value) return null;
     return new Date(value).toISOString();
   }
 
+
 private toDatetimeLocal(value: string | null | undefined): string | null {
   if (!value) return null;
 
+
   const date = new Date(value);
   const pad = (n: number) => String(n).padStart(2, '0');
+
 
   const year = date.getFullYear();
   const month = pad(date.getMonth() + 1);
@@ -330,14 +368,17 @@ private toDatetimeLocal(value: string | null | undefined): string | null {
   const hours = pad(date.getHours());
   const minutes = pad(date.getMinutes());
 
+
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
+
 
   private clearSelectedFile(): void {
     this.selectedFile = null;
     this.revokePreviewObjectUrl();
     this.imagePreview.set('');
   }
+
 
   private revokePreviewObjectUrl(): void {
     if (this.previewObjectUrl) {
@@ -346,9 +387,15 @@ private toDatetimeLocal(value: string | null | undefined): string | null {
     }
   }
 
+
   private extractErrorMessage(err: any, fallback: string): string {
     if (err?.error?.message) return err.error.message;
     if (typeof err?.error === 'string') return err.error;
     return fallback;
   }
 }
+
+
+
+
+

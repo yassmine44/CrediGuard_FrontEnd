@@ -7,6 +7,7 @@ import { CategoryService } from '../services/category.service';
 import { Product } from '../models/product.model';
 import { Category } from '../models/category.model';
 
+
 type SortOption =
   | 'name-asc'
   | 'name-desc'
@@ -14,6 +15,7 @@ type SortOption =
   | 'price-desc'
   | 'date-desc'
   | 'date-asc';
+
 
 @Component({
   selector: 'app-products-admin',
@@ -27,11 +29,13 @@ export class ProductsAdminComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private router = inject(Router);
 
+
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   loading = signal(false);
   error = signal('');
   success = signal('');
+
 
   searchTerm = signal('');
   selectedCategoryId = signal<number | null>(null);
@@ -39,17 +43,21 @@ export class ProductsAdminComponent implements OnInit {
   selectedStatus = signal<string>('ALL');
   sortBy = signal<SortOption>('date-desc');
 
+
   currentPage = signal(1);
   pageSize = signal(5);
 
+
   filteredProducts = computed(() => {
     let data = [...this.products()];
+
 
     const search = this.searchTerm().trim().toLowerCase();
     const categoryId = this.selectedCategoryId();
     const saleType = this.selectedSaleType();
     const status = this.selectedStatus();
     const sort = this.sortBy();
+
 
     if (search) {
       data = data.filter(product =>
@@ -60,18 +68,22 @@ export class ProductsAdminComponent implements OnInit {
       );
     }
 
+
     if (categoryId !== null) {
       data = data.filter(product => product.categoryId === categoryId);
     }
+
 
     if (saleType !== 'ALL') {
       data = data.filter(product => product.saleType === saleType);
     }
 
+
     if (status !== 'ALL') {
       const isActive = status === 'ACTIVE';
       data = data.filter(product => product.active === isActive);
     }
+
 
     data.sort((a, b) => {
       switch (sort) {
@@ -91,13 +103,16 @@ export class ProductsAdminComponent implements OnInit {
       }
     });
 
+
     return data;
   });
+
 
   totalPages = computed(() => {
     const total = this.filteredProducts().length;
     return Math.max(1, Math.ceil(total / this.pageSize()));
   });
+
 
   paginatedProducts = computed(() => {
     const page = this.currentPage();
@@ -107,20 +122,24 @@ export class ProductsAdminComponent implements OnInit {
     return this.filteredProducts().slice(start, end);
   });
 
+
   startItem = computed(() => {
     const total = this.filteredProducts().length;
     if (total === 0) return 0;
     return (this.currentPage() - 1) * this.pageSize() + 1;
   });
 
+
   endItem = computed(() => {
     return Math.min(this.currentPage() * this.pageSize(), this.filteredProducts().length);
   });
+
 
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
   }
+
 
   loadCategories(): void {
     this.categoryService.getAll().subscribe({
@@ -129,9 +148,11 @@ export class ProductsAdminComponent implements OnInit {
     });
   }
 
+
   loadProducts(): void {
     this.loading.set(true);
     this.error.set('');
+
 
     this.productService.getAll().subscribe({
       next: (data) => {
@@ -146,20 +167,25 @@ export class ProductsAdminComponent implements OnInit {
     });
   }
 
+
   openCreateForm(): void {
     this.router.navigate(['/admin/ecommerce/products/new']);
   }
+
 
   openEditForm(id: number): void {
     this.router.navigate(['/admin/ecommerce/products/edit', id]);
   }
 
+
   deleteProduct(id: number): void {
     const confirmed = confirm('Are you sure you want to delete this product?');
     if (!confirmed) return;
 
+
     this.error.set('');
     this.success.set('');
+
 
     this.productService.delete(id).subscribe({
       next: () => {
@@ -173,42 +199,51 @@ export class ProductsAdminComponent implements OnInit {
     });
   }
 
+
  getCategoryName(categoryId: number | null | undefined): string {
   if (categoryId == null) return '—';
+
 
   const category = this.categories().find(c => c.id === categoryId);
   return category?.name ?? 'Unknown category';
 }
+
 
   onSearchChange(value: string): void {
     this.searchTerm.set(value);
     this.currentPage.set(1);
   }
 
+
   onCategoryChange(value: string): void {
     this.selectedCategoryId.set(value ? Number(value) : null);
     this.currentPage.set(1);
   }
+
 
   onSaleTypeChange(value: string): void {
     this.selectedSaleType.set(value);
     this.currentPage.set(1);
   }
 
+
   onStatusChange(value: string): void {
     this.selectedStatus.set(value);
     this.currentPage.set(1);
   }
+
 
   onSortChange(value: SortOption): void {
     this.sortBy.set(value);
     this.currentPage.set(1);
   }
 
+
   onPageSizeChange(value: string): void {
     this.pageSize.set(Number(value));
     this.currentPage.set(1);
   }
+
 
   goToPreviousPage(): void {
     if (this.currentPage() > 1) {
@@ -216,11 +251,13 @@ export class ProductsAdminComponent implements OnInit {
     }
   }
 
+
   goToNextPage(): void {
     if (this.currentPage() < this.totalPages()) {
       this.currentPage.update(v => v + 1);
     }
   }
+
 
   resetFilters(): void {
     this.searchTerm.set('');
@@ -232,24 +269,30 @@ export class ProductsAdminComponent implements OnInit {
     this.currentPage.set(1);
   }
 
-  
+
+ 
 getImageUrl(imageUrl?: string | null): string {
   if (!imageUrl || !imageUrl.trim()) {
     return 'assets/default-product.png';
   }
 
+
   const value = imageUrl.trim().replace(/^"+|"+$/g, '');
+
 
   if (value.startsWith('http://') || value.startsWith('https://')) {
     return value;
   }
 
+
   if (value.startsWith('/uploads/')) {
     return `http://localhost:8089/api${value}`;
   }
 
+
   return 'assets/default-product.png';
 }
+
 
 onImageError(event: Event): void {
   const img = event.target as HTMLImageElement;
@@ -257,9 +300,15 @@ onImageError(event: Event): void {
 }
  
 
+
   private extractErrorMessage(err: any, fallback: string): string {
     if (err?.error?.message) return err.error.message;
     if (typeof err?.error === 'string') return err.error;
     return fallback;
   }
 }
+
+
+
+
+
