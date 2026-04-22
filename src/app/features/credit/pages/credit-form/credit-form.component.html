@@ -1,0 +1,124 @@
+<div class="credit-page">
+  <div class="page-header">
+    <div>
+      <h1>Credit</h1>
+      <p>Create or review the credit linked to request #{{ demandeId }}</p>
+    </div>
+
+    <button type="button" class="btn btn-secondary" (click)="goBack()">
+      Back to Request
+    </button>
+  </div>
+
+  <div *ngIf="loading()" class="state-box">
+    Loading credit data...
+  </div>
+
+  <div *ngIf="error()" class="state-box error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="success()" class="state-box success">
+    {{ success() }}
+  </div>
+
+  <div *ngIf="demande() as d" class="request-summary">
+    <div class="info-row">
+      <span>Request Status</span>
+      <strong>{{ d.statut }}</strong>
+    </div>
+    <div class="info-row">
+      <span>Requested Amount</span>
+      <strong>{{ d.montantDemande | number:'1.0-2' }}</strong>
+    </div>
+    <div class="info-row">
+      <span>Duration</span>
+      <strong>{{ d.dureeMois }} months</strong>
+    </div>
+  </div>
+
+  <div *ngIf="existingCredit() as c" class="credit-summary">
+    <h3>Existing Credit</h3>
+
+    <div class="info-row">
+      <span>Approved Amount</span>
+      <strong>{{ c.montantAccorde | number:'1.0-2' }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Total Amount</span>
+      <strong>{{ c.montantTotal | number:'1.0-2' }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Remaining Amount</span>
+      <strong>{{ c.montantRestant | number:'1.0-2' }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Repayment Rate</span>
+      <strong>{{ c.tauxRemboursement }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Repayment Mode</span>
+      <strong>{{ c.modeRemboursement }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Status</span>
+      <strong>{{ c.statut }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Start Date</span>
+      <strong>{{ c.dateDebut | date:'medium' }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>End Date</span>
+      <strong>{{ c.dateFin | date:'medium' }}</strong>
+    </div>
+  </div>
+
+  <form
+    *ngIf="!loading() && !existingCredit()"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    class="credit-card"
+  >
+    <div class="form-group">
+      <label>Approved Amount</label>
+      <input type="number" formControlName="montantAccorde" />
+    </div>
+
+    <div class="form-group">
+      <label>Repayment Rate</label>
+      <input type="number" formControlName="tauxRemboursement" />
+    </div>
+
+    <div class="form-group">
+      <label>Repayment Mode</label>
+      <select formControlName="modeRemboursement">
+        <option *ngFor="let mode of modes" [value]="mode">
+          {{ mode }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>End Date</label>
+      <input type="datetime-local" formControlName="dateFin" />
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">
+        Create Credit
+      </button>
+
+      <button type="button" class="btn btn-secondary" (click)="goBack()">
+        Back to Request
+      </button>
+    </div>
+  </form>
+</div>

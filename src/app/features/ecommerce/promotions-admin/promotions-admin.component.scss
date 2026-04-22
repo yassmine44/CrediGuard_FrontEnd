@@ -1,0 +1,31 @@
+@use '../calendar-events-admin/calendar-events-admin.component.scss';
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* LIVE */
+.status-badge.live {
+  background: #e6f7ee;
+  color: #0f9d58;
+}
+
+/* SCHEDULED */
+.status-badge.scheduled {
+  background: #fff4e5;
+  color: #f59e0b;
+}
+
+/* EXPIRED */
+.status-badge.expired {
+  background: #fdecea;
+  color: #e53935;
+}
+
+/* DISABLED */
+.status-badge.disabled {
+  background: #eceff1;
+  color: #607d8b;
+}

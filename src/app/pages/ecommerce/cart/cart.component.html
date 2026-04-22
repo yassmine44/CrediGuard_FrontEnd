@@ -1,0 +1,128 @@
+<div class="cart-page">
+
+  <div class="back-button-container">
+    <a routerLink="/front/ecommerce" class="back-button">
+      ← Back to Shop
+    </a>
+  </div>
+
+  <div class="cart-header">
+    <h1>My Cart</h1>
+    <p *ngIf="cart()?.items?.length" class="item-count">
+      {{ cart()?.items?.length }} item{{ cart()?.items?.length !== 1 ? 's' : '' }}
+    </p>
+  </div>
+
+  <div *ngIf="loading()" class="state-message loading">
+    <div class="spinner"></div>
+    <p>Loading your cart...</p>
+  </div>
+
+  <div *ngIf="error()" class="state-message error">
+    {{ error() }}
+  </div>
+
+  <ng-container *ngIf="cart() as cartData">
+
+    <div *ngIf="!cartData.items.length" class="empty-cart">
+      <div class="empty-icon">🛒</div>
+      <h2>Your cart is empty</h2>
+      <p>Looks like you haven't added anything yet.</p>
+      <a routerLink="/front/ecommerce" class="continue-btn">
+        Continue Shopping
+      </a>
+    </div>
+
+    <div *ngIf="cartData.items.length" class="cart-content">
+
+      <div class="cart-items">
+        <div class="cart-item" *ngFor="let item of cartData.items">
+
+          <div class="item-left">
+            <div class="item-image-wrapper">
+              <img
+                [src]="getImageUrl(item.imageUrl)"
+                [alt]="item.productName"
+                (error)="onImageError($event)"
+                class="cart-item-image"
+              >
+            </div>
+
+            <div class="item-info">
+              <h4>{{ item.productName }}</h4>
+              <p class="unit-price">
+                Unit price: {{ item.unitPrice | currency:'TND':'symbol':'1.2-2' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="item-actions">
+            <div class="quantity-control">
+              <button
+                type="button"
+                class="qty-btn"
+                (click)="decreaseQuantity(item.id, item.quantity)"
+                [disabled]="actionLoading()"
+              >
+                −
+              </button>
+
+              <span class="quantity">{{ item.quantity }}</span>
+
+              <button
+                type="button"
+                class="qty-btn"
+                (click)="increaseQuantity(item.id, item.quantity)"
+                [disabled]="actionLoading()"
+              >
+                +
+              </button>
+            </div>
+
+            <div class="line-total">
+              {{ item.lineTotal | currency:'TND':'symbol':'1.2-2' }}
+            </div>
+
+            <button
+              type="button"
+              class="remove-btn"
+              (click)="removeItem(item.id)"
+              [disabled]="actionLoading()"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <h3>Order Summary</h3>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>{{ cartData.total | currency:'TND':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <div class="summary-row total">
+          <strong>Total</strong>
+          <strong>{{ cartData.total | currency:'TND':'symbol':'1.2-2' }}</strong>
+        </div>
+
+        <div class="summary-actions">
+          <button
+            type="button"
+            class="clear-btn"
+            (click)="clearCart()"
+            [disabled]="actionLoading()"
+          >
+            Clear Cart
+          </button>
+
+          <a routerLink="/front/checkout" class="checkout-btn">
+            Proceed to Checkout
+          </a>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

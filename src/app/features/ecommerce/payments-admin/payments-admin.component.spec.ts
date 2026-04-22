@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { HeaderFrontComponent } from './header-front.component';
+import { PaymentsAdminComponent } from './payments-admin.component';
 
-describe('HeaderFrontComponent', () => {
-  let component: HeaderFrontComponent;
-  let fixture: ComponentFixture<HeaderFrontComponent>;
+describe('PaymentsAdminComponent', () => {
+  let component: PaymentsAdminComponent;
+  let fixture: ComponentFixture<PaymentsAdminComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HeaderFrontComponent]
+      imports: [PaymentsAdminComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(HeaderFrontComponent);
+    fixture = TestBed.createComponent(PaymentsAdminComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

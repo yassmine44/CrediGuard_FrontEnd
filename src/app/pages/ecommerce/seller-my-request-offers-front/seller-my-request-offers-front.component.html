@@ -1,0 +1,77 @@
+<div class="seller-offers-page">
+  <div class="top-bar">
+    <a routerLink="/front/seller/product-requests" class="back-link">← Back to Requests</a>
+  </div>
+
+  <div class="page-header">
+    <p class="eyebrow">MY SELLER OFFERS</p>
+    <h1>Track your submitted offers</h1>
+    <p>Review the status of your responses to buyer product requests.</p>
+  </div>
+
+  <div *ngIf="error()" class="state-message error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="loading()" class="loading-box">
+    Loading your offers...
+  </div>
+
+  <ng-container *ngIf="!loading()">
+    <div *ngIf="!offers().length" class="empty-state">
+      <h3>No offers submitted yet</h3>
+      <p>You have not responded to any buyer requests yet.</p>
+      <a routerLink="/front/seller/product-requests" class="primary-btn">
+        Browse Requests
+      </a>
+    </div>
+
+    <div *ngIf="offers().length" class="offers-grid">
+      <div class="offer-card" *ngFor="let offer of offers()">
+        <div class="offer-top">
+          <div>
+            <h3>Request #{{ offer.productRequestId }}</h3>
+            <p class="offer-date">
+              Submitted:
+              {{ offer.createdAt ? (offer.createdAt | date:'medium') : '—' }}
+            </p>
+          </div>
+
+          <span class="status-badge" [ngClass]="getStatusClass(offer.status)">
+            {{ offer.status }}
+          </span>
+        </div>
+
+        <div class="offer-meta">
+          <div class="meta-item">
+            <span class="label">Proposed Price</span>
+            <span class="value">
+              {{ offer.proposedPrice != null ? (offer.proposedPrice | currency:'TND':'symbol':'1.2-2') : '—' }}
+            </span>
+          </div>
+
+          <div class="meta-item">
+            <span class="label">Proposed Quantity</span>
+            <span class="value">{{ offer.proposedQuantity ?? '—' }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="label">Delivery Time</span>
+            <span class="value">
+              {{ offer.estimatedDeliveryDays != null ? (offer.estimatedDeliveryDays + ' days') : '—' }}
+            </span>
+          </div>
+
+          <div class="meta-item">
+            <span class="label">Linked Product</span>
+            <span class="value">{{ offer.productName || 'Custom offer' }}</span>
+          </div>
+        </div>
+
+        <p class="offer-message">
+          {{ offer.message || 'No message provided.' }}
+        </p>
+      </div>
+    </div>
+  </ng-container>
+</div>

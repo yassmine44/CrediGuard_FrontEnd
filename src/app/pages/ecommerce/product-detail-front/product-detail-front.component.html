@@ -1,0 +1,161 @@
+<div class="product-detail-page">
+  <!-- Back Button -->
+  <div class="back-button-container">
+    <a routerLink="/front/ecommerce" class="back-button">
+      ← Back to Shop
+    </a>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="state-message loading">
+    <div class="spinner"></div>
+    <p>Loading product details...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error()" class="state-message error">
+    {{ error() }}
+  </div>
+
+  <ng-container *ngIf="product() as p">
+    <div class="product-detail-container">
+
+      <!-- Image principale -->
+      <div class="image-section">
+        <div class="main-image-wrapper">
+          <img
+            [src]="getImageUrl(p.imageUrl)"
+            [alt]="p.name"
+            (error)="onImageError($event)"
+            class="main-image"
+          >
+        </div>
+      </div>
+
+      <!-- Informations produit -->
+      <div class="info-section">
+        <h1 class="product-name">{{ p.name }}</h1>
+
+        <!-- Prix + Promotion -->
+        <div class="price-block">
+          <div class="price current-price">
+            {{ (p.finalPrice ?? p.currentPrice ?? p.basePrice) | currency:'TND':'symbol':'1.2-2' }}
+          </div>
+
+          <div class="promotion-line" *ngIf="p.promotionApplied">
+            <span class="old-price">
+              {{ (p.originalPrice ?? p.basePrice) | currency:'TND':'symbol':'1.2-2' }}
+            </span>
+
+            <span class="discount-badge" *ngIf="p.discountAmount">
+              Save {{ p.discountAmount | currency:'TND':'symbol':'1.2-2' }}
+            </span>
+          </div>
+
+          <div class="promotion-name" *ngIf="p.promotionApplied && p.promotionName">
+            Promotion: {{ p.promotionName }}
+          </div>
+        </div>
+
+        <p class="description">
+          {{ p.description || 'No description available.' }}
+        </p>
+
+        <div class="meta-info">
+          <div class="meta-item">
+            <span class="label">Sale Mode</span>
+            <span class="value">{{ p.saleType || 'STANDARD' }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="label">Seller</span>
+            <span class="value">{{ p.sellerName || 'Unknown Seller' }}</span>
+          </div>
+
+          <div class="meta-item" *ngIf="p.stockQuantity !== null && p.stockQuantity !== undefined">
+            <span class="label">Stock</span>
+            <span class="value">{{ p.stockQuantity }}</span>
+          </div>
+        </div>
+
+        <!-- Section Ajout au panier -->
+        <div class="add-to-cart-section">
+          <div class="quantity-group">
+            <label for="quantity">Quantity</label>
+            <input
+              type="number"
+              id="quantity"
+              min="1"
+              [(ngModel)]="quantity"
+              class="quantity-input"
+            >
+          </div>
+
+          <button
+            class="add-to-cart-btn"
+            (click)="addToCart(p.id)"
+            [disabled]="addingToCart"
+          >
+            {{ addingToCart ? 'Adding to cart...' : 'Add to Cart' }}
+          </button>
+
+          <div
+            *ngIf="addToCartMessage"
+            class="cart-feedback"
+            [class.success]="addToCartMessage.includes('successfully')"
+          >
+            {{ addToCartMessage }}
+
+            <a
+              *ngIf="addToCartMessage.includes('successfully')"
+              routerLink="/front/cart"
+              class="go-to-cart"
+            >
+              Go to Cart →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Autres produits du vendeur -->
+    <div class="seller-products" *ngIf="sellerProducts().length > 0">
+      <h2>Other products from this seller</h2>
+
+      <div class="seller-products-grid">
+        <div
+          class="seller-product-card"
+          *ngFor="let item of sellerProducts()"
+        >
+          <div class="seller-image-wrapper">
+            <img
+              [src]="getImageUrl(item.imageUrl)"
+              [alt]="item.name"
+              (error)="onImageError($event)"
+            >
+          </div>
+
+          <div class="seller-content">
+            <h4>{{ item.name }}</h4>
+
+            <p class="seller-price">
+              {{ (item.finalPrice ?? item.currentPrice ?? item.basePrice) | currency:'TND':'symbol':'1.2-2' }}
+            </p>
+
+            <p class="seller-old-price" *ngIf="item.promotionApplied">
+              {{ (item.originalPrice ?? item.basePrice) | currency:'TND':'symbol':'1.2-2' }}
+            </p>
+
+            <p class="seller-promo-name" *ngIf="item.promotionApplied && item.promotionName">
+              {{ item.promotionName }}
+            </p>
+
+            <a [routerLink]="['/front/products', item.id]" class="view-btn">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

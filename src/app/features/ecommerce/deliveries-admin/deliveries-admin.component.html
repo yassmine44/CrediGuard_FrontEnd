@@ -1,0 +1,126 @@
+<div class="deliveries-page">
+  <div class="page-header">
+      <button type="button" class="back-btn" (click)="goBack()">
+  ← Back to E-Commerce Dashboard
+</button>
+    <div>
+      <h2>Deliveries Management</h2>
+      <p>Track, update, and monitor deliveries linked to orders.</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="state-message">Loading deliveries...</div>
+  <div *ngIf="error()" class="state-message error">{{ error() }}</div>
+  <div *ngIf="success()" class="state-message success">{{ success() }}</div>
+
+  <div class="page-layout">
+    <div class="card form-card">
+      <h3>{{ editingId ? 'Edit Delivery' : 'Select a delivery to edit' }}</h3>
+
+      <div *ngIf="editingId; else noSelection">
+        <div class="form-grid">
+          <select [(ngModel)]="deliveryType">
+            <option value="STANDARD">Standard</option>
+            <option value="EXPRESS">Express</option>
+          </select>
+
+          <select [(ngModel)]="deliveryStatus">
+            <option value="WAITING_STOCK">Waiting stock</option>
+            <option value="PENDING">Pending</option>
+            <option value="IN_TRANSIT">In transit</option>
+            <option value="DELIVERED">Delivered</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+
+          <select [(ngModel)]="deliverySlot">
+            <option value="MORNING">Morning</option>
+            <option value="AFTERNOON">Afternoon</option>
+            <option value="EVENING">Evening</option>
+          </select>
+
+          <input [(ngModel)]="deliveryFee" type="number" min="0" placeholder="Delivery fee" />
+
+          <input [(ngModel)]="scheduledAt" type="datetime-local" />
+          <input [(ngModel)]="shippedAt" type="datetime-local" />
+
+          <input [(ngModel)]="deliveredAt" type="datetime-local" />
+          <input [(ngModel)]="trackingNumber" type="text" placeholder="Tracking number" />
+
+          <input [(ngModel)]="carrier" type="text" placeholder="Carrier" />
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="primary-btn" (click)="updateDelivery()">
+            Update Delivery
+          </button>
+
+          <button type="button" class="secondary-btn" (click)="resetForm()">
+            Cancel Edit
+          </button>
+        </div>
+      </div>
+
+      <ng-template #noSelection>
+        <p class="empty-text">Choose a delivery from the table to edit it.</p>
+      </ng-template>
+    </div>
+
+    <div class="card table-card">
+      <h3>All Deliveries</h3>
+
+      <table *ngIf="deliveries().length; else noDeliveries">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Order</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Slot</th>
+            <th>Fee</th>
+            <th>Carrier</th>
+            <th>Tracking</th>
+            <th>Address</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let delivery of deliveries()">
+            <td>{{ delivery.id }}</td>
+            <td>#{{ delivery.orderId }}</td>
+            <td>{{ delivery.deliveryType }}</td>
+            <td>
+              <span [class]="statusClass(delivery.deliveryStatus)">
+                {{ delivery.deliveryStatus }}
+              </span>
+            </td>
+            <td>{{ delivery.deliverySlot }}</td>
+            <td>{{ delivery.deliveryFee | currency:'TND':'symbol':'1.2-2' }}</td>
+            <td>{{ delivery.carrier || '-' }}</td>
+            <td>{{ delivery.trackingNumber || '-' }}</td>
+            <td>
+              <ng-container *ngIf="delivery.address as address">
+                <div class="address-mini">
+                  <strong>{{ address.fullName }}</strong><br>
+                  {{ address.city }}<br>
+                  {{ address.addressLine }}
+                </div>
+              </ng-container>
+              <span *ngIf="!delivery.address">-</span>
+            </td>
+            <td>{{ delivery.createdAt | date:'short' }}</td>
+            <td class="actions">
+              <button type="button" class="table-btn edit" (click)="editDelivery(delivery)">Edit</button>
+              <button type="button" class="table-btn delete" (click)="cancelDelivery(delivery.id)">Cancel</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ng-template #noDeliveries>
+        <p class="empty-text">No deliveries found.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+<div class="seller-offer-page">
+  <div class="top-bar">
+    <a routerLink="/front/seller/product-requests" class="back-link">← Back to Requests</a>
+  </div>
+
+  <div *ngIf="error()" class="state-message error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="successMessage()" class="state-message success">
+    {{ successMessage() }}
+  </div>
+
+  <div *ngIf="loading()" class="loading-box">
+    Loading request details...
+  </div>
+
+  <ng-container *ngIf="request() as req">
+    <div class="request-summary">
+      <p class="eyebrow">RESPOND TO REQUEST</p>
+      <h1>{{ req.title }}</h1>
+      <p class="summary-description">
+        {{ req.description || 'No description provided.' }}
+      </p>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="label">Quantity</span>
+          <span class="value">{{ req.requestedQuantity ?? '—' }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Budget</span>
+          <span class="value">{{ req.maxBudget ?? '—' }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Desired Date</span>
+          <span class="value">{{ req.desiredDate || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="offer-form">
+      <div class="form-grid">
+        <div class="field">
+          <label for="productId">Select your product *</label>
+          <select id="productId" formControlName="productId">
+            <option [ngValue]="null">Choose a product</option>
+            <option *ngFor="let product of sellerProducts()" [ngValue]="product.id">
+              {{ product.name }} - ID #{{ product.id }}
+            </option>
+          </select>
+          <small class="error-text" *ngIf="hasError('productId', 'required')">
+            Product is required.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="proposedPrice">Proposed price *</label>
+          <input id="proposedPrice" type="number" min="0.01" step="0.01" formControlName="proposedPrice">
+          <small class="error-text" *ngIf="hasError('proposedPrice', 'required')">Price is required.</small>
+        </div>
+
+        <div class="field">
+          <label for="proposedQuantity">Proposed quantity *</label>
+          <input id="proposedQuantity" type="number" min="1" formControlName="proposedQuantity">
+          <small class="error-text" *ngIf="hasError('proposedQuantity', 'required')">Quantity is required.</small>
+        </div>
+
+        <div class="field">
+          <label for="estimatedDeliveryDays">Estimated delivery days *</label>
+          <input id="estimatedDeliveryDays" type="number" min="1" formControlName="estimatedDeliveryDays">
+          <small class="error-text" *ngIf="hasError('estimatedDeliveryDays', 'required')">Delivery time is required.</small>
+        </div>
+
+        <div class="field full-width">
+          <label for="message">Message</label>
+          <textarea
+            id="message"
+            rows="5"
+            formControlName="message"
+            placeholder="Explain your offer, product quality, delivery conditions, etc."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a routerLink="/front/seller/product-requests" class="secondary-btn">Cancel</a>
+        <button type="submit" class="primary-btn" [disabled]="submitting()">
+          {{ submitting() ? 'Submitting...' : 'Submit Offer' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</div>

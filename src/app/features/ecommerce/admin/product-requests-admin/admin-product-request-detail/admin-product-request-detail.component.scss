@@ -1,0 +1,154 @@
+.request-detail-page {
+  padding: 32px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.back-link {
+  margin-bottom: 16px;
+
+  a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+  }
+}
+
+.header-card,
+.info-card,
+.offers-card,
+.state-card {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.header-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+
+  .section-label {
+    font-size: 0.82rem;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  h1 {
+    margin: 8px 0;
+    font-size: 2rem;
+    color: #0f172a;
+  }
+
+  p {
+    color: #64748b;
+  }
+}
+
+.status-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+
+  select,
+  button {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #dbe2ea;
+  }
+
+  button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+}
+
+.info-row {
+  margin-bottom: 12px;
+  color: #334155;
+}
+
+.description-block {
+  margin-top: 20px;
+
+  p {
+    margin-top: 8px;
+    color: #475569;
+    line-height: 1.6;
+  }
+}
+
+.offer-item {
+  border: 1px solid #eef2f7;
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 16px;
+}
+
+.offer-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+
+  h3 {
+    margin: 0 0 6px;
+    color: #0f172a;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+  }
+}
+
+.offer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 12px 0;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.offer-message {
+  color: #475569;
+  margin: 0;
+}
+
+.offer-badge {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  &.pending { background: #fef3c7; color: #b45309; }
+  &.accepted { background: #dcfce7; color: #15803d; }
+  &.rejected { background: #fee2e2; color: #b91c1c; }
+}
+
+.empty-state {
+  color: #64748b;
+  padding: 16px 0;
+}
+
+@media (max-width: 992px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

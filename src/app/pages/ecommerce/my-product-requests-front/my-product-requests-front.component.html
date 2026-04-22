@@ -1,0 +1,112 @@
+<div class="my-requests-page">
+  <div class="top-bar">
+    <a routerLink="/front/ecommerce" class="back-link">← Back to Shop</a>
+    <a routerLink="/front/request-product" class="new-request-btn">+ New Request</a>
+  </div>
+
+  <div class="page-header">
+    <p class="eyebrow">MY PRODUCT REQUESTS</p>
+    <h1>Track your requests</h1>
+    <p>
+      View your submitted requests, check their status, review seller activity,
+      and manage open requests.
+    </p>
+  </div>
+
+  <div *ngIf="error()" class="state-message error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="successMessage()" class="state-message success">
+    {{ successMessage() }}
+  </div>
+
+  <div *ngIf="loading()" class="loading-box">
+    Loading your product requests...
+  </div>
+
+  <ng-container *ngIf="!loading()">
+    <div *ngIf="!requests().length" class="empty-state">
+      <h3>No product requests yet</h3>
+      <p>
+        You have not submitted any product requests yet. Start by describing the
+        product you need and let sellers respond.
+      </p>
+      <a routerLink="/front/request-product" class="primary-btn">
+        Request a Product
+      </a>
+    </div>
+
+    <div *ngIf="requests().length" class="requests-grid">
+      <div class="request-card" *ngFor="let request of requests()">
+        <div class="request-top">
+          <div>
+            <h3>{{ request.title }}</h3>
+            <p class="request-date">
+              Created:
+              {{ request.createdAt ? (request.createdAt | date:'medium') : '—' }}
+            </p>
+          </div>
+
+          <span class="status-badge" [ngClass]="getStatusClass(request.status)">
+            {{ request.status }}
+          </span>
+        </div>
+
+        <p class="description">
+          {{ request.description || 'No description provided.' }}
+        </p>
+
+        <div class="request-meta">
+          <div class="meta-item">
+            <span class="label">Category</span>
+            <span class="value">{{ request.categoryName || '—' }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="label">Quantity</span>
+            <span class="value">{{ request.requestedQuantity ?? '—' }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="label">Budget</span>
+            <span class="value">
+              {{ request.maxBudget != null ? (request.maxBudget | currency:'TND':'symbol':'1.2-2') : '—' }}
+            </span>
+          </div>
+
+          <div class="meta-item">
+            <span class="label">Desired Date</span>
+            <span class="value">
+              {{ request.desiredDate ? (request.desiredDate | date:'medium') : '—' }}
+            </span>
+          </div>
+
+          <div class="meta-item">
+            <span class="label">Offers</span>
+            <span class="value">{{ request.offersCount ?? 0 }}</span>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <a
+            [routerLink]="['/front/my-product-requests', request.id]"
+            class="details-btn"
+          >
+            View Details
+          </a>
+
+          <button
+            *ngIf="canCancel(request.status)"
+            type="button"
+            class="cancel-btn"
+            [disabled]="cancellingId() === request.id"
+            (click)="cancelRequest(request.id)"
+          >
+            {{ cancellingId() === request.id ? 'Cancelling...' : 'Cancel Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

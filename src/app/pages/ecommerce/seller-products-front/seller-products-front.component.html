@@ -1,0 +1,95 @@
+<div class="seller-products-page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <p class="eyebrow">SELLER DASHBOARD</p>
+      <h1>My Products</h1>
+      <p class="subtitle">Manage and track all your published products.</p>
+    </div>
+
+    <a routerLink="/front/seller/products/new" class="add-product-btn">
+      <i class="fas fa-plus"></i>
+      Add New Product
+    </a>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="state-message loading">
+    <div class="spinner"></div>
+    <p>Loading your products...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error()" class="state-message error">
+    {{ error() }}
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && !error() && products().length === 0" class="empty-state">
+    <i class="fas fa-box-open"></i>
+    <h3>No products yet</h3>
+    <p>You haven't published any products on the marketplace.</p>
+    <a routerLink="/front/seller/products/new" class="add-product-btn">
+      Publish Your First Product
+    </a>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="products-grid" *ngIf="!loading() && !error() && products().length > 0">
+    <div class="product-card" 
+         *ngFor="let product of products(); trackBy: trackByProductId">
+
+      <div class="image-wrapper">
+        <img
+          [src]="getImageUrl(product.imageUrl)"
+          [alt]="product.name"
+          (error)="onImageError($event)"
+          loading="lazy">
+        <div class="status-badge" *ngIf="product.saleType === 'PREORDER'">
+          PREORDER
+        </div>
+      </div>
+
+      <div class="card-body">
+        <p class="category">{{ product.categoryName || 'Uncategorized' }}</p>
+        
+        <h3 class="product-name">{{ product.name }}</h3>
+
+        <p class="description">
+          {{ product.description || 'No description provided.' }}
+        </p>
+
+        <div class="meta-info">
+          <span class="stock">
+            <i class="fas fa-box"></i> 
+            Stock: {{ product.stockQuantity ?? 'N/A' }}
+          </span>
+          <span class="sale-type" [class.preorder]="product.saleType === 'PREORDER'">
+            {{ product.saleType || 'STANDARD' }}
+          </span>
+        </div>
+
+        <div class="price-row">
+          <span class="price">
+            {{ getDisplayPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+          </span>
+        </div>
+
+        <div class="actions">
+          <a [routerLink]="['/front/seller/products/edit', product.id]" class="edit-btn">
+            <i class="fas fa-edit"></i> Edit
+          </a>
+          <button 
+            type="button"
+            class="delete-btn"
+            (click)="deleteProduct(product.id)"
+            [disabled]="deletingId() === product.id">
+            <i class="fas fa-trash"></i>
+            {{ deletingId() === product.id ? 'Deleting...' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

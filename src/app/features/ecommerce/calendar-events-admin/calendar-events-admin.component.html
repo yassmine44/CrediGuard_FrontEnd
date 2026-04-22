@@ -1,0 +1,156 @@
+<div class="admin-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Administration • Promotions</p>
+      <h1>Calendar Events</h1>
+      <p class="subtitle">
+        Manage seasonal windows and event periods that activate promotions automatically.
+      </p>
+    </div>
+
+    <button class="primary-btn" (click)="toggleCreateForm()">
+      <mat-icon>{{ showCreateForm() ? 'close' : 'add' }}</mat-icon>
+      {{ showCreateForm() ? 'Close Form' : 'Create Event' }}
+    </button>
+  </div>
+
+  <div *ngIf="error()" class="alert error">{{ error() }}</div>
+  <div *ngIf="success()" class="alert success">{{ success() }}</div>
+
+  <section *ngIf="showCreateForm()" class="card form-card">
+    <div class="section-header">
+      <h2>Create Calendar Event</h2>
+      <p>Define the event period that promotions can inherit automatically.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="admin-form">
+      <div class="form-grid">
+        <label>
+          Event Name
+          <input type="text" formControlName="name" placeholder="Spring Sale 2026" />
+        </label>
+
+        <label>
+          Event Code
+          <input type="text" formControlName="code" placeholder="SPRING_SALE_2026" />
+        </label>
+
+        <label>
+          Event Type
+          <select formControlName="eventType">
+            <option [ngValue]="null">Select type</option>
+            <option *ngFor="let type of eventTypes" [ngValue]="type">
+              {{ formatEventType(type) }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Start Date
+          <input type="datetime-local" formControlName="startDate" />
+        </label>
+
+        <label>
+          End Date
+          <input type="datetime-local" formControlName="endDate" />
+        </label>
+
+        <label class="checkbox-field">
+          <input type="checkbox" formControlName="active" />
+          Active
+        </label>
+
+        <label class="checkbox-field">
+          <input type="checkbox" formControlName="recurringAnnually" />
+          Recurring annually
+        </label>
+
+        <label class="full-width">
+          Description
+          <textarea rows="4" formControlName="description"
+                    placeholder="Seasonal campaign for spring promotions"></textarea>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="primary-btn" [disabled]="saving()">
+          <mat-icon>save</mat-icon>
+          {{ saving() ? 'Saving...' : 'Save Event' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="stats-grid" *ngIf="!loading()">
+    <div class="stat-card">
+      <span class="stat-value">{{ events().length }}</span>
+      <span class="stat-label">Total Events</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ activeEvents().length }}</span>
+      <span class="stat-label">Enabled Events</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ activeEventsCount() }}</span>
+      <span class="stat-label">Currently Live</span>
+    </div>
+  </section>
+
+  <section class="card table-card">
+    <div class="section-header">
+      <h2>Events List</h2>
+      <p>Track event windows and their current status.</p>
+    </div>
+
+    <div *ngIf="loading()" class="state-message">Loading calendar events...</div>
+    <div *ngIf="!loading() && events().length === 0" class="state-message">
+      No calendar events created yet.
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading() && events().length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Code</th>
+            <th>Type</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Recurring</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let event of events()">
+            <td>
+              <div class="cell-title">{{ event.name }}</div>
+              <div class="cell-subtitle" *ngIf="event.description">{{ event.description }}</div>
+            </td>
+            <td>{{ event.code }}</td>
+            <td>{{ formatEventType(event.eventType) }}</td>
+            <td>{{ event.startDate | date:'medium' }}</td>
+            <td>{{ event.endDate | date:'medium' }}</td>
+            <td>{{ event.recurringAnnually ? 'Yes' : 'No' }}</td>
+            <td>
+              <span class="status-badge"
+                    [ngClass]="{
+                      live: isCurrentlyActive(event),
+                      enabled: event.active && !isCurrentlyActive(event),
+                      disabled: !event.active
+                    }">
+                {{
+                  isCurrentlyActive(event)
+                    ? 'LIVE'
+                    : event.active
+                    ? 'ENABLED'
+                    : 'DISABLED'
+                }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

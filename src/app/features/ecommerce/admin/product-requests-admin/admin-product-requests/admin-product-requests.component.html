@@ -1,0 +1,117 @@
+<div class="admin-requests-page">
+
+  <div class="page-header">
+    <div>
+      <span class="section-label">Administration • Product Requests</span>
+      <h1>Product Requests Management</h1>
+      <p>Monitor, review, and control all customer requests from one place.</p>
+    </div>
+  </div>
+
+  <div class="kpi-grid" *ngIf="!loading() && !error()">
+    <div
+      class="kpi-card"
+      *ngFor="let kpi of kpis()"
+      [ngClass]="kpi.cssClass">
+      <div class="kpi-value">{{ kpi.value }}</div>
+      <div class="kpi-title">{{ kpi.title }}</div>
+      <div class="kpi-subtitle">{{ kpi.subtitle }}</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <input
+        type="text"
+        placeholder="Search by title, client, category, seller"
+        (input)="onSearch($any($event.target).value)"
+      />
+
+      <select
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="onStatusChange($event)">
+        <option *ngFor="let status of statuses" [value]="status">
+          {{ status }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage()" class="state success">
+    <p>{{ successMessage() }}</p>
+  </div>
+
+  <div *ngIf="loading()" class="state loading">
+    <p>Loading product requests...</p>
+  </div>
+
+  <div *ngIf="error()" class="state error">
+    <p>{{ error() }}</p>
+  </div>
+
+  <div *ngIf="!loading() && !error()" class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Client</th>
+          <th>Category</th>
+          <th>Qty</th>
+          <th>Budget</th>
+          <th>Status</th>
+          <th>Offers</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let request of filteredRequests(); trackBy: trackByRequestId">
+          <td>#{{ request.id }}</td>
+          <td>{{ request.title }}</td>
+          <td>{{ request.clientName || '—' }}</td>
+          <td>{{ request.categoryName || '—' }}</td>
+          <td>{{ request.requestedQuantity ?? '—' }}</td>
+          <td>
+            {{ request.maxBudget != null ? (request.maxBudget | currency:'TND ':'symbol':'1.3-3') : '—' }}
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(request.status)">
+              {{ request.status }}
+            </span>
+          </td>
+          <td>{{ request.offersCount }}</td>
+          <td>{{ request.createdAt | date:'medium' }}</td>
+          <td>
+            <div class="actions-cell">
+              <a [routerLink]="['/admin/ecommerce/product-requests', request.id]" class="action-link">
+                View
+              </a>
+
+              <button
+                type="button"
+                class="mini-btn close-btn"
+                [disabled]="!canClose(request) || actionLoadingId() === request.id"
+                (click)="closeRequest(request)">
+                {{ actionLoadingId() === request.id ? 'Updating...' : 'Close' }}
+              </button>
+
+              <button
+                type="button"
+                class="mini-btn cancel-btn"
+                [disabled]="!canCancel(request) || actionLoadingId() === request.id"
+                (click)="cancelRequest(request)">
+                {{ actionLoadingId() === request.id ? 'Updating...' : 'Cancel' }}
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredRequests().length === 0">
+          <td colspan="10" class="empty-cell">No product requests found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

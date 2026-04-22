@@ -1,0 +1,83 @@
+<div class="form-page">
+  <div class="form-header">
+    <div>
+      <h1>{{ isEditMode() ? 'Edit Credit Request' : 'Create Credit Request' }}</h1>
+      <p>
+        {{
+          isEditMode()
+            ? 'Update the selected credit request.'
+            : 'Fill in the information to create a new credit request.'
+        }}
+      </p>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="state-box">Loading request...</div>
+  <div *ngIf="error()" class="state-box error">{{ error() }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!loading()" class="form-card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="clientId">Client</label>
+        <select id="clientId" formControlName="clientId">
+          <option [ngValue]="null">Select client</option>
+          <option *ngFor="let client of clients()" [ngValue]="client.id">
+            {{ client.fullName }} - {{ client.email }}
+          </option>
+        </select>
+        <small class="validation" *ngIf="form.controls.clientId.touched && form.controls.clientId.invalid">
+          Client is required.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="typeCredit">Type of Credit</label>
+        <select id="typeCredit" formControlName="typeCredit">
+          <option [ngValue]="null">Select type</option>
+          <option *ngFor="let type of typeCredits" [ngValue]="type">
+            {{ type }}
+          </option>
+        </select>
+        <small class="validation" *ngIf="form.controls.typeCredit.touched && form.controls.typeCredit.invalid">
+          Type of credit is required.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="montantDemande">Amount</label>
+        <input id="montantDemande" type="number" formControlName="montantDemande" />
+        <small class="validation" *ngIf="form.controls.montantDemande.touched && form.controls.montantDemande.invalid">
+          Amount must be greater than 0.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="dureeMois">Duration (months)</label>
+        <input id="dureeMois" type="number" formControlName="dureeMois" />
+        <small class="validation" *ngIf="form.controls.dureeMois.touched && form.controls.dureeMois.invalid">
+          Duration must be greater than 0.
+        </small>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="objetCredit">Credit Purpose</label>
+        <textarea
+          id="objetCredit"
+          rows="5"
+          formControlName="objetCredit"
+          placeholder="Describe the purpose of this credit request"
+        ></textarea>
+        <small class="validation" *ngIf="form.controls.objetCredit.touched && form.controls.objetCredit.invalid">
+          Purpose is required and must contain at least 3 characters.
+        </small>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">
+        {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Request' : 'Create Request') }}
+      </button>
+    </div>
+  </form>
+</div>

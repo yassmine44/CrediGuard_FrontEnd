@@ -1,0 +1,123 @@
+<div class="promo-page">
+  <div class="page-header">
+   <button type="button" class="back-btn" (click)="goBack()">
+  ← Back to E-Commerce Dashboard
+</button>
+ 
+    <div>
+      <h2>Promo Codes</h2>
+      <p>Manage discount campaigns and validate promotional rules.</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="state-message">Loading promo codes...</div>
+  <div *ngIf="error()" class="state-message error">{{ error() }}</div>
+  <div *ngIf="success()" class="state-message success">{{ success() }}</div>
+
+  <div class="promo-layout">
+    <div class="card form-card">
+      <h3>{{ editingId ? 'Edit Promo Code' : 'Create Promo Code' }}</h3>
+
+      <div class="form-grid">
+        <input [(ngModel)]="code" type="text" placeholder="Code (ex: WELCOME10)" />
+
+        <select [(ngModel)]="discountType">
+          <option value="PERCENTAGE">Percentage</option>
+          <option value="FIXED">Fixed</option>
+        </select>
+
+        <input [(ngModel)]="discountValue" type="number" min="1" placeholder="Discount value" />
+        <input [(ngModel)]="maxUses" type="number" min="1" placeholder="Max uses" />
+
+        <input [(ngModel)]="minOrderAmount" type="number" min="0" placeholder="Min order amount" />
+        <input [(ngModel)]="maxDiscountAmount" type="number" min="0" placeholder="Max discount amount" />
+
+        <input [(ngModel)]="startAt" type="datetime-local" />
+        <input [(ngModel)]="endAt" type="datetime-local" />
+      </div>
+
+      <label class="checkbox-row">
+        <input [(ngModel)]="active" type="checkbox" />
+        Active
+      </label>
+
+      <div class="form-actions">
+        <button type="button" class="primary-btn" (click)="savePromoCode()">
+          {{ editingId ? 'Update' : 'Create' }}
+        </button>
+
+        <button type="button" class="secondary-btn" (click)="resetForm()">
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <div class="card validate-card">
+      <h3>Validate Promo Code</h3>
+
+      <input [(ngModel)]="validateCode" type="text" placeholder="Promo code" />
+      <input [(ngModel)]="validateAmount" type="number" min="0" placeholder="Order amount" />
+
+      <button type="button" class="primary-btn" (click)="runValidation()">
+        Validate
+      </button>
+
+      <div *ngIf="validateResult() as result" class="validation-result">
+        <p><strong>Valid:</strong> {{ result.valid ? 'Yes' : 'No' }}</p>
+        <p><strong>Message:</strong> {{ result.message }}</p>
+        <p><strong>Discount:</strong> {{ result.discountAmount }}</p>
+        <p><strong>Final amount:</strong> {{ result.finalAmount }}</p>
+        <p *ngIf="result.promoCodeId"><strong>Promo ID:</strong> {{ result.promoCodeId }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <h3>All Promo Codes</h3>
+
+    <table *ngIf="promoCodes().length; else noPromoCodes">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Code</th>
+          <th>Type</th>
+          <th>Value</th>
+          <th>Active</th>
+          <th>Uses</th>
+          <th>Min Order</th>
+          <th>Max Discount</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let promo of promoCodes()">
+          <td>{{ promo.id }}</td>
+          <td>{{ promo.code }}</td>
+          <td>{{ promo.discountType }}</td>
+          <td>{{ promo.discountValue }}</td>
+          <td>
+            <span [class]="promo.active ? 'badge active' : 'badge inactive'">
+              {{ promo.active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>{{ promo.usedCount }} / {{ promo.maxUses }}</td>
+          <td>{{ promo.minOrderAmount ?? '-' }}</td>
+          <td>{{ promo.maxDiscountAmount ?? '-' }}</td>
+          <td>{{ promo.startAt ? (promo.startAt | date:'short') : '-' }}</td>
+          <td>{{ promo.endAt ? (promo.endAt | date:'short') : '-' }}</td>
+          <td class="actions">
+            <button type="button" class="table-btn edit" (click)="editPromoCode(promo)">Edit</button>
+            <button type="button" class="table-btn delete" (click)="deletePromoCode(promo.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noPromoCodes>
+      <p class="empty-text">No promo codes found.</p>
+    </ng-template>
+  </div>
+</div>

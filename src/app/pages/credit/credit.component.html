@@ -1,27 +1,137 @@
-<section class="module-page">
-  <div class="module-hero">
-    <span class="badge">Credit Services</span>
-    <h1>Smart Credit Solutions</h1>
-    <p>
-      Explore digital credit services, faster evaluations, and tailored financing options
-      designed for modern financial inclusion.
-    </p>
-  </div>
+<section class="credit-dashboard">
+  <div class="dashboard-shell">
+    <div class="hero-card">
+      <div class="hero-copy">
+        <span class="eyebrow">CrediGuard Credit Space</span>
+        <h1>Build your credit journey step by step</h1>
+        <p>
+          Complete your credit profile first, then submit your request and track
+          every stage of the process from one secure client space.
+        </p>
 
-  <div class="module-grid">
-    <div class="module-card">
-      <h3>Loan Requests</h3>
-      <p>Submit and track your credit applications with clarity and efficiency.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" type="button" (click)="goToProfile()">
+            {{ profileReady() ? 'Open My Credit Profile' : 'Complete Credit Profile' }}
+          </button>
+
+          <button class="btn btn-secondary" type="button" (click)="goToRequest()">
+            {{ profileReady() ? 'Request a Credit' : 'Complete Profile First' }}
+          </button>
+
+          <button class="btn btn-ghost" type="button" (click)="goToHistory()">
+            My Requests
+          </button>
+
+          <button class="btn btn-ghost" type="button" (click)="goToWallet()">
+            Credit Wallet
+          </button>
+        </div>
+
+        <div *ngIf="profileLoading()" class="state-card info">
+          <strong>Checking your profile...</strong>
+          <span>Please wait while we verify your credit profile status.</span>
+        </div>
+
+        <div *ngIf="profileError()" class="state-card error">
+          <strong>Access issue</strong>
+          <span>{{ profileError() }}</span>
+          <button
+            *ngIf="!isLoggedIn()"
+            class="btn btn-small"
+            type="button"
+            (click)="goToLogin()">
+            Sign In
+          </button>
+        </div>
+
+        <div *ngIf="!profileLoading() && !profileError()" class="state-card success">
+          <strong *ngIf="profileReady()">Your credit profile is complete.</strong>
+          <strong *ngIf="!profileReady()">Your credit profile is not completed yet.</strong>
+
+          <span *ngIf="profileReady()">
+            You can now submit a new credit request.
+          </span>
+          <span *ngIf="!profileReady()">
+            Complete your profile before creating a credit request.
+          </span>
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="panel-box">
+          <span class="panel-label">How it works</span>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-index">1</div>
+              <div>
+                <h3>Complete Profile</h3>
+                <p>Enter your personal and financial information once.</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-index">2</div>
+              <div>
+                <h3>Submit Request</h3>
+                <p>Create your credit request only after profile completion.</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-index">3</div>
+              <div>
+                <h3>Follow Review</h3>
+                <p>Track your request status and next actions in real time.</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-index">4</div>
+              <div>
+                <h3>Manage Credit</h3>
+                <p>Access your approved credit and monitor your wallet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="module-card">
-      <h3>Eligibility Check</h3>
-      <p>Assess financial readiness before starting a new financing process.</p>
+    <div class="services-header">
+      <span class="eyebrow soft">Client Services</span>
+      <h2>Choose your next action</h2>
+      <p>Everything starts with your credit profile.</p>
     </div>
 
-    <div class="module-card">
-      <h3>Repayment Follow-up</h3>
-      <p>Monitor schedules, due dates, and your repayment progress.</p>
+    <div class="service-grid">
+      <button type="button" class="service-card featured" (click)="goToProfile()">
+        <div class="icon-badge">CP</div>
+        <h3>{{ profileReady() ? 'My Credit Profile' : 'Complete Credit Profile' }}</h3>
+        <p>Fill in the information required before sending any credit request.</p>
+        <span class="service-link">Open</span>
+      </button>
+
+      <button type="button" class="service-card" (click)="goToRequest()">
+        <div class="icon-badge">CR</div>
+        <h3>Apply for Credit</h3>
+        <p>Create a new financing request after your profile is completed.</p>
+        <span class="service-link">Continue</span>
+      </button>
+
+      <button type="button" class="service-card" (click)="goToHistory()">
+        <div class="icon-badge">MR</div>
+        <h3>My Requests</h3>
+        <p>Review all your submitted requests and their current status.</p>
+        <span class="service-link">View</span>
+      </button>
+
+      <button type="button" class="service-card" (click)="goToWallet()">
+        <div class="icon-badge">CW</div>
+        <h3>Credit Wallet</h3>
+        <p>Consult approved credit information and remaining balances.</p>
+        <span class="service-link">Access</span>
+      </button>
     </div>
   </div>
 </section>

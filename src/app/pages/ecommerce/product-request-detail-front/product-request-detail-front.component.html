@@ -1,0 +1,162 @@
+<div class="request-detail-page">
+  <div class="top-bar">
+    <a routerLink="/front/my-product-requests" class="back-link">← Back to My Requests</a>
+  </div>
+
+  <div *ngIf="error()" class="state-message error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="successMessage()" class="state-message success">
+    {{ successMessage() }}
+  </div>
+
+  <div *ngIf="loading()" class="loading-box">
+    Loading request details...
+  </div>
+
+  <ng-container *ngIf="request() as req">
+    <div class="request-card">
+      <div class="request-header">
+        <div>
+          <p class="eyebrow">REQUEST DETAILS</p>
+          <h1>{{ req.title }}</h1>
+          <p class="subtext">
+            Created:
+            {{ req.createdAt ? (req.createdAt | date:'medium') : '—' }}
+          </p>
+        </div>
+
+        <span class="status-badge" [ngClass]="getRequestStatusClass(req.status)">
+          {{ req.status }}
+        </span>
+      </div>
+
+      <p class="description">
+        {{ req.description || 'No description provided.' }}
+      </p>
+
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span class="label">Category</span>
+          <span class="value">{{ req.categoryName || '—' }}</span>
+        </div>
+
+        <div class="meta-item">
+          <span class="label">Requested Quantity</span>
+          <span class="value">{{ req.requestedQuantity ?? '—' }}</span>
+        </div>
+
+        <div class="meta-item">
+          <span class="label">Maximum Budget</span>
+          <span class="value">
+            {{ req.maxBudget != null ? (req.maxBudget | currency:'TND':'symbol':'1.2-2') : '—' }}
+          </span>
+        </div>
+
+        <div class="meta-item">
+          <span class="label">Desired Date</span>
+          <span class="value">
+            {{ req.desiredDate ? (req.desiredDate | date:'medium') : '—' }}
+          </span>
+        </div>
+
+        <div class="meta-item">
+          <span class="label">Target Seller</span>
+          <span class="value">{{ req.targetSellerName || 'Any seller' }}</span>
+        </div>
+
+        <div class="meta-item">
+          <span class="label">Offers Count</span>
+          <span class="value">{{ req.offersCount ?? 0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="offers-section">
+      <div class="section-header">
+        <h2>Seller Offers</h2>
+        <p>Review seller responses and choose the best match for your request.</p>
+      </div>
+
+      <div *ngIf="offersLoading()" class="loading-box">
+        Loading offers...
+      </div>
+
+      <div *ngIf="!offersLoading() && !offers().length" class="empty-state">
+        No offers yet for this request.
+      </div>
+
+      <div class="offers-grid" *ngIf="offers().length">
+        <div class="offer-card" *ngFor="let offer of offers()">
+          <div class="offer-top">
+            <div>
+              <h3>{{ offer.sellerName || 'Unknown seller' }}</h3>
+              <p class="offer-date">
+                Submitted:
+                {{ offer.createdAt ? (offer.createdAt | date:'medium') : '—' }}
+              </p>
+            </div>
+
+            <span class="status-badge" [ngClass]="getOfferStatusClass(offer.status)">
+              {{ offer.status }}
+            </span>
+          </div>
+
+          <div class="offer-meta">
+            <div class="meta-item">
+              <span class="label">Proposed Price</span>
+              <span class="value">
+                {{ offer.proposedPrice != null ? (offer.proposedPrice | currency:'TND':'symbol':'1.2-2') : '—' }}
+              </span>
+            </div>
+
+            <div class="meta-item">
+              <span class="label">Proposed Quantity</span>
+              <span class="value">{{ offer.proposedQuantity ?? '—' }}</span>
+            </div>
+
+            <div class="meta-item">
+              <span class="label">Delivery Time</span>
+              <span class="value">
+                {{ offer.estimatedDeliveryDays != null ? (offer.estimatedDeliveryDays + ' days') : '—' }}
+              </span>
+            </div>
+
+            <div class="meta-item">
+              <span class="label">Linked Product</span>
+              <span class="value">{{ offer.productName || 'Custom offer' }}</span>
+            </div>
+          </div>
+
+          <p class="offer-message">
+            {{ offer.message || 'No message provided.' }}
+          </p>
+
+          <div
+            class="offer-actions"
+            *ngIf="canAcceptOrRejectRequest(req.status)"
+          >
+            <button
+              type="button"
+              class="accept-btn"
+              [disabled]="actionOfferId() === offer.id || offer.status !== 'PENDING'"
+              (click)="acceptOffer(offer.id)"
+            >
+              {{ actionOfferId() === offer.id ? 'Processing...' : 'Accept Offer' }}
+            </button>
+
+            <button
+              type="button"
+              class="reject-btn"
+              [disabled]="actionOfferId() === offer.id || !canRejectOffer(offer.status)"
+              (click)="rejectOffer(offer.id)"
+            >
+              {{ actionOfferId() === offer.id ? 'Processing...' : 'Reject Offer' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

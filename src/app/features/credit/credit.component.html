@@ -1,43 +1,118 @@
-<div class="module-page">
-  <div class="module-header">
+<section class="credit-home">
+  <div class="page-top">
     <div>
-      <h1>Credit Management</h1>
-      <p>Manage credit requests, risk evaluation, repayment schedules, and decisions.</p>
+      <h1>Credit Management </h1>
+      <p>Centralized monitoring of credit requests and workflow activity.</p>
     </div>
+
+    <a routerLink="/admin/credit/demandes" class="btn btn-primary">
+      Open Requests
+    </a>
   </div>
 
-  <div class="summary-grid">
-    <div class="summary-card">
-      <span>Total Requests</span>
-      <h2>0</h2>
-    </div>
-
-    <div class="summary-card">
-      <span>Pending Decisions</span>
-      <h2>0</h2>
-    </div>
-
-    <div class="summary-card">
-      <span>Approved Credits</span>
-      <h2>0</h2>
-    </div>
-
-    <div class="summary-card">
-      <span>Overdue Payments</span>
-      <h2>0</h2>
-    </div>
+  <div *ngIf="loading()" class="state-box">
+    Loading dashboard...
   </div>
 
-  <div class="module-grid">
-    <div class="module-card" *ngFor="let card of cards">
-      <div class="card-top">
-        <h3>{{ card.title }}</h3>
-        <span class="card-badge">{{ card.value }}</span>
+  <div *ngIf="error()" class="state-box error">
+    {{ error() }}
+  </div>
+
+  <ng-container *ngIf="!loading() && !error()">
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <h3>Total Requests</h3>
+        <p>{{ totalRequests() }}</p>
       </div>
 
-      <p>{{ card.description }}</p>
+      <div class="stat-card">
+        <h3>Submitted</h3>
+        <p>{{ submittedRequests() }}</p>
+      </div>
 
-      <button type="button">{{ card.action }}</button>
+      <div class="stat-card orange">
+        <h3>Under Review</h3>
+        <p>{{ reviewRequests() }}</p>
+      </div>
+
+      <div class="stat-card green">
+        <h3>Approved</h3>
+        <p>{{ approvedRequests() }}</p>
+      </div>
+
+      <div class="stat-card red">
+        <h3>Rejected</h3>
+        <p>{{ rejectedRequests() }}</p>
+      </div>
     </div>
-  </div>
-</div>
+
+    <div class="table-card" *ngIf="latestRequests().length > 0; else emptyState">
+      <div class="card-head">
+        <div>
+          <h2>Latest Requests</h2>
+          <p>Most recent activity in the credit module.</p>
+        </div>
+
+        <a routerLink="/admin/credit/demandes" class="btn btn-light">
+          View All
+        </a>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th class="actions-col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let demande of latestRequests()">
+            <td class="ref">{{ demande.reference }}</td>
+            <td>{{ demande.typeCredit }}</td>
+            <td>{{ demande.montantDemande | number:'1.0-2' }} TND</td>
+            <td>{{ demande.dureeMois }} months</td>
+            <td>
+              <span
+                class="status-badge"
+                [ngClass]="{
+                  'status-soumise': demande.statut === 'SOUMISE',
+                  'status-etude': demande.statut === 'EN_COURS_D_ETUDE',
+                  'status-approved': demande.statut === 'APPROUVEE',
+                  'status-rejected': demande.statut === 'REJETEE'
+                }"
+              >
+                {{ demande.statut }}
+              </span>
+            </td>
+            <td>{{ demande.dateCreation | date:'mediumDate' }}</td>
+            <td>
+              <div class="actions">
+                <a
+                  class="btn btn-view"
+                  [routerLink]="['/admin/credit/demandes', demande.id]"
+                >
+                  Open
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-card">
+        <h3>No credit requests found</h3>
+        <p>No request data is available yet.</p>
+        <a routerLink="/admin/credit/demandes" class="btn btn-primary">
+          Open Requests
+        </a>
+      </div>
+    </ng-template>
+  </ng-container>
+</section>

@@ -1,0 +1,94 @@
+<div class="decision-page">
+  <div class="page-header">
+    <div>
+      <h1>Credit Decision</h1>
+      <p>Review and submit the final decision for request #{{ demandeId }}</p>
+    </div>
+
+    <button type="button" class="btn btn-secondary" (click)="goBack()">
+      Back to Request
+    </button>
+  </div>
+
+  <div *ngIf="loading()" class="state-box">
+    Loading decision...
+  </div>
+
+  <div *ngIf="error()" class="state-box error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="success()" class="state-box success">
+    {{ success() }}
+  </div>
+
+  <div *ngIf="existingDecision() as d" class="decision-summary">
+    <h3>Existing Decision</h3>
+
+    <div class="info-row">
+      <span>Decision</span>
+      <strong>{{ d.decisionFinale }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Justification</span>
+      <strong>{{ d.justification }}</strong>
+    </div>
+
+    <div class="info-row" *ngIf="d.conditions">
+      <span>Conditions</span>
+      <strong>{{ d.conditions }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Taken By</span>
+      <strong>{{ d.prisePar }}</strong>
+    </div>
+
+    <div class="info-row">
+      <span>Decision Date</span>
+      <strong>{{ d.dateDecision | date:'medium' }}</strong>
+    </div>
+  </div>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    *ngIf="!loading() && !existingDecision()"
+    class="decision-card"
+  >
+    <div class="form-group">
+      <label>Decision</label>
+      <select formControlName="decisionFinale">
+        <option *ngFor="let item of decisions" [value]="item">
+          {{ item }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Justification</label>
+      <textarea rows="5" formControlName="justification"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Conditions</label>
+      <textarea rows="4" formControlName="conditions"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Taken By</label>
+      <input type="text" formControlName="prisePar" />
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">
+        Submit Decision
+      </button>
+
+      <button type="button" class="btn btn-secondary" (click)="goBack()">
+        Back to Request
+      </button>
+    </div>
+  </form>
+</div>

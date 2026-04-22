@@ -1,0 +1,121 @@
+<div class="orders-page">
+
+  <!-- Back Button -->
+  <div class="back-button-container">
+    <a routerLink="/front/ecommerce" class="back-button">
+      ← Back to Shop
+    </a>
+  </div>
+
+  <div class="orders-header">
+    <h1>My Orders</h1>
+    <p class="subtitle">Track and manage all your purchases</p>
+  </div>
+
+  <!-- Status Tabs -->
+  <div class="status-tabs">
+    <button class="tab" 
+            [class.active]="selectedStatus() === 'ALL'"
+            (click)="selectStatus('ALL')">
+      All
+    </button>
+    <button class="tab" 
+            [class.active]="selectedStatus() === 'PENDING'"
+            (click)="selectStatus('PENDING')">
+      Pending
+    </button>
+    <button class="tab" 
+            [class.active]="selectedStatus() === 'CONFIRMED'"
+            (click)="selectStatus('CONFIRMED')">
+      Confirmed
+    </button>
+    <button class="tab" 
+            [class.active]="selectedStatus() === 'IN_TRANSIT'"
+            (click)="selectStatus('IN_TRANSIT')">
+      In Transit
+    </button>
+    <button class="tab" 
+            [class.active]="selectedStatus() === 'DELIVERED'"
+            (click)="selectStatus('DELIVERED')">
+      Delivered
+    </button>
+    <button class="tab" 
+            [class.active]="selectedStatus() === 'CANCELLED'"
+            (click)="selectStatus('CANCELLED')">
+      Cancelled
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="state-message loading">
+    <div class="spinner"></div>
+    <p>Loading your orders...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error()" class="state-message error">{{ error() }}</div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && filteredOrders().length === 0" class="empty-orders">
+    <h3>No orders found</h3>
+    <p>Try selecting another filter.</p>
+    <a routerLink="/front/ecommerce" class="shop-btn">Start Shopping</a>
+  </div>
+
+  <!-- Orders List -->
+  <div *ngIf="filteredOrders().length > 0" class="orders-list">
+    <div class="order-card" 
+         *ngFor="let order of paginatedOrders()">
+      
+      <div class="order-header">
+        <div>
+          <h3>Order #{{ order.id }}</h3>
+          <p class="order-date">{{ order.createdAt | date:'mediumDate' }}</p>
+        </div>
+        <span class="status-badge" [class]="getOrderStatusClass(order.status)">
+          {{ order.status }}
+        </span>
+      </div>
+
+      <div class="order-body">
+        <div class="items-summary">
+          <span>{{ order.items.length }} item{{ order.items.length > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="order-total">
+          {{ order.totalAmount | currency:'TND':'symbol':'1.2-2' }}
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <button class="view-details-btn" 
+                [routerLink]="['/front/orders', order.id]">
+          View Details
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages() > 1" class="pagination">
+    <button class="page-btn" 
+            (click)="prevPage()"
+            [disabled]="currentPage() === 1">
+      Previous
+    </button>
+
+    <div class="page-numbers">
+      <button class="page-number" 
+              *ngFor="let page of pageNumbers()"
+              [class.active]="page === currentPage()"
+              (click)="goToPage(page)">
+        {{ page }}
+      </button>
+    </div>
+
+    <button class="page-btn" 
+            (click)="nextPage()"
+            [disabled]="currentPage() === totalPages()">
+      Next
+    </button>
+  </div>
+</div>

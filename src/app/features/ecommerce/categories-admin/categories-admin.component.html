@@ -1,0 +1,123 @@
+<div class="categories-admin-page">
+
+  <!-- Header avec Back Button fonctionnel -->
+  <div class="page-header">
+    <a routerLink="/admin/ecommerce" class="back-btn">
+      ← Back to E-Commerce Dashboard
+    </a>
+
+    <div class="header-center">
+      <h1>Category Management</h1>
+      <p>Create, edit, and organize product categories with hierarchy support.</p>
+    </div>
+
+    <button type="button" class="primary-btn" (click)="openCreateForm()">
+      <i class="fas fa-plus"></i>
+      Add New Category
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="loading()" class="message loading">
+    <div class="spinner"></div>
+    <p>Loading categories...</p>
+  </div>
+
+  <div *ngIf="error()" class="message error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="success()" class="message success">
+    {{ success() }}
+  </div>
+
+ <!-- Form Card - Version Améliorée -->
+<div class="form-card" *ngIf="showForm()">
+
+  <h3>{{ editingCategoryId() !== null ? 'Edit Category' : 'Create New Category' }}</h3>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Name <span class="required">*</span></label>
+      <input 
+        type="text" 
+        [(ngModel)]="formData.name" 
+        placeholder="Category name (e.g. Smartphones)" 
+        required>
+    </div>
+
+    <div class="form-group">
+      <label>Parent Category</label>
+      <select [(ngModel)]="formData.parentId">
+        <option [ngValue]="null">No parent (Root category)</option>
+        <option *ngFor="let cat of availableParents(editingCategoryId())" [ngValue]="cat.id">
+          {{ cat.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Description</label>
+    <textarea 
+      [(ngModel)]="formData.description" 
+      rows="4" 
+      placeholder="Optional description..."></textarea>
+  </div>
+
+  <!-- Boutons Améliorés -->
+  <div class="form-actions">
+    <button type="button" class="cancel-btn" (click)="cancelForm()">
+      Cancel
+    </button>
+    <button type="button" class="save-btn" (click)="saveCategory()">
+      {{ editingCategoryId() !== null ? 'Update Category' : 'Create Category' }}
+    </button>
+  </div>
+</div>
+
+  <!-- Table -->
+  <div class="table-card" *ngIf="!loading() && categories().length > 0">
+    <table class="categories-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Category Name</th>
+          <th>Description</th>
+          <th>Parent</th>
+          <th>Children</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let category of categories()">
+          <td>{{ category.id }}</td>
+          <td>{{ category.name }}</td>
+          <td>{{ category.description || '—' }}</td>
+          <td>{{ getParentName(category.parentId) }}</td>
+          <td>{{ category.childrenCount || 0 }}</td>
+          <td>{{ category.createdAt | date:'medium' }}</td>
+          <td class="actions-cell">
+            <button class="edit-btn" (click)="openEditForm(category)">
+              Edit
+            </button>
+            <button class="delete-btn" (click)="deleteCategory(category.id)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && categories().length === 0" class="empty-state">
+    <i class="fas fa-folder-open"></i>
+    <h3>No categories yet</h3>
+    <p>Start by creating your first category.</p>
+    <button class="primary-btn" (click)="openCreateForm()">
+      + Create First Category
+    </button>
+  </div>
+</div>

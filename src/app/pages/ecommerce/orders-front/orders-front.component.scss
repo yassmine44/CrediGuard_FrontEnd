@@ -1,0 +1,180 @@
+.orders-page {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  padding: 40px 20px;
+
+  .back-button-container {
+    max-width: 1280px;
+    margin: 0 auto 20px;
+  }
+
+  .back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    color: #475569;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+
+    &:hover {
+      color: #1e40af;
+      transform: translateX(-6px);
+    }
+  }
+
+  .orders-header {
+    max-width: 1280px;
+    margin: 0 auto 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    h1 { font-size: 2.8rem; font-weight: 700; margin: 0; }
+    .subtitle { color: #64748b; }
+  }
+
+  /* Status Tabs */
+  .status-tabs {
+    max-width: 1280px;
+    margin: 0 auto 50px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .tab {
+      padding: 12px 28px;
+      border-radius: 50px;
+      background: white;
+      border: 2px solid #e2e8f0;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      &.active {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        color: white;
+        border-color: #2563eb;
+      }
+    }
+  }
+
+  /* Order Card - Version Compacte */
+  .order-card {
+    max-width: 1280px;
+    margin: 0 auto 20px;
+    background: white;
+    border-radius: 20px;
+    padding: 24px 32px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.07);
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      h3 { margin: 0; font-size: 1.4rem; }
+      .order-date { color: #64748b; font-size: 0.95rem; }
+    }
+
+    .status-badge {
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .order-body {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-top: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 16px;
+    }
+
+    .order-footer {
+      text-align: right;
+    }
+
+    .view-details-btn {
+      background: #2563eb;
+      color: white;
+      padding: 12px 32px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  }
+
+  /* Pagination */
+  .pagination {
+    max-width: 1280px;
+    margin: 50px auto 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    .page-btn {
+      padding: 12px 24px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &:hover:not(:disabled) {
+        background: #f1f5f9;
+      }
+    }
+
+    .page-numbers {
+      display: flex;
+      gap: 8px;
+
+      .page-number {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 2px solid #e2e8f0;
+        background: white;
+        font-weight: 600;
+        cursor: pointer;
+
+        &.active {
+          background: #2563eb;
+          color: white;
+          border-color: #2563eb;
+        }
+      }
+    }
+  }
+
+  /* Status Colors */
+  .pending { background: #fef3c7; color: #d97706; }
+  .confirmed { background: #dbeafe; color: #1e40af; }
+  .in-transit { background: #e0f2fe; color: #0369a1; }
+  .delivered { background: #d1fae5; color: #10b981; }
+  .cancelled { background: #fee2e2; color: #ef4444; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .status-tabs { justify-content: flex-start; overflow-x: auto; }
+    .order-card { padding: 20px; }
+  }
+}

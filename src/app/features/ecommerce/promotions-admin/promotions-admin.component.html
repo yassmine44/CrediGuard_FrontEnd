@@ -1,0 +1,221 @@
+<div class="admin-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Administration • Promotions</p>
+      <h1>Promotions</h1>
+      <p class="subtitle">
+        Create discount campaigns linked to products, categories, or calendar events.
+      </p>
+    </div>
+
+    <button class="primary-btn" (click)="toggleCreateForm()">
+      <mat-icon>{{ showCreateForm() ? 'close' : 'add' }}</mat-icon>
+      {{ showCreateForm() ? 'Close Form' : 'Create Promotion' }}
+    </button>
+  </div>
+
+  <div *ngIf="error()" class="alert error">{{ error() }}</div>
+  <div *ngIf="success()" class="alert success">{{ success() }}</div>
+
+  <section *ngIf="showCreateForm()" class="card form-card">
+    <div class="section-header">
+      <h2>Create Promotion</h2>
+      <p>Build a discount campaign and optionally attach it to a live event calendar.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="admin-form">
+      <div class="form-grid">
+        <label>
+          Promotion Name
+          <input type="text" formControlName="name" placeholder="Spring Artisanal Promo" />
+        </label>
+
+        <label>
+          Promotion Type
+          <select formControlName="promotionType">
+            <option [ngValue]="null">Select type</option>
+            <option *ngFor="let type of promotionTypes" [ngValue]="type">
+              {{ formatLabel(type) }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Discount Type
+          <select formControlName="discountType">
+            <option [ngValue]="null">Select type</option>
+            <option *ngFor="let type of discountTypes" [ngValue]="type">
+              {{ formatLabel(type) }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Target Type
+          <select formControlName="targetType">
+            <option *ngFor="let type of targetTypes" [ngValue]="type">
+              {{ formatLabel(type) }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Discount Value
+          <input type="number" step="0.01" formControlName="discountValue" placeholder="15" />
+        </label>
+
+        <label>
+          Priority
+          <input type="number" formControlName="priority" placeholder="0" />
+        </label>
+
+        <label>
+          Minimum Order Amount
+          <input type="number" step="0.01" formControlName="minOrderAmount" placeholder="Optional" />
+        </label>
+
+        <label>
+          Maximum Discount Amount
+          <input type="number" step="0.01" formControlName="maxDiscountAmount" placeholder="Optional" />
+        </label>
+
+        <label class="full-width">
+          Calendar Event
+          <select formControlName="calendarEventId">
+            <option [ngValue]="null">No linked event</option>
+            <option *ngFor="let event of events()" [ngValue]="event.id">
+              {{ event.name }}
+            </option>
+          </select>
+        </label>
+
+        <label *ngIf="targetType() === 'CATEGORY'">
+          Category
+          <select formControlName="categoryId">
+            <option [ngValue]="null">Select category</option>
+            <option *ngFor="let category of categories()" [ngValue]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </label>
+
+        <label *ngIf="targetType() === 'PRODUCT'">
+          Product
+          <select formControlName="productId">
+            <option [ngValue]="null">Select product</option>
+            <option *ngFor="let product of products()" [ngValue]="product.id">
+              {{ product.name }}
+            </option>
+          </select>
+        </label>
+
+        <label *ngIf="!form.value.calendarEventId">
+          Start Date
+          <input type="datetime-local" formControlName="startDate" />
+        </label>
+
+        <label *ngIf="!form.value.calendarEventId">
+          End Date
+          <input type="datetime-local" formControlName="endDate" />
+        </label>
+
+        <label class="checkbox-field">
+          <input type="checkbox" formControlName="active" />
+          Active
+        </label>
+
+        <label class="checkbox-field">
+          <input type="checkbox" formControlName="autoApply" />
+          Auto Apply
+        </label>
+
+        <label class="checkbox-field">
+          <input type="checkbox" formControlName="stackable" />
+          Stackable
+        </label>
+
+        <label class="full-width">
+          Description
+          <textarea rows="4" formControlName="description"
+                    placeholder="15% off on artisanal products during spring event"></textarea>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="primary-btn" [disabled]="saving() || auxLoading()">
+          <mat-icon>save</mat-icon>
+          {{ saving() ? 'Saving...' : 'Save Promotion' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="stats-grid" *ngIf="!loading()">
+    <div class="stat-card">
+      <span class="stat-value">{{ promotions().length }}</span>
+      <span class="stat-label">Total Promotions</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ activePromotions().length }}</span>
+      <span class="stat-label">Enabled Promotions</span>
+    </div>
+    <div class="stat-card">
+    <span class="stat-value">{{ linkedToEventsCount() }}</span>
+      <span class="stat-label">Linked to Events</span>
+    </div>
+  </section>
+
+  <section class="card table-card">
+    <div class="section-header">
+      <h2>Promotions List</h2>
+      <p>Review discount campaigns and their targeting rules.</p>
+    </div>
+
+    <div *ngIf="loading()" class="state-message">Loading promotions...</div>
+    <div *ngIf="!loading() && promotions().length === 0" class="state-message">
+      No promotions created yet.
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading() && promotions().length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Target</th>
+            <th>Discount</th>
+            <th>Event</th>
+            <th>Priority</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let promotion of promotions()">
+            <td>
+              <div class="cell-title">{{ promotion.name }}</div>
+              <div class="cell-subtitle" *ngIf="promotion.description">{{ promotion.description }}</div>
+            </td>
+            <td>{{ formatLabel(promotion.promotionType) }}</td>
+            <td>
+              <div>{{ formatLabel(promotion.targetType) }}</div>
+              <small *ngIf="promotion.categoryName">{{ promotion.categoryName }}</small>
+              <small *ngIf="promotion.productName">{{ promotion.productName }}</small>
+            </td>
+            <td>
+              {{ promotion.discountValue }}
+              {{ promotion.discountType === 'PERCENTAGE' ? '%' : 'TND' }}
+            </td>
+            <td>{{ promotion.calendarEventName || '—' }}</td>
+            <td>{{ promotion.priority }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getPromotionStatus(promotion).toLowerCase()">
+  {{ getPromotionStatus(promotion) }}
+</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

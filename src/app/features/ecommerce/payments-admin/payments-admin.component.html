@@ -1,0 +1,97 @@
+<div class="payments-page">
+  <div class="page-header">
+     <button type="button" class="back-btn" (click)="goBack()">
+  ← Back to E-Commerce Dashboard
+</button>
+    <div>
+      <h2>Payments Management</h2>
+      <p>Monitor payment records, status, and transaction references.</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="state-message">Loading payments...</div>
+  <div *ngIf="error()" class="state-message error">{{ error() }}</div>
+  <div *ngIf="success()" class="state-message success">{{ success() }}</div>
+
+  <div class="page-layout">
+    <div class="card form-card">
+      <h3>{{ editingId ? 'Edit Payment' : 'Select a payment to edit' }}</h3>
+
+      <div *ngIf="editingId; else noSelection">
+        <div class="form-grid">
+          <select [(ngModel)]="paymentStatus">
+            <option value="PENDING">Pending</option>
+            <option value="PAID">Paid</option>
+            <option value="FAILED">Failed</option>
+            <option value="REFUNDED">Refunded</option>
+          </select>
+
+          <input
+            [(ngModel)]="transactionRef"
+            type="text"
+            placeholder="Transaction reference"
+          />
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="primary-btn" (click)="updatePayment()">
+            Update Payment
+          </button>
+
+          <button type="button" class="secondary-btn" (click)="resetForm()">
+            Cancel Edit
+          </button>
+        </div>
+      </div>
+
+      <ng-template #noSelection>
+        <p class="empty-text">Choose a payment from the table to edit it.</p>
+      </ng-template>
+    </div>
+
+    <div class="card table-card">
+      <h3>All Payments</h3>
+
+      <table *ngIf="payments().length; else noPayments">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Order</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Transaction Ref</th>
+            <th>Created</th>
+            <th>Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let payment of payments()">
+            <td>{{ payment.id }}</td>
+            <td>#{{ payment.orderId }}</td>
+            <td>{{ payment.amount | currency:'TND':'symbol':'1.2-2' }}</td>
+            <td>{{ payment.paymentType }}</td>
+            <td>
+              <span [class]="statusClass(payment.paymentStatus)">
+                {{ payment.paymentStatus }}
+              </span>
+            </td>
+            <td>{{ payment.transactionRef || '-' }}</td>
+            <td>{{ payment.createdAt | date:'short' }}</td>
+            <td>{{ payment.updatedAt | date:'short' }}</td>
+            <td class="actions">
+              <button type="button" class="table-btn edit" (click)="editPayment(payment)">Edit</button>
+              <button type="button" class="table-btn delete" (click)="deletePayment(payment.id)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ng-template #noPayments>
+        <p class="empty-text">No payments found.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

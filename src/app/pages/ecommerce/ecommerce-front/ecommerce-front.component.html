@@ -1,0 +1,263 @@
+<div class="ecommerce-front-page">
+
+  <!-- ==================== HERO SECTION ==================== -->
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-badge">Premium Collection</span>
+      <h1>Discover Our Products</h1>
+      <p>Explore our carefully curated collection and find exactly what you're looking for.</p>
+
+      <div class="hero-actions">
+        <a routerLink="/front" class="btn-back">← Back to Home</a>
+
+        <ng-container *ngIf="isSeller()">
+          <a routerLink="/front/seller/product-requests" class="request-product-btn">
+            View Buyer Requests
+          </a>
+
+          <a routerLink="/front/seller/my-request-offers" class="request-product-btn secondary-role-btn">
+            My Seller Offers
+          </a>
+        </ng-container>
+
+        <ng-container *ngIf="isClient()">
+          <a routerLink="/front/request-product" class="request-product-btn">
+            Request a Product
+          </a>
+
+          <a routerLink="/front/my-product-requests" class="request-product-btn secondary-role-btn">
+            My Requests
+          </a>
+        </ng-container>
+      </div>
+    </div>
+  </section>
+
+  <div class="content-wrapper">
+
+    <!-- ==================== SEASONAL BANNER ==================== -->
+    <div *ngIf="!loading() && !error() && activeEvent()" class="season-banner">
+      <div class="season-banner-content">
+        <span class="season-label">{{ activeEvent()?.eventType }}</span>
+        <h2>{{ getActiveEventLabel() }}</h2>
+        <p>{{ getActiveEventDescription() }}</p>
+      </div>
+    </div>
+
+    <!-- ==================== CAMPAIGN SECTION ==================== -->
+    <section *ngIf="!loading() && !error() && activeEvent() && promotedProducts().length > 0"
+             class="campaign-section">
+
+      <div class="section-header">
+        <h2 class="section-title">{{ activeEvent()?.name }} Picks</h2>
+        <p class="section-subtitle">Featured products from the current seasonal campaign</p>
+      </div>
+
+      <div class="campaign-grid">
+        <article class="campaign-card"
+                 *ngFor="let product of promotedProducts().slice(0, 4); trackBy: trackByProduct">
+
+          <div class="campaign-image-wrapper">
+            <img [src]="getImageUrl(product.imageUrl)"
+                 [alt]="product.name"
+                 (error)="onImageError($event)"
+                 loading="lazy">
+            <div class="campaign-badge">-{{ getDiscountPercent(product) }}%</div>
+          </div>
+
+          <div class="campaign-content">
+            <h3>{{ product.name }}</h3>
+
+            <div class="campaign-price-block">
+              <span class="old-price">
+                {{ getOriginalPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+              </span>
+              <span class="promo-price">
+                {{ getDisplayPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+              </span>
+            </div>
+
+            <p class="campaign-promo-name">{{ getPromotionBadge(product) }}</p>
+
+            <a class="btn-campaign"
+               [routerLink]="['/front/products', product.id]">
+              View Details
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ==================== CATEGORY TABS ==================== -->
+    <div class="category-tabs"
+         *ngIf="!loading() && !error() && categories().length > 0">
+
+      <button class="tab-btn"
+              [class.active]="selectedCategory() === 'All'"
+              (click)="selectCategory('All')">
+        All Products
+      </button>
+
+      <button class="tab-btn promo-tab"
+              [class.active]="selectedCategory() === 'PROMO'"
+              (click)="selectCategory('PROMO')">
+        On Promotion
+      </button>
+
+      <button class="tab-btn"
+              *ngFor="let category of categories()"
+              [class.active]="selectedCategory() === category"
+              (click)="selectCategory(category)">
+        {{ category }}
+      </button>
+    </div>
+
+    <!-- ==================== FEATURED CAROUSEL ==================== -->
+    <section *ngIf="selectedCategory() === 'All' && featuredProducts().length > 0 && !loading() && !error()"
+             class="featured-section">
+
+      <div class="section-header">
+        <h2 class="section-title">New Arrivals</h2>
+        <p class="section-subtitle">Freshly added products</p>
+      </div>
+
+      <div class="featured-carousel"
+           (mouseenter)="pauseCarousel()"
+           (mouseleave)="resumeCarousel()">
+
+        <button class="carousel-btn prev" (click)="prevSlide()">‹</button>
+        <button class="carousel-btn next" (click)="nextSlide()">›</button>
+
+        <div class="carousel-track"
+             [style.transform]="'translateX(' + carouselOffset() + 'px)'">
+
+          <article class="featured-card"
+                   *ngFor="let product of featuredProducts(); trackBy: trackByProduct">
+
+            <div class="featured-image-wrapper">
+              <img [src]="getImageUrl(product.imageUrl)"
+                   [alt]="product.name"
+                   (error)="onImageError($event)"
+                   loading="lazy">
+              <div class="overlay"></div>
+
+              <div class="featured-promo-badge" *ngIf="hasPromotion(product)">
+                -{{ getDiscountPercent(product) }}%
+              </div>
+            </div>
+
+            <div class="featured-content">
+              <h3>{{ product.name }}</h3>
+
+              <div class="featured-price-block"
+                   *ngIf="hasPromotion(product); else featuredNormalPrice">
+                <span class="old-price">
+                  {{ getOriginalPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+                </span>
+                <span class="promo-price">
+                  {{ getDisplayPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+                </span>
+                <span class="promo-name">{{ getPromotionBadge(product) }}</span>
+              </div>
+
+              <ng-template #featuredNormalPrice>
+                <span class="featured-price">
+                  {{ getDisplayPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+                </span>
+              </ng-template>
+
+              <a class="btn-featured"
+                 [routerLink]="['/front/products', product.id]">
+                View Details →
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PROMO FILTER INFO ==================== -->
+    <div *ngIf="!loading() && !error() && selectedCategory() === 'PROMO'"
+         class="promo-filter-info">
+      Showing only products included in the current promotional campaign.
+    </div>
+
+    <!-- ==================== STATES ==================== -->
+    <div *ngIf="loading()" class="state-message loading-state">
+      <div class="spinner"></div>
+      <p>Loading our collection...</p>
+    </div>
+
+    <div *ngIf="error()" class="state-message error">
+      {{ error() }}
+    </div>
+
+    <div *ngIf="!loading() && !error() && filteredProducts().length === 0"
+         class="state-message empty-state">
+      <h3>No products found</h3>
+      <p>Try selecting another category.</p>
+    </div>
+
+    <!-- ==================== MAIN PRODUCTS GRID ==================== -->
+    <section *ngIf="!loading() && !error() && filteredProducts().length > 0"
+             class="products-grid">
+
+      <article class="product-card"
+               *ngFor="let product of filteredProducts(); trackBy: trackByProduct">
+
+        <div class="product-badges">
+          <span class="badge new" *ngIf="isNewProduct(product)">NEW</span>
+          <span class="badge preorder" *ngIf="isPreorderProduct(product)">PREORDER</span>
+          <span class="badge promo" *ngIf="hasPromotion(product)">
+            -{{ getDiscountPercent(product) }}%
+          </span>
+        </div>
+
+        <div class="product-image-wrapper">
+          <img [src]="getImageUrl(product.imageUrl)"
+               [alt]="product.name"
+               (error)="onImageError($event)"
+               loading="lazy">
+        </div>
+
+        <div class="product-content">
+          <h3 class="product-title">{{ product.name }}</h3>
+          <p class="description">{{ product.description || 'No description available.' }}</p>
+
+          <div class="meta">
+            <span class="seller">{{ product.sellerName || 'Unknown' }}</span>
+            <span class="mode">{{ product.saleType || 'STANDARD' }}</span>
+          </div>
+
+          <div class="promo-line" *ngIf="hasPromotion(product)">
+            {{ getPromotionBadge(product) }}
+          </div>
+
+          <div class="footer">
+            <div class="price-block"
+                 *ngIf="hasPromotion(product); else normalPrice">
+              <div class="old-price">
+                {{ getOriginalPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+              </div>
+              <div class="price promo-price">
+                {{ getDisplayPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+              </div>
+            </div>
+
+            <ng-template #normalPrice>
+              <div class="price">
+                {{ getDisplayPrice(product) | currency:'TND':'symbol':'1.2-2' }}
+              </div>
+            </ng-template>
+
+            <a class="btn-details"
+               [routerLink]="['/front/products', product.id]">
+              View Details
+            </a>
+          </div>
+        </div>
+      </article>
+    </section>
+
+  </div>
+</div>

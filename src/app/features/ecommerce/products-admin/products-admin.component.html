@@ -1,0 +1,221 @@
+<div class="products-admin-page">
+  <div class="page-header">
+    <a routerLink="/admin/ecommerce" class="back-btn">
+      ← Back to E-Commerce Dashboard
+    </a>
+  </div>
+
+
+  <div class="page-header">
+    
+    <div>
+      <h2>Product Management</h2>
+      <p>Manage the product catalog, pricing, stock, and availability.</p>
+    </div>
+
+    <button type="button" class="primary-btn" (click)="openCreateForm()">
+      + Add Product
+    </button>
+  </div>
+
+  <div class="filters-card">
+    <div class="filters-grid">
+      <div class="filter-group search-group">
+        <label for="search">Search</label>
+        <input
+          id="search"
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search by name, description, seller, or ID"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="categoryFilter">Category</label>
+        <select id="categoryFilter" (change)="onCategoryChange($any($event.target).value)">
+          <option value="">All categories</option>
+          <option *ngFor="let category of categories()" [value]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="saleTypeFilter">Sale Type</label>
+        <select id="saleTypeFilter" (change)="onSaleTypeChange($any($event.target).value)">
+          <option value="ALL">All</option>
+          <option value="STANDARD">STANDARD</option>
+          <option value="PREORDER">PREORDER</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="statusFilter">Status</label>
+        <select id="statusFilter" (change)="onStatusChange($any($event.target).value)">
+          <option value="ALL">All</option>
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="sortFilter">Sort By</label>
+        <select id="sortFilter" (change)="onSortChange($any($event.target).value)">
+          <option value="date-desc">Newest First</option>
+          <option value="date-asc">Oldest First</option>
+          <option value="name-asc">Name A → Z</option>
+          <option value="name-desc">Name Z → A</option>
+          <option value="price-asc">Price Low → High</option>
+          <option value="price-desc">Price High → Low</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="pageSize">Page Size</label>
+        <select id="pageSize" (change)="onPageSizeChange($any($event.target).value)">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filters-actions">
+      <button type="button" class="secondary-btn" (click)="resetFilters()">
+        Reset Filters
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="info-message">
+    Loading products...
+  </div>
+
+  <div *ngIf="error()" class="message error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="success()" class="message success">
+    {{ success() }}
+  </div>
+
+  <div class="table-card" *ngIf="!loading() && paginatedProducts().length > 0">
+    <div class="table-meta">
+      <p>
+        Showing {{ startItem() }} to {{ endItem() }} of {{ filteredProducts().length }} products
+      </p>
+    </div>
+
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Seller</th>
+          <th>Category</th>
+          <th>Base Price</th>
+          <th>Current Price</th>
+          <th>Sale Type</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let product of paginatedProducts()">
+          <td>
+            <div class="product-cell">
+            <img
+  [src]="getImageUrl(product.imageUrl)"
+  [alt]="product.name"
+  class="product-thumb"
+  (error)="onImageError($event)"
+/>
+
+              <div class="product-info">
+                <h4>{{ product.name }}</h4>
+                <p>ID: {{ product.id }}</p>
+              </div>
+            </div>
+          </td>
+
+          <td>{{ product.sellerName || ('#' + product.sellerId) }}</td>
+
+          <td>{{ getCategoryName(product.categoryId) }}</td>
+
+          <td class="price-cell">{{ product.basePrice }}</td>
+
+          <td class="price-cell">{{ product.currentPrice ?? '-' }}</td>
+
+          <td>
+            <span
+              class="badge"
+              [ngClass]="product.saleType === 'PREORDER' ? 'badge-preorder' : 'badge-standard'"
+            >
+              {{ product.saleType }}
+            </span>
+          </td>
+
+          <td>
+            <span
+              class="badge"
+              [ngClass]="(product.stockQuantity ?? 0) > 0 ? 'badge-stock' : 'badge-out'"
+            >
+              {{ product.stockQuantity ?? 0 }}
+            </span>
+          </td>
+
+          <td>
+            <span
+              class="badge"
+              [ngClass]="product.active ? 'badge-active' : 'badge-inactive'"
+            >
+              {{ product.active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+
+          <td>{{ product.createdAt | date:'short' }}</td>
+
+          <td class="actions-cell">
+            <button type="button" class="icon-btn edit-btn" (click)="openEditForm(product.id)">
+              Edit
+            </button>
+            <button type="button" class="icon-btn delete-btn" (click)="deleteProduct(product.id)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination-bar">
+      <button
+        type="button"
+        class="secondary-btn"
+        (click)="goToPreviousPage()"
+        [disabled]="currentPage() === 1"
+      >
+        Previous
+      </button>
+
+      <span class="page-indicator">
+        Page {{ currentPage() }} / {{ totalPages() }}
+      </span>
+
+      <button
+        type="button"
+        class="secondary-btn"
+        (click)="goToNextPage()"
+        [disabled]="currentPage() === totalPages()"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading() && filteredProducts().length === 0" class="empty-state">
+    No products found for the selected filters.
+  </div>
+</div>

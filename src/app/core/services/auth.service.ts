@@ -4,6 +4,7 @@ import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 
 interface AuthUser {
+  id?: number;
   email?: string;
   userType?: string | null;
   role?: string | null;
@@ -36,38 +37,31 @@ export class AuthService {
   }
 
   private normalizeUserType(value: unknown): string | null {
-    if (typeof value !== 'string') {
-      return null;
-    }
-
+    if (typeof value !== 'string') return null;
     const normalized = value.trim().toUpperCase();
     return normalized || null;
   }
 
-  private buildStoredUser(
-    user: unknown,
-    fallback: Partial<AuthUser> = {}
-  ): AuthUser | null {
-    const source = typeof user === 'object' && user !== null
-      ? { ...(user as AuthUser) }
-      : {};
+  private buildStoredUser(user: unknown, fallback: Partial<AuthUser> = {}): AuthUser | null {
+    const source = typeof user === 'object' && user !== null ? { ...(user as AuthUser) } : {};
 
-    const email = typeof source.email === 'string'
-      ? source.email
-      : typeof fallback.email === 'string'
-        ? fallback.email
-        : undefined;
+    const id =
+      typeof source.id === 'number' ? source.id :
+      typeof fallback.id === 'number' ? fallback.id : undefined;
+
+    const email =
+      typeof source.email === 'string' ? source.email :
+      typeof fallback.email === 'string' ? fallback.email : undefined;
 
     const userType = this.normalizeUserType(
       source.userType ?? source.role ?? fallback.userType ?? fallback.role
     );
 
-    if (Object.keys(source).length === 0 && !email && !userType) {
-      return null;
-    }
+    if (Object.keys(source).length === 0 && id === undefined && !email && !userType) return null;
 
     return {
       ...source,
+      ...(id !== undefined ? { id } : {}),
       ...(email ? { email } : {}),
       ...(userType ? { userType, role: userType } : {})
     };
@@ -75,12 +69,9 @@ export class AuthService {
 
   getUserTypeFromAuthResponse(response: any): string | null {
     return this.normalizeUserType(
-      response?.user?.userType ??
-      response?.user?.role ??
-      response?.currentUser?.userType ??
-      response?.currentUser?.role ??
-      response?.userType ??
-      response?.role
+      response?.user?.userType ?? response?.user?.role ??
+      response?.currentUser?.userType ?? response?.currentUser?.role ??
+      response?.userType ?? response?.role
     );
   }
 
@@ -126,36 +117,28 @@ export class AuthService {
 
   saveUser(user: unknown, fallback: Partial<AuthUser> = {}): AuthUser | null {
     const normalizedUser = this.buildStoredUser(user, fallback);
-
     if (!normalizedUser) {
       this.storage?.removeItem(this.userKey);
       return null;
     }
-
     this.storage?.setItem(this.userKey, JSON.stringify(normalizedUser));
     return normalizedUser;
   }
 
-saveUserFromAuthResponse(response: any, fallbackEmail?: string): AuthUser | null {
-
-  const userData = {
-    id: response.id,
-    email: response.email ?? fallbackEmail,
-    role: response.role || response.userType
-  };
-
-  localStorage.setItem('currentUser', JSON.stringify(userData)); // 🔥 DIRECT
-
-  return userData;
-}
+  saveUserFromAuthResponse(response: any, fallbackEmail?: string): AuthUser | null {
+    return this.saveUser(
+      response?.user ?? response?.currentUser ?? null,
+      {
+        id: response?.user?.id ?? response?.currentUser?.id ?? response?.id,
+        email: response?.email ?? fallbackEmail,
+        userType: this.getUserTypeFromAuthResponse(response)
+      }
+    );
+  }
 
   getUser(): AuthUser | null {
     const rawUser = this.storage?.getItem(this.userKey);
-
-    if (!rawUser) {
-      return null;
-    }
-
+    if (!rawUser) return null;
     try {
       return JSON.parse(rawUser) as AuthUser;
     } catch {
@@ -186,11 +169,11 @@ saveUserFromAuthResponse(response: any, fallbackEmail?: string): AuthUser | null
     const user = this.buildStoredUser(
       response?.user ?? response?.currentUser ?? null,
       {
+        id: response?.user?.id ?? response?.currentUser?.id ?? response?.id,
         email,
         userType: this.getUserTypeFromAuthResponse(response)
       }
     );
-
     this.storage?.setItem(
       this.pendingOtpKey,
       JSON.stringify({ email, user } satisfies PendingOtpAuth)
@@ -199,11 +182,7 @@ saveUserFromAuthResponse(response: any, fallbackEmail?: string): AuthUser | null
 
   getPendingOtpAuth(): PendingOtpAuth | null {
     const rawPendingAuth = this.storage?.getItem(this.pendingOtpKey);
-
-    if (!rawPendingAuth) {
-      return null;
-    }
-
+    if (!rawPendingAuth) return null;
     try {
       return JSON.parse(rawPendingAuth) as PendingOtpAuth;
     } catch {

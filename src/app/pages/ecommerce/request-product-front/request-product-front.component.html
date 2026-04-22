@@ -1,0 +1,122 @@
+<div class="request-product-page">
+  <div class="top-bar">
+    <a routerLink="/front/ecommerce" class="back-link">← Back to Shop</a>
+  </div>
+
+  <div class="request-card">
+    <div class="header">
+      <p class="eyebrow">REQUEST A PRODUCT</p>
+      <h1>Can’t find what you need?</h1>
+      <p>
+        Submit a request and let sellers respond with matching products,
+        quantities, or custom offers.
+      </p>
+    </div>
+
+    <div *ngIf="error()" class="state-message error">
+      {{ error() }}
+    </div>
+
+    <div *ngIf="successMessage()" class="state-message success">
+      {{ successMessage() }}
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="request-form">
+      <div class="form-grid">
+        <div class="field full-width">
+          <label for="title">Product title *</label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            placeholder="Example: 50 medical masks, office chairs, laptops..."
+          >
+          <small class="error-text" *ngIf="hasError('title', 'required')">
+            Title is required.
+          </small>
+          <small class="error-text" *ngIf="hasError('title', 'maxlength')">
+            Title must not exceed 150 characters.
+          </small>
+        </div>
+
+        <div class="field full-width">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            rows="5"
+            formControlName="description"
+            placeholder="Describe the exact product, brand, size, quality, usage, or any important details."
+          ></textarea>
+          <small class="error-text" *ngIf="hasError('description', 'maxlength')">
+            Description must not exceed 3000 characters.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="categoryId">Category</label>
+          <select id="categoryId" formControlName="categoryId">
+            <option [ngValue]="null">Select a category</option>
+            <option *ngFor="let category of categories()" [ngValue]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="requestedQuantity">Requested quantity *</label>
+          <input
+            id="requestedQuantity"
+            type="number"
+            min="1"
+            formControlName="requestedQuantity"
+            placeholder="Enter quantity"
+          >
+          <small class="error-text" *ngIf="hasError('requestedQuantity', 'required')">
+            Quantity is required.
+          </small>
+          <small class="error-text" *ngIf="hasError('requestedQuantity', 'min')">
+            Quantity must be at least 1.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="maxBudget">Maximum budget (TND)</label>
+          <input
+            id="maxBudget"
+            type="number"
+            min="0"
+            step="0.01"
+            formControlName="maxBudget"
+            placeholder="Example: 500.00"
+          >
+          <small class="error-text" *ngIf="hasError('maxBudget', 'min')">
+            Budget must be 0 or more.
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="desiredDate">Desired date</label>
+          <input
+            id="desiredDate"
+            type="datetime-local"
+            formControlName="desiredDate"
+          >
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>How it works:</strong>
+        Your request will be visible to sellers, who can submit offers based on
+        your requested product, quantity, and budget.
+      </div>
+
+      <div class="actions">
+        <a routerLink="/front/ecommerce" class="secondary-btn">Cancel</a>
+
+        <button type="submit" class="primary-btn" [disabled]="loading()">
+          {{ loading() ? 'Submitting...' : 'Submit Request' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,297 @@
+.admin-requests-page {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 40px 24px;
+
+  /* ====================== HEADER ====================== */
+  .page-header {
+    margin-bottom: 40px;
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.87rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #64748b;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 12px 0;
+      line-height: 1.1;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 1.15rem;
+      max-width: 620px;
+    }
+  }
+
+  /* ====================== KPI GRID ====================== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .kpi-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px 22px;
+    box-shadow: 0 10px 35px rgba(15, 23, 42, 0.07);
+    border: 1px solid #f1f5f9;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    .kpi-value {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .kpi-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .kpi-subtitle {
+      font-size: 0.87rem;
+      color: #64748b;
+      margin-top: 6px;
+    }
+  }
+
+  /* KPI Colors */
+  .kpi-card.open     .kpi-value { color: #1e40af; }
+  .kpi-card.offered  .kpi-value { color: #b45309; }
+  .kpi-card.accepted .kpi-value { color: #15803d; }
+  .kpi-card.rejected .kpi-value { color: #b91c1c; }
+  .kpi-card.cancelled .kpi-value { color: #475569; }
+  .kpi-card.closed   .kpi-value { color: #334155; }
+  .kpi-card.neutral  .kpi-value { color: #0f172a; }
+
+  /* ====================== TOOLBAR ====================== */
+  .toolbar {
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .toolbar-left {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  input[type="text"],
+  select {
+    padding: 14px 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: white;
+    font-size: 1rem;
+    min-width: 260px;
+    transition: all 0.3s;
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+  }
+
+  /* ====================== STATES ====================== */
+  .state {
+    padding: 18px 24px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  .state.success {
+    background: #ecfdf5;
+    color: #166534;
+    border: 1px solid #a7f3d0;
+  }
+
+  .state.loading,
+  .state.error {
+    background: white;
+    color: #64748b;
+    text-align: center;
+  }
+
+  /* ====================== TABLE CARD ====================== */
+  .table-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 45px rgba(15, 23, 42, 0.08);
+    border: 1px solid #f1f5f9;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 18px 20px;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.93rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  td {
+    border-bottom: 1px solid #f1f5f9;
+    color: #1e2937;
+  }
+
+  tr:hover td {
+    background: #f8fafc;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 18px;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .status-badge.open     { background: #dbeafe; color: #1e40af; }
+  .status-badge.offered  { background: #fef3c7; color: #b45309; }
+  .status-badge.accepted { background: #d1fae5; color: #15803d; }
+  .status-badge.rejected { background: #fee2e2; color: #b91c1c; }
+  .status-badge.cancelled{ background: #f1f5f9; color: #475569; }
+  .status-badge.closed   { background: #e2e8f0; color: #334155; }
+
+  /* Actions Cell */
+  .actions-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .action-link {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #eff6ff;
+      color: #1e40af;
+    }
+  }
+
+  .mini-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+
+  .mini-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .close-btn {
+    background: #e2e8f0;
+    color: #334155;
+
+    &:hover:not(:disabled) {
+      background: #cbd5e1;
+    }
+  }
+
+  .cancel-btn {
+    background: #fee2e2;
+    color: #b91c1c;
+
+    &:hover:not(:disabled) {
+      background: #fecaca;
+    }
+  }
+
+  /* Empty state inside table */
+  .empty-cell {
+    text-align: center;
+    padding: 80px 20px !important;
+    color: #64748b;
+    font-size: 1.1rem;
+  }
+
+  /* ====================== RESPONSIVE ====================== */
+  @media (max-width: 1024px) {
+    .kpi-grid {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 24px 16px;
+
+    .page-header h1 {
+      font-size: 2.1rem;
+    }
+
+    .toolbar-left {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    input[type="text"],
+    select {
+      min-width: 100%;
+    }
+
+    table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .actions-cell {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}

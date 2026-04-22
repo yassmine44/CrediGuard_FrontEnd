@@ -1,0 +1,128 @@
+<section class="plan-page">
+  <div class="container">
+    <div class="top-actions">
+      <button type="button" class="back-btn" (click)="goBack()">
+        ← Back to My Requests
+      </button>
+    </div>
+
+    <div class="page-header">
+      <div class="header-badge">Plan Utilization</div>
+      <div>
+        <h1>Credit Utilization Plan</h1>
+        <p>
+          {{
+            editMode()
+              ? ('Update the utilization plan for request #' + demandeId)
+              : ('Create the utilization plan for request #' + demandeId)
+          }}
+        </p>
+      </div>
+    </div>
+
+    <div *ngIf="loading()" class="state-box info">
+      Loading plan...
+    </div>
+
+    <div *ngIf="error()" class="state-box error">
+      {{ error() }}
+    </div>
+
+    <div *ngIf="success()" class="state-box success">
+      {{ success() }}
+    </div>
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      *ngIf="!loading()"
+      class="plan-card"
+    >
+      <div class="section-title">
+        <h3>Project & Financing Details</h3>
+        <p>Provide a clear overview of your project and how the credit will be used.</p>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="descriptionProjet">Project Description</label>
+          <textarea
+            id="descriptionProjet"
+            rows="5"
+            formControlName="descriptionProjet"
+            placeholder="Describe your project, activity, or business idea"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="objectifCredit">Credit Objective</label>
+          <input
+            id="objectifCredit"
+            type="text"
+            formControlName="objectifCredit"
+            placeholder="Example: equipment purchase, stock financing..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="natureActivite">Business Activity Type</label>
+          <select id="natureActivite" formControlName="natureActivite">
+            <option *ngFor="let nature of natureActivites" [value]="nature">
+              {{ nature }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="montantInvestissement">Investment Amount</label>
+          <input
+            id="montantInvestissement"
+            type="number"
+            formControlName="montantInvestissement"
+            placeholder="Enter total investment amount"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="revenuMensuelPrevu">Expected Monthly Revenue</label>
+          <input
+            id="revenuMensuelPrevu"
+            type="number"
+            formControlName="revenuMensuelPrevu"
+            placeholder="Enter expected monthly revenue"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="profitMensuelPrevu">Expected Monthly Profit</label>
+          <input
+            id="profitMensuelPrevu"
+            type="number"
+            formControlName="profitMensuelPrevu"
+            placeholder="Enter expected monthly profit"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="delaiRentabiliteMois">Payback Period (months)</label>
+          <input
+            id="delaiRentabiliteMois"
+            type="number"
+            formControlName="delaiRentabiliteMois"
+            placeholder="Enter expected payback period"
+          />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-light" (click)="goBack()">
+          Back
+        </button>
+
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : (editMode() ? 'Update Plan' : 'Save Plan') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

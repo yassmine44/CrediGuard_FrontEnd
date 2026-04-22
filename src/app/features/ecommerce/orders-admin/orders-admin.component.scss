@@ -1,0 +1,405 @@
+.orders-admin-page {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  padding-bottom: 100px;
+}
+
+/* ================== HEADER ================== */
+.page-header {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 50px 40px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  .back-btn {
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover {
+      color: #1e40af;
+    }
+  }
+
+  h1 {
+    font-size: 2.65rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  p {
+    color: #64748b;
+    margin: 8px 0 0;
+  }
+}
+
+/* ================== FILTERS ================== */
+.filters-card {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  background: white;
+  border-radius: 20px;
+  padding: 32px 40px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.07);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.form-group {
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  select, input[type="date"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .primary {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: white;
+    border: none;
+  }
+
+  .secondary {
+    background: transparent;
+    color: #64748b;
+    border: 2px solid #cbd5e1;
+  }
+}
+
+/* ================== TABLE ================== */
+.table-card {
+  max-width: 1280px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: #f8fafc;
+    padding: 22px 20px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  td {
+    padding: 22px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  .price {
+    font-weight: 700;
+    color: #1e40af;
+  }
+
+  .status-badge {
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+}
+
+/* ================== PAGINATION ================== */
+.pagination {
+  padding: 30px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 120px;
+  }
+
+  .btn.secondary {
+    background: white;
+    color: #475569;
+    border: 2px solid #cbd5e1;
+
+    &:hover:not(:disabled) {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  span {
+    font-weight: 500;
+    color: #475569;
+  }
+}
+
+/* ================== MODALE FACTURE - VERSION PREMIUM ================== */
+.details-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  background: white;
+  width: 92%;
+  max-width: 850px;
+  border-radius: 28px;
+  max-height: 94vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+/* En-tête de la facture */
+.modal-header {
+  padding: 32px 48px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0f172a;
+  color: white;
+  border-radius: 28px 28px 0 0;
+
+  h2 {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 700;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.3s;
+
+    &:hover {
+      color: white;
+    }
+  }
+}
+
+/* Informations client & facture */
+.invoice-header {
+  padding: 40px 48px;
+  background: #f8fafc;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  border-bottom: 1px solid #e2e8f0;
+
+  .left {
+    strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #475569;
+    }
+  }
+
+  .right-info {
+    text-align: right;
+
+    p {
+      margin: 8px 0;
+    }
+  }
+}
+
+/* Tableau de la facture */
+.invoice-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+
+  thead {
+    th {
+      background: #f1f5f9;
+      padding: 20px 48px;
+      text-align: left;
+      font-weight: 600;
+      color: #475569;
+      border-bottom: 2px solid #e2e8f0;
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        padding: 22px 48px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      &:last-child td {
+        border-bottom: none;
+      }
+    }
+  }
+
+  tfoot {
+    background: #f8fafc;
+
+    td {
+      padding: 24px 48px;
+      font-size: 1.25rem;
+    }
+
+    .total-label {
+      text-align: right;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .total-amount {
+      font-weight: 700;
+      color: #1e40af;
+      font-size: 1.45rem;
+    }
+  }
+}
+
+/* Pied de modal */
+.modal-footer {
+  padding: 32px 48px;
+  text-align: right;
+  border-top: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 0 0 28px 28px;
+
+  .btn {
+    padding: 14px 36px;
+    border-radius: 50px;
+    font-weight: 600;
+  }
+}
+
+/* Status dans la facture */
+.status-badge.big {
+  padding: 10px 24px;
+  font-size: 1rem;
+  border-radius: 9999px;
+}
+
+/* Responsive pour la modale */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 96%;
+    margin: 10px;
+  }
+
+  .invoice-header {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .invoice-table th, .invoice-table td {
+    padding: 16px 20px;
+  }
+}
+/* ================== STATES ================== */
+.state-message {
+  text-align: center;
+  padding: 80px 20px;
+  color: #64748b;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 120px 20px;
+  color: #64748b;
+}
+/* Bouton View Details spécifique */
+.view-btn {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: white;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45);
+  }
+    }

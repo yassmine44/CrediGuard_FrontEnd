@@ -1,0 +1,403 @@
+.finance-dashboard-page {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  min-height: 100vh;
+  padding-bottom: 100px;
+}
+
+/* ================== HEADER ================== */
+.page-header {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 40px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.back-btn {
+  width: fit-content;
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+
+  &:hover {
+    color: #1d4ed8;
+    transform: translateX(-2px);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.header-center {
+  h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 8px;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+    font-size: 1.08rem;
+    max-width: 720px;
+  }
+}
+
+/* ================== STATES ================== */
+.loading-state,
+.error-state,
+.empty-state {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 70px 40px;
+  text-align: center;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  mat-icon {
+    font-size: 42px;
+    width: 42px;
+    height: 42px;
+  }
+}
+
+.error-state {
+  color: #dc2626;
+}
+
+.spinner {
+  width: 56px;
+  height: 56px;
+  border: 6px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================== STATS GRID ================== */
+.stats-grid {
+  max-width: 1280px;
+  margin: 24px auto 0;
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 28px 24px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 46px rgba(15, 23, 42, 0.12);
+  }
+}
+
+.icon-wrapper {
+  flex-shrink: 0;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    color: #2563eb;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.stat-content {
+  flex: 1;
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .value {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    margin: 8px 0 0;
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+}
+
+/* ================== CHART CARD ================== */
+.chart-card {
+  max-width: 1280px;
+  margin: 32px auto 0;
+  padding: 0;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 15px 50px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.chart-header {
+  padding: 32px 32px 18px;
+  border-bottom: 1px solid #f1f5f9;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+  }
+}
+
+.chart-wrapper {
+  padding: 24px 32px 32px;
+  height: 420px;
+}
+
+/* ================== RESPONSIVE ================== */
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header,
+  .stats-grid,
+  .loading-state,
+  .error-state,
+  .empty-state {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .header-center h1 {
+    font-size: 2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .stat-card {
+    padding: 22px 20px;
+  }
+
+  .chart-header {
+    padding: 24px 20px 16px;
+  }
+
+  .chart-wrapper {
+    padding: 20px;
+    height: 320px;
+  }
+}
+.payment-method-list {
+  padding: 24px 32px 32px;
+  display: grid;
+  gap: 16px;
+}
+
+.payment-method-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px 20px;
+}
+
+.payment-method-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  strong {
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  span {
+    color: #64748b;
+    font-size: 0.95rem;
+  }
+}
+
+.payment-method-amount {
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.top-products-list {
+  padding: 24px 32px 32px;
+  display: grid;
+  gap: 16px;
+}
+
+.top-product-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px 20px;
+}
+
+.top-product-rank {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.top-product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  strong {
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  span {
+    color: #64748b;
+    font-size: 0.95rem;
+  }
+}
+
+.top-product-revenue {
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.low-stock-list {
+  padding: 24px 32px 32px;
+  display: grid;
+  gap: 16px;
+}
+
+.low-stock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 18px;
+  padding: 18px 20px;
+}
+
+.low-stock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  strong {
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  span {
+    color: #64748b;
+    font-size: 0.95rem;
+  }
+}
+
+.low-stock-badge {
+  background: #fdba74;
+  color: #7c2d12;
+  font-weight: 800;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+
+  &.critical {
+    background: #fca5a5;
+    color: #7f1d1d;
+  }
+}
+.category-revenue-list {
+  padding: 24px 32px 32px;
+  display: grid;
+  gap: 16px;
+}
+
+.category-revenue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 18px;
+  padding: 18px 20px;
+}
+
+.category-revenue-info {
+  strong {
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+}
+
+.category-revenue-amount {
+  color: #1d4ed8;
+  font-size: 1.1rem;
+  font-weight: 800;
+}

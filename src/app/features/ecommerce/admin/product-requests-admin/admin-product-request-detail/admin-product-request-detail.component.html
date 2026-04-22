@@ -1,0 +1,92 @@
+<div class="request-detail-page">
+  <div class="back-link">
+    <a routerLink="/admin/ecommerce/product-requests">← Back to Requests</a>
+  </div>
+
+  <div *ngIf="loading()" class="state-card">
+    <p>Loading request details...</p>
+  </div>
+
+  <div *ngIf="error()" class="state-card error">
+    <p>{{ error() }}</p>
+  </div>
+
+  <ng-container *ngIf="!loading() && request() as req">
+    <div class="header-card">
+      <div>
+        <span class="section-label">Admin • Request Detail</span>
+        <h1>{{ req.title }}</h1>
+        <p>Review request information, offers, and moderation actions.</p>
+      </div>
+
+      <div class="status-actions">
+        <select
+          [ngModel]="selectedStatus()"
+          (ngModelChange)="selectedStatus.set($event)">
+          <option *ngFor="let status of adminStatuses" [value]="status">
+            {{ status }}
+          </option>
+        </select>
+
+        <button (click)="updateStatus()" [disabled]="actionLoading()">
+          {{ actionLoading() ? 'Updating...' : 'Update Status' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="info-card">
+        <h2>Request Information</h2>
+        <div class="info-row"><strong>ID:</strong> #{{ req.id }}</div>
+        <div class="info-row"><strong>Client:</strong> {{ req.clientName || '—' }}</div>
+        <div class="info-row"><strong>Category:</strong> {{ req.categoryName || '—' }}</div>
+        <div class="info-row"><strong>Target Seller:</strong> {{ req.targetSellerName || '—' }}</div>
+        <div class="info-row"><strong>Quantity:</strong> {{ req.requestedQuantity ?? '—' }}</div>
+        <div class="info-row">
+          <strong>Budget:</strong>
+          {{ req.maxBudget != null ? (req.maxBudget | currency:'TND ':'symbol':'1.3-3') : '—' }}
+        </div>
+        <div class="info-row"><strong>Status:</strong> {{ req.status }}</div>
+        <div class="info-row"><strong>Desired Date:</strong> {{ req.desiredDate | date:'medium' }}</div>
+        <div class="info-row"><strong>Created At:</strong> {{ req.createdAt | date:'medium' }}</div>
+        <div class="info-row"><strong>Updated At:</strong> {{ req.updatedAt | date:'medium' }}</div>
+
+        <div class="description-block">
+          <strong>Description</strong>
+          <p>{{ req.description || 'No description provided.' }}</p>
+        </div>
+      </div>
+
+      <div class="offers-card">
+        <h2>Related Offers</h2>
+
+        <div *ngIf="offers().length === 0" class="empty-state">
+          No offers found for this request.
+        </div>
+
+        <div *ngFor="let offer of offers()" class="offer-item">
+          <div class="offer-top">
+            <div>
+              <h3>{{ offer.productName || 'Unnamed product' }}</h3>
+              <p>Seller: {{ offer.sellerName || '—' }}</p>
+            </div>
+
+            <span class="offer-badge" [ngClass]="getOfferStatusClass(offer.status)">
+              {{ offer.status }}
+            </span>
+          </div>
+
+          <div class="offer-meta">
+            <span>Price: {{ offer.proposedPrice | currency:'TND ':'symbol':'1.3-3' }}</span>
+            <span>Quantity: {{ offer.proposedQuantity }}</span>
+            <span>Delivery: {{ offer.estimatedDeliveryDays }} days</span>
+          </div>
+
+          <p class="offer-message">
+            {{ offer.message || 'No message.' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
