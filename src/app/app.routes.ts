@@ -84,6 +84,11 @@ export const routes: Routes = [
         path: 'my-claims',
         loadComponent: () =>
           import('./pages/my-claims/my-claims.component').then(m => m.MyClaimsComponent)
+      },
+      {
+        path: 'client-space',
+        loadComponent: () =>
+          import('./pages/client-space/client-space.component').then(m => m.ClientSpaceComponent)
       }
     ]
   },

@@ -25,13 +25,13 @@
       ⏳ Chargement du voucher...
     </div>
     <div *ngIf="policy" class="status-box">
-  🏢 Assurance : {{ policy?.company?.name }}
+  🏢 Assurance : {{ policy?.insuranceCompany?.name }}
 </div>
 <div *ngIf="voucher && policy" class="info-box">
   <p><strong>Résumé :</strong></p>
   <p>Produit : {{ product }}</p>
   <p>Prix : {{ price }} TND</p>
-  <p>Assurance : {{ policy?.company?.name }}</p>
+  <p>Assurance : {{ policy?.insuranceCompany?.name }}</p>
 </div>
 <div *ngIf="!policy && !loading" class="status-box error">
   ❌ Aucune police d'assurance trouvée

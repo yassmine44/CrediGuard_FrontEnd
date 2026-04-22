@@ -5,7 +5,11 @@ import { Injectable } from '@angular/core';
 })
 export class ClaimsAdminService {
 
+<<<<<<< HEAD
   private api = 'http://localhost:8089/api/insurance/claims';
+=======
+  private api = 'http://localhost:8082/api/insurance/claims';
+>>>>>>> eya
 
   private isBrowser(): boolean {
     return typeof window !== 'undefined';
@@ -66,7 +70,11 @@ export class ClaimsAdminService {
 
   // ===== PRODUCTS (LISTE → length) =====
   getProducts(): Promise<any[]> {
+<<<<<<< HEAD
     return fetch(`http://localhost:8089/api/partner-products/all`, {
+=======
+    return fetch(`http://localhost:8082/api/partner-products/all`, {
+>>>>>>> eya
       headers: {
         Authorization: `Bearer ${this.getToken()}`
       }
@@ -75,7 +83,11 @@ export class ClaimsAdminService {
 
   // ===== INSURANCES (LISTE → length) =====
   getInsurances(): Promise<any[]> {
+<<<<<<< HEAD
     return fetch(`http://localhost:8089/api/insurance/companies/all`, {
+=======
+    return fetch(`http://localhost:8082/api/insurance/companies/all`, {
+>>>>>>> eya
       headers: {
         Authorization: `Bearer ${this.getToken()}`
       }

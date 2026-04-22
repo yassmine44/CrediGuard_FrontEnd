@@ -10,9 +10,13 @@ export interface Policy {
   startDate: string;
   endDate: string;
   status: string;
-  company?: {
+  insuranceCompany?: {
     id: number;
     name: string;
+  };
+  insuranceOffer?: {
+    id: number;
+    name?: string;
   };
   client?: {
     id: number;

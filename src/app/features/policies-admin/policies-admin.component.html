@@ -51,7 +51,7 @@
           <td>{{ p.id }}</td>
           <td class="bold">{{ p.policyNumber }}</td>
           <td>{{ p.client?.fullName || '-' }}</td>
-          <td>{{ p.company?.name || '-' }}</td>
+          <td>{{ p.insuranceCompany?.name || '-' }}</td>
           <td>{{ p.premium | number:'1.0-2' }} TND</td>
           <td>{{ p.startDate | date:'shortDate' }}</td>
           <td>{{ p.endDate | date:'shortDate' }}</td>

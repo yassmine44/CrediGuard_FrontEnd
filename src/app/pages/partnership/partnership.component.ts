@@ -8,6 +8,7 @@ import { UserService } from '../../services/user.service';
 import { PartnerProductService, PartnerProduct } from '../../services/partner-product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ClaimsAdminService } from '../../features/claims-admin/claims-admin.service';
+import { InsuranceService, InsuranceRecommendation } from '../../services/insurance.service';
 
 @Component({
   selector: 'app-partnership',
@@ -24,6 +25,7 @@ export class PartnershipComponent implements OnInit {
   private authService = inject(AuthService);
   private http = inject(HttpClient);
   private claimsService = inject(ClaimsAdminService);
+  private insuranceService = inject(InsuranceService);
 
   private api = 'http://localhost:8089/api/api/vouchers';
 
@@ -45,6 +47,7 @@ export class PartnershipComponent implements OnInit {
   claimLoading = false;
   policy: any = null;
   policies: any[] = [];
+  recommendation: InsuranceRecommendation | null = null;
 
   // =====================
   // INIT
@@ -52,6 +55,21 @@ export class PartnershipComponent implements OnInit {
   ngOnInit() {
     this.loadUserPolicy();
     this.loadUserClaims();
+    this.loadRecommendations();
+  }
+
+  loadRecommendations() {
+    const user: any = this.authService.getUser();
+    if (!user?.id) return;
+
+    this.insuranceService.getRecommendationForClient(user.id).subscribe({
+      next: (recs: InsuranceRecommendation[]) => {
+        if (recs && recs.length > 0) {
+          this.recommendation = recs[0];
+        }
+      },
+      error: (err: any) => console.error("Error loading recommendations", err)
+    });
   }
 
   loadUserPolicy() {
@@ -67,7 +85,7 @@ export class PartnershipComponent implements OnInit {
         this.policies = res;
         if (this.policies.length > 0) this.policy = this.policies[0];
       },
-      error: (err) => console.error(err)
+      error: (err: any) => console.error(err)
     });
   }
 

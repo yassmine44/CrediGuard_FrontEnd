@@ -1,9 +1,29 @@
 <div class="finance-container">
 
   <div class="top-nav-actions">
-     <button class="btn-track" (click)="router.navigate(['/front/my-claims'])">
-       📋 Suivre mes demandes d'assurance
+     <button class="btn-track" (click)="router.navigate(['/front/client-space'])">
+       📋 Mon Espace Client
      </button>
+  </div>
+
+  <!-- ===================== -->
+  <!-- SMART RECOMMENDATION -->
+  <!-- ===================== -->
+  <div *ngIf="recommendation && !selectedType && !showCheckout && !success" class="recommendation-banner fade-in">
+    <div class="banner-icon">🧠</div>
+    <div class="banner-content">
+      <div class="banner-badge">IA Recommendation</div>
+      <h3>Conseil Personnalisé : Sécurisez votre activité</h3>
+      <p>
+        Basé sur votre dossier de crédit, nous vous recommandons l'assurance 
+        <strong>{{ recommendation.suggestedOffers[0].name }}</strong>. 
+        Score de risque : <span class="risk-score" [class.high]="recommendation.riskScore > 70">{{ recommendation.riskScore }}%</span>
+      </p>
+      <div class="reasons-list">
+        <span *ngFor="let reason of recommendation.reasons" class="reason-tag">✓ {{ reason }}</span>
+      </div>
+    </div>
+    <button class="btn-action-banner" routerLink="/front/claim">En savoir plus</button>
   </div>
 
   <!-- ===================== -->
@@ -142,7 +162,7 @@
             <div class="insurance-option" style="margin-bottom: 0; background: #fff;">
                 <h3>🛡️ Utiliser mon Assurance</h3>
                 <p *ngIf="policy" style="font-size: 0.9rem;">
-                  Assurance active : <strong>{{ policy.company?.name }}</strong>
+                  Assurance active : <strong>{{ policy.insuranceCompany?.name }}</strong>
                 </p>
                 <p *ngIf="!policy" style="color: #666; font-size: 0.85rem;">Aucune police détectée. Vous pouvez toujours payer par voucher.</p>
                 
@@ -188,7 +208,7 @@
     
     <div style="display: flex; gap: 15px; justify-content: center;">
       <button class="btn-submit" (click)="reset()" style="width: auto; padding: 12px 40px; margin: 0;">Faire un nouvel achat</button>
-      <button *ngIf="isInsuranceMode" class="btn-track" (click)="router.navigate(['/front/my-claims'])" style="padding: 10px 30px;">Voir mes dossiers</button>
+      <button *ngIf="isInsuranceMode" class="btn-track" (click)="router.navigate(['/front/client-space'])" style="padding: 10px 30px;">Voir mon espace</button>
     </div>
   </div>
 
