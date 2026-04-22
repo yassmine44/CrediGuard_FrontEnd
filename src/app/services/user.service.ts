@@ -13,7 +13,7 @@ export interface User {
 })
 export class UserService {
 
-  private api = 'http://localhost:8090/api/users';
+  private api = 'http://localhost:8082/api/users';
 
   constructor(private http: HttpClient) {}
 

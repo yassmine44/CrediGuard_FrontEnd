@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ClaimsAdminService {
 
-  private api = 'http://localhost:8090/api/insurance/claims';
+  private api = 'http://localhost:8082/api/insurance/claims';
 
   private isBrowser(): boolean {
     return typeof window !== 'undefined';
@@ -57,7 +57,7 @@ export class ClaimsAdminService {
 
   // ===== PARTNERS (COUNT OK) =====
   getPartnersCount(): Promise<number> {
-    return fetch(`http://localhost:8090/api/partners/count`, {
+    return fetch(`http://localhost:8082/api/partners/count`, {
       headers: {
         Authorization: `Bearer ${this.getToken()}`
       }
@@ -66,7 +66,7 @@ export class ClaimsAdminService {
 
   // ===== PRODUCTS (LISTE → length) =====
   getProducts(): Promise<any[]> {
-    return fetch(`http://localhost:8090/api/partner-products/all`, {
+    return fetch(`http://localhost:8082/api/partner-products/all`, {
       headers: {
         Authorization: `Bearer ${this.getToken()}`
       }
@@ -75,7 +75,7 @@ export class ClaimsAdminService {
 
   // ===== INSURANCES (LISTE → length) =====
   getInsurances(): Promise<any[]> {
-    return fetch(`http://localhost:8090/api/insurance/companies/all`, {
+    return fetch(`http://localhost:8082/api/insurance/companies/all`, {
       headers: {
         Authorization: `Bearer ${this.getToken()}`
       }

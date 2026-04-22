@@ -1,0 +1,143 @@
+<div class="client-space-container">
+  <header class="page-header">
+    <button class="btn-back" (click)="goBack()">← Retour au Shop</button>
+    <h1>🛡️ Mon Espace Client</h1>
+    <p>Gérez vos contrats d'assurance et suivez vos demandes de remboursement.</p>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs-navigation">
+    <button [class.active]="activeTab === 'policies'" (click)="switchTab('policies')">
+      📋 Mes Contrats ({{ userPolicies.length }})
+    </button>
+    <button [class.active]="activeTab === 'claims'" (click)="switchTab('claims')">
+      🛍️ Suivi Achats ({{ userClaims.length }})
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loader-box">
+    <div class="spinner"></div>
+    <p>Chargement de votre espace...</p>
+  </div>
+
+  <!-- POLICIES SECTION -->
+  <div *ngIf="!loading && activeTab === 'policies'" class="fade-in">
+    <div *ngIf="userPolicies.length > 0" class="cards-list">
+      <div class="item-card" *ngFor="let p of userPolicies">
+        <div class="card-status-strip" [ngClass]="p.status?.toLowerCase()"></div>
+        <div class="card-body">
+          <div class="card-header-info">
+            <div class="ref-section">
+              <span class="label">N° de Contrat</span>
+              <span class="value">{{ p.policyNumber }}</span>
+            </div>
+            <div class="status-pill" [ngClass]="p.status?.toLowerCase()">
+              {{ getStatusLabel(p.status) }}
+            </div>
+          </div>
+
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="icon">🏢</span>
+              <div class="text">
+                <span class="label">Assureur</span>
+                <span class="value">{{ p.insuranceCompany?.name || 'Non spécifié' }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon">🏷️</span>
+              <div class="text">
+                <span class="label">Offre</span>
+                <span class="value">{{ p.insuranceOffer?.name || 'Formule Standard' }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon">💰</span>
+              <div class="text">
+                <span class="label">Prime annuelle</span>
+                <span class="value">{{ p.premium }} TND</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon">📅</span>
+              <div class="text">
+                <span class="label">Validité</span>
+                <span class="value">{{ p.startDate | date:'shortDate' }} - {{ p.endDate | date:'shortDate' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="p.status === 'PENDING'" class="info-footer">
+            <p class="hint">Votre contrat est en cours de validation par l'assureur. Un conseiller vous contactera si nécessaire.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="userPolicies.length === 0" class="empty-state">
+      <div class="icon-circle">📄</div>
+      <h2>Aucun contrat actif</h2>
+      <p>Vous n'avez pas encore souscrit à une assurance. Utilisez l'assistant pour trouver l'offre idéale.</p>
+      <button class="btn-primary" (click)="goBack()">Découvrir les offres</button>
+    </div>
+  </div>
+
+  <!-- CLAIMS SECTION -->
+  <div *ngIf="!loading && activeTab === 'claims'" class="fade-in">
+    <div *ngIf="userClaims.length > 0" class="cards-list">
+      <div class="item-card" *ngFor="let c of userClaims">
+        <div class="card-status-strip" [ngClass]="c.status?.toLowerCase()"></div>
+        <div class="card-body">
+          <div class="card-header-info">
+            <div class="ref-section">
+              <span class="label">Référence Dossier</span>
+              <span class="value">{{ c.claimReference }}</span>
+            </div>
+            <div class="status-pill" [ngClass]="c.status?.toLowerCase()">
+               {{ getStatusLabel(c.status) }}
+            </div>
+          </div>
+
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="icon">🎟️</span>
+              <div class="text">
+                <span class="label">Voucher utilisé</span>
+                <span class="value">{{ c.voucher?.code }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon">💰</span>
+              <div class="text">
+                <span class="label">Montant couvert</span>
+                <span class="value">{{ c.voucher?.amount }} TND</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon">📅</span>
+              <div class="text">
+                <span class="label">Date de demande</span>
+                <span class="value">{{ c.createdAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-footer">
+            <div *ngIf="c.status === 'REJECTED'" class="rejection-alert">
+               <strong>Motif du rejet :</strong> {{ getRejectionReason(c) }}
+            </div>
+            <p *ngIf="c.status === 'PENDING'" class="hint">Notre moteur de risque analyse votre dossier. Une réponse vous sera apportée sous peu.</p>
+            <p *ngIf="c.status === 'APPROVED'" class="hint-success">Votre achat a été validé et couvert par votre assurance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="userClaims.length === 0" class="empty-state">
+      <div class="icon-circle">🛒</div>
+      <h2>Aucun achat assuré</h2>
+      <p>Vous n'avez pas encore effectué de demande de remboursement pour vos achats.</p>
+      <button class="btn-primary" (click)="goBack()">Faire mes achats</button>
+    </div>
+  </div>
+</div>

@@ -1,20 +1,49 @@
 <div class="chatbot-container" [class.open]="isOpen">
     <div class="chatbot-header" (click)="toggleChat()">
-        <span>Assistant Finance</span>
-        <button class="close-btn" *ngIf="isOpen">×</button>
-        <span class="icon" *ngIf="!isOpen">💬</span>
+        <div class="header-info" *ngIf="isOpen">
+            <span class="status-indicator"></span>
+            <span class="title">Assistant CrediGuard</span>
+        </div>
+        <div class="header-icon-container" [class.centered]="!isOpen">
+            <button class="toggle-btn">
+                <span *ngIf="!isOpen" class="ai-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span *ngIf="isOpen" class="close-icon">×</span>
+            </button>
+        </div>
     </div>
 
     <div class="chatbot-body" *ngIf="isOpen" #scrollContainer>
-        <div *ngFor="let msg of messages" class="message" [class.user]="msg.sender === 'user'"
-            [class.bot]="msg.sender === 'bot'">
-            <div class="message-content">{{ msg.text }}</div>
-            <div class="message-time">{{ msg.time | date:'shortTime' }}</div>
+        <div *ngFor="let msg of messages" class="message-wrapper" [class.user-wrapper]="msg.sender === 'user'">
+            <div class="message" [class.user]="msg.sender === 'user'" [class.bot]="msg.sender === 'bot'">
+                <div class="message-content" style="white-space: pre-line;">{{ msg.text }}</div>
+                
+                <!-- Action Button for AI Recommendation -->
+                <div *ngIf="msg.hasAction && msg.sender === 'bot'" class="message-action">
+                    <button class="action-btn" (click)="subscribeAction()">Souscrire maintenant 🛡️</button>
+                </div>
+
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div *ngIf="isLoading" class="message-wrapper">
+            <div class="message bot loading-msg">
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="chatbot-footer" *ngIf="isOpen">
-        <input [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Posez une question..." type="text" />
-        <button (click)="sendMessage()">➤</button>
+        <input [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Comment puis-je vous aider ?" type="text" />
+        <button class="send-btn" (click)="sendMessage()">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
     </div>
 </div>

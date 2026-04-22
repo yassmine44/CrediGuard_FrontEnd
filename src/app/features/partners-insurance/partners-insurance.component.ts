@@ -66,7 +66,7 @@ export class PartnersInsuranceComponent implements OnInit {
     
   }
   load() {
-  fetch('http://localhost:8090/api/partners/all')
+  fetch('http://localhost:8082/api/partners/all')
     .then(res => {
       console.log("STATUS:", res.status);
       return res.json();

@@ -58,7 +58,7 @@ export class PoliciesAdminComponent implements OnInit {
     return this.policies.filter(p =>
       p.policyNumber.toLowerCase().includes(filter) ||
       (p.client?.fullName && p.client.fullName.toLowerCase().includes(filter)) ||
-      (p.company?.name && p.company.name.toLowerCase().includes(filter))
+      (p.insuranceCompany?.name && p.insuranceCompany.name.toLowerCase().includes(filter))
     );
   }
 

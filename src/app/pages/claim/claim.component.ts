@@ -46,7 +46,7 @@ export class ClaimComponent implements OnInit {
       return;
     }
 
-    fetch(`http://localhost:8090/api/api/vouchers/code/${this.voucherCode}`, {
+    fetch(`http://localhost:8082/api/api/vouchers/code/${this.voucherCode}`, {
       headers: {
         Authorization: `Bearer ${this.authService.getToken()}`
       }
@@ -68,7 +68,7 @@ export class ClaimComponent implements OnInit {
   // =========================
   loadPolicy() {
       console.log("TOKEN:", this.authService.getToken());
-    fetch('http://localhost:8090/api/insurance/policies/my-policy', {
+    fetch('http://localhost:8082/api/insurance/policies/my-policy', {
       headers: {
         
         Authorization: `Bearer ${this.authService.getToken()}`
@@ -114,7 +114,7 @@ export class ClaimComponent implements OnInit {
     };
     console.log("BODY:", body);
 
-    fetch('http://localhost:8090/api/insurance/claims/create', {
+    fetch('http://localhost:8082/api/insurance/claims/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

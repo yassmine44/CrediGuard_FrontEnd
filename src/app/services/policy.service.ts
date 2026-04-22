@@ -10,9 +10,13 @@ export interface Policy {
   startDate: string;
   endDate: string;
   status: string;
-  company?: {
+  insuranceCompany?: {
     id: number;
     name: string;
+  };
+  insuranceOffer?: {
+    id: number;
+    name?: string;
   };
   client?: {
     id: number;
@@ -25,7 +29,7 @@ export interface Policy {
 })
 export class PolicyService {
 
-  private api = 'http://localhost:8090/api/insurance/policies';
+  private api = 'http://localhost:8082/api/insurance/policies';
 
   constructor(private http: HttpClient) {}
 
@@ -48,7 +52,7 @@ export class PolicyService {
   delete(id: number): Observable<any> {
     return this.http.delete<any>(`${this.api}/${id}`);
   }
-  getByClient(clientId: number) {
-  return this.http.get(`http://localhost:8090/insurance/policies/by-client/${clientId}`);
-}
+  getByClient(clientId: number): Observable<Policy[]> {
+    return this.http.get<Policy[]>(`${this.api}/by-client/${clientId}`);
+  }
 }

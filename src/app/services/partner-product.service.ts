@@ -16,7 +16,7 @@ export interface PartnerProduct {
 })
 export class PartnerProductService {
 
-  private api = 'http://localhost:8090/api/partner-products';
+  private api = 'http://localhost:8082/api/partner-products';
 
   constructor(private http: HttpClient) {}
 
