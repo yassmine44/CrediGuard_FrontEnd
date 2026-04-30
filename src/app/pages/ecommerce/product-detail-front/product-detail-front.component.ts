@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../features/ecommerce/services/product.service';
 import { CartService } from '../services/cart.service';
 import { Product } from '../../../features/ecommerce/models/product.model';
+import { RecentlyViewedProductsService } from '../services/recently-viewed-products.service';
+import { WishlistProductsService } from '../services/wishlist-products.service';
 
 @Component({
   selector: 'app-product-detail-front',
@@ -18,6 +20,8 @@ export class ProductDetailFrontComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
   private cartService = inject(CartService);
+  private recentlyViewedProductsService = inject(RecentlyViewedProductsService);
+  private wishlistProductsService = inject(WishlistProductsService);
 
   product = signal<Product | null>(null);
   sellerProducts = signal<Product[]>([]);
@@ -27,6 +31,7 @@ export class ProductDetailFrontComponent implements OnInit {
   quantity = 1;
   addingToCart = false;
   addToCartMessage = '';
+  wishlisted = signal(false);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -52,6 +57,8 @@ export class ProductDetailFrontComponent implements OnInit {
     this.productService.getById(id).subscribe({
       next: (data) => {
         this.product.set(data);
+        this.recentlyViewedProductsService.add(data);
+        this.wishlisted.set(this.wishlistProductsService.isSaved(data.id));
         this.loading.set(false);
 
         if (data.sellerId) {
@@ -109,5 +116,10 @@ export class ProductDetailFrontComponent implements OnInit {
 
   getImageUrl(imageUrl?: string | null): string {
     return this.productService.getImageUrl(imageUrl);
+  }
+
+  toggleWishlist(product: Product): void {
+    this.wishlistProductsService.toggle(product);
+    this.wishlisted.set(this.wishlistProductsService.isSaved(product.id));
   }
 }

@@ -1,176 +1,255 @@
 <div class="finance-dashboard-page">
-
-  <!-- Page Header -->
   <div class="page-header">
     <a class="back-btn" (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
       Back to E-Commerce Dashboard
     </a>
 
-    <div class="header-center">
-      <h1>Finance Dashboard</h1>
-      <p>Track revenue, orders, and overall financial performance.</p>
+    <div class="header-row">
+      <div>
+        <h1>Finance Dashboard</h1>
+        <p>Revenue, payment performance, product contribution, and stock risk in one workspace.</p>
+      </div>
+
+      <div class="header-chip" *ngIf="overview() as stats">
+        <span>Paid orders</span>
+        <strong>{{ stats.paidOrders }}</strong>
+      </div>
     </div>
   </div>
 
-  <!-- Loading State -->
   <div *ngIf="loading()" class="loading-state">
     <div class="spinner"></div>
     <p>Loading finance statistics...</p>
   </div>
 
-  <!-- Error State -->
   <div *ngIf="error()" class="error-state">
     <mat-icon>error_outline</mat-icon>
     <p>{{ error() }}</p>
   </div>
 
-  <!-- Statistics Grid -->
-  <div class="stats-grid" *ngIf="!loading() && !error() && overview() as stats">
-    <div class="stat-card">
-      <div class="icon-wrapper">
-        <mat-icon>account_balance_wallet</mat-icon>
+  <ng-container *ngIf="!loading() && !error() && overview() as stats">
+    <section class="snapshot-panel">
+      <div class="snapshot-main">
+        <span class="eyebrow">Finance Snapshot</span>
+        <h2>{{ stats.totalRevenue | currency:'TND ':'symbol':'1.3-3' }}</h2>
+        <p>Total confirmed e-commerce revenue.</p>
+
+        <div class="snapshot-grid">
+          <div>
+            <span>Current month</span>
+            <strong>{{ stats.monthlyRevenue | currency:'TND ':'symbol':'1.3-3' }}</strong>
+          </div>
+          <div>
+            <span>Average order</span>
+            <strong>{{ stats.averageOrderValue | currency:'TND ':'symbol':'1.3-3' }}</strong>
+          </div>
+          <div>
+            <span>Payment volume</span>
+            <strong>{{ totalPaymentVolume() | currency:'TND ':'symbol':'1.3-3' }}</strong>
+          </div>
+        </div>
       </div>
-      <div class="stat-content">
-        <h3>Total Revenue</h3>
-        <p class="value">{{ stats.totalRevenue | currency:'TND ':'symbol':'1.3-3' }}</p>
-        <p class="subtitle">All-time revenue</p>
+
+      <div class="snapshot-side">
+        <div class="mini-metric">
+          <mat-icon>receipt_long</mat-icon>
+          <div>
+            <span>Total payments</span>
+            <strong>{{ totalPaymentCount() }}</strong>
+          </div>
+        </div>
+
+        <div class="mini-metric">
+          <mat-icon>inventory_2</mat-icon>
+          <div>
+            <span>Critical stock</span>
+            <strong>{{ criticalStockCount() }}</strong>
+          </div>
+        </div>
+
+        <div class="mini-metric" *ngIf="bestProduct() as product">
+          <mat-icon>workspace_premium</mat-icon>
+          <div>
+            <span>Top product</span>
+            <strong>{{ product.productName }}</strong>
+          </div>
+        </div>
       </div>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="icon-wrapper revenue">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="stat-content">
+          <h3>Total Revenue</h3>
+          <p class="value">{{ stats.totalRevenue | currency:'TND ':'symbol':'1.3-3' }}</p>
+          <p class="subtitle">All-time confirmed revenue</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="icon-wrapper month">
+          <mat-icon>calendar_month</mat-icon>
+        </div>
+        <div class="stat-content">
+          <h3>Monthly Revenue</h3>
+          <p class="value">{{ stats.monthlyRevenue | currency:'TND ':'symbol':'1.3-3' }}</p>
+          <p class="subtitle">Current month</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="icon-wrapper paid">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <h3>Paid Orders</h3>
+          <p class="value">{{ stats.paidOrders }}</p>
+          <p class="subtitle">Successfully paid orders</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="icon-wrapper average">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="stat-content">
+          <h3>Average Order Value</h3>
+          <p class="value">{{ stats.averageOrderValue | currency:'TND ':'symbol':'1.3-3' }}</p>
+          <p class="subtitle">Per paid order</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="charts-grid">
+      <div class="chart-card wide" *ngIf="revenueByMonth().length > 0">
+        <div class="chart-header">
+          <div>
+            <h2>Revenue Trend</h2>
+            <p>Monthly revenue based on paid and delivered orders.</p>
+          </div>
+          <mat-icon>bar_chart</mat-icon>
+        </div>
+
+        <div class="chart-wrapper">
+          <canvas
+            baseChart
+            [data]="revenueChartData"
+            [options]="revenueChartOptions"
+            [type]="revenueChartType">
+          </canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" *ngIf="paymentMethodStats().length > 0">
+        <div class="chart-header">
+          <div>
+            <h2>Payment Mix</h2>
+            <p>Orders by payment method.</p>
+          </div>
+          <mat-icon>donut_large</mat-icon>
+        </div>
+
+        <div class="chart-wrapper compact">
+          <canvas
+            baseChart
+            [data]="paymentChartData"
+            [options]="paymentChartOptions"
+            [type]="paymentChartType">
+          </canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" *ngIf="revenueByCategory().length > 0">
+        <div class="chart-header">
+          <div>
+            <h2>Revenue by Category</h2>
+            <p>Financial contribution by category.</p>
+          </div>
+          <mat-icon>category</mat-icon>
+        </div>
+
+        <div class="chart-wrapper compact">
+          <canvas
+            baseChart
+            [data]="categoryChartData"
+            [options]="categoryChartOptions"
+            [type]="categoryChartType">
+          </canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="operations-grid">
+      <div class="data-panel" *ngIf="paymentMethodStats().length > 0">
+        <div class="panel-header">
+          <h2>Payment Method Distribution</h2>
+          <span>{{ totalPaymentCount() }} payments</span>
+        </div>
+
+        <div class="payment-method-list">
+          <div class="payment-method-item" *ngFor="let item of paymentMethodStats()">
+            <div class="payment-method-info">
+              <strong>{{ formatPaymentMethod(item.paymentMethod) }}</strong>
+              <span>{{ item.count }} payments</span>
+            </div>
+
+            <div class="payment-method-amount">
+              {{ item.totalAmount | currency:'TND ':'symbol':'1.3-3' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-panel" *ngIf="topProducts().length > 0">
+        <div class="panel-header">
+          <h2>Top Products</h2>
+          <span>Best performers</span>
+        </div>
+
+        <div class="top-products-list">
+          <div class="top-product-item" *ngFor="let item of topProducts(); let i = index">
+            <div class="top-product-rank">#{{ i + 1 }}</div>
+
+            <div class="top-product-info">
+              <strong>{{ item.productName }} <small>#{{ item.productId }}</small></strong>
+              <span>{{ item.quantitySold }} units sold</span>
+            </div>
+
+            <div class="top-product-revenue">
+              {{ item.revenue | currency:'TND ':'symbol':'1.3-3' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-panel" *ngIf="lowStockProducts().length > 0">
+        <div class="panel-header">
+          <h2>Low Stock Alerts</h2>
+          <span>{{ lowStockProducts().length }} products</span>
+        </div>
+
+        <div class="low-stock-list">
+          <div class="low-stock-item" *ngFor="let item of lowStockProducts()">
+            <div class="low-stock-info">
+              <strong>{{ item.productName }}</strong>
+              <span>{{ item.categoryName }} - {{ item.sellerName }}</span>
+            </div>
+
+            <div class="low-stock-badge" [class.critical]="item.stockQuantity <= 2">
+              {{ item.stockQuantity }} left
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div *ngIf="revenueByMonth().length === 0" class="empty-state">
+      <mat-icon>bar_chart</mat-icon>
+      <p>No revenue data available yet.</p>
     </div>
-
-    <div class="stat-card">
-      <div class="icon-wrapper">
-        <mat-icon>calendar_month</mat-icon>
-      </div>
-      <div class="stat-content">
-        <h3>Monthly Revenue</h3>
-        <p class="value">{{ stats.monthlyRevenue | currency:'TND ':'symbol':'1.3-3' }}</p>
-        <p class="subtitle">Current month</p>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="icon-wrapper">
-        <mat-icon>check_circle</mat-icon>
-      </div>
-      <div class="stat-content">
-        <h3>Paid Orders</h3>
-        <p class="value">{{ stats.paidOrders }}</p>
-        <p class="subtitle">Successfully paid</p>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="icon-wrapper">
-        <mat-icon>trending_up</mat-icon>
-      </div>
-      <div class="stat-content">
-        <h3>Average Order Value</h3>
-        <p class="value">{{ stats.averageOrderValue | currency:'TND ':'symbol':'1.3-3' }}</p>
-        <p class="subtitle">Per paid order</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Revenue Chart -->
-  <div class="chart-card" *ngIf="!loading() && !error() && revenueByMonth().length > 0">
-    <div class="chart-header">
-      <h2>Revenue Trend by Month</h2>
-      <p>Monthly revenue based on paid and delivered orders.</p>
-    </div>
-
-    <div class="chart-wrapper">
-      <canvas
-        baseChart
-        [data]="revenueChartData"
-        [options]="revenueChartOptions"
-        [type]="revenueChartType">
-      </canvas>
-    </div>
-  </div>
-
-  <!-- Empty State -->
-  <div *ngIf="!loading() && !error() && revenueByMonth().length === 0" class="empty-state">
-    <mat-icon>bar_chart</mat-icon>
-    <p>No revenue data available yet.</p>
-  </div>
-  <div class="chart-card" *ngIf="paymentMethodStats().length > 0">
-  <div class="chart-header">
-    <h2>Payment Method Distribution</h2>
-    <p>Breakdown of orders and revenue by payment method.</p>
-  </div>
-
-  <div class="payment-method-list">
-    <div class="payment-method-item" *ngFor="let item of paymentMethodStats()">
-      <div class="payment-method-info">
-        <strong>{{ formatPaymentMethod(item.paymentMethod) }}</strong>
-        <span>{{ item.count }} payments</span>
-      </div>
-
-      <div class="payment-method-amount">
-        {{ item.totalAmount | currency:'TND ':'symbol':'1.3-3' }}
-      </div>
-    </div>
-  </div>
-</div>
-<div class="chart-card" *ngIf="topProducts().length > 0">
-  <div class="chart-header">
-    <h2>Top Products</h2>
-    <p>Best-performing products by generated revenue.</p>
-  </div>
-
-  <div class="top-products-list">
-    <div class="top-product-item" *ngFor="let item of topProducts(); let i = index">
-      <div class="top-product-rank">
-        #{{ i + 1 }}
-      </div>
-
-      <div class="top-product-info">
-        <strong>{{ item.productName }} <small>#{{ item.productId }}</small></strong>
-        <span>{{ item.quantitySold }} units sold</span>
-      </div>
-
-      <div class="top-product-revenue">
-        {{ item.revenue | currency:'TND ':'symbol':'1.3-3' }}
-      </div>
-    </div>
-  </div>
-</div>
-<div class="chart-card" *ngIf="lowStockProducts().length > 0">
-  <div class="chart-header">
-    <h2>Low Stock Alerts</h2>
-    <p>Products that require urgent stock attention.</p>
-  </div>
-
-  <div class="low-stock-list">
-    <div class="low-stock-item" *ngFor="let item of lowStockProducts()">
-      <div class="low-stock-info">
-        <strong>{{ item.productName }}</strong>
-        <span>{{ item.categoryName }} • {{ item.sellerName }}</span>
-      </div>
-
-      <div class="low-stock-badge" [class.critical]="item.stockQuantity <= 2">
-        {{ item.stockQuantity }} left
-      </div>
-    </div>
-  </div>
-</div>
-<div class="chart-card" *ngIf="revenueByCategory().length > 0">
-  <div class="chart-header">
-    <h2>Revenue by Category</h2>
-    <p>Financial contribution of each product category.</p>
-  </div>
-
-  <div class="category-revenue-list">
-    <div class="category-revenue-item" *ngFor="let item of revenueByCategory()">
-      <div class="category-revenue-info">
-        <strong>{{ item.categoryName }}</strong>
-      </div>
-
-      <div class="category-revenue-amount">
-        {{ item.revenue | currency:'TND ':'symbol':'1.3-3' }}
-      </div>
-    </div>
-  </div>
-</div>
+  </ng-container>
 </div>

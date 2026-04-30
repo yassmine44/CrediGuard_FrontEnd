@@ -11,6 +11,7 @@ export interface CartItem {
   id: number;
   productId: number;
   productName: string;
+  productImageUrl?: string | null;
   imageUrl?: string | null;
 
   unitPrice: number;
@@ -24,6 +25,11 @@ export interface CartItem {
 
   quantity: number;
   lineTotal: number;
+
+source?: 'STANDARD' | 'PRODUCT_REQUEST_OFFER';
+sourceOfferId?: number | null;
+negotiatedUnitPrice?: number | null;
+
 }
 
 export interface Cart {

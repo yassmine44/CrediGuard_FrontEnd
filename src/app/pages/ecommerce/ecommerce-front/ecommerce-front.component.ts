@@ -15,6 +15,14 @@ import { ProductService } from '../../../features/ecommerce/services/product.ser
 import { CalendarEvent } from '../../../pages/ecommerce/models/calendar-event.model';
 import { CalendarEventService } from '../../../pages/ecommerce/services/calendar-event.service';
 import { AuthService } from '../../../core/services/auth.service';
+import {
+  RecentlyViewedProduct,
+  RecentlyViewedProductsService
+} from '../services/recently-viewed-products.service';
+import {
+  WishlistProduct,
+  WishlistProductsService
+} from '../services/wishlist-products.service';
 
 @Component({
   selector: 'app-ecommerce-front',
@@ -29,6 +37,8 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
   private platformId = inject(PLATFORM_ID);
   private calendarEventService = inject(CalendarEventService);
   private authService = inject(AuthService);
+  private recentlyViewedProductsService = inject(RecentlyViewedProductsService);
+  private wishlistProductsService = inject(WishlistProductsService);
 
   products = signal<Product[]>([]);
   loading = signal(false);
@@ -36,6 +46,8 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
   selectedCategory = signal<string>('All');
   carouselOffset = signal(0);
   activeEvent = signal<CalendarEvent | null>(null);
+  recentlyViewedProducts = signal<RecentlyViewedProduct[]>([]);
+  wishlistProducts = signal<WishlistProduct[]>([]);
 
   private observer?: IntersectionObserver;
   private carouselInterval: any;
@@ -85,9 +97,26 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
     return this.products().filter(product => this.hasPromotion(product));
   });
 
+  smartRecommendations = computed<Product[]>(() => {
+    return [...this.products()]
+      .filter(product => product.active !== false)
+      .sort((a, b) => this.getRecommendationScore(b) - this.getRecommendationScore(a))
+      .slice(0, 4);
+  });
+
   ngOnInit(): void {
+    this.loadRecentlyViewedProducts();
+    this.loadWishlistProducts();
     this.loadProducts();
     this.loadActiveEvent();
+  }
+
+  loadRecentlyViewedProducts(): void {
+    this.recentlyViewedProducts.set(this.recentlyViewedProductsService.getAll().slice(0, 5));
+  }
+
+  loadWishlistProducts(): void {
+    this.wishlistProducts.set(this.wishlistProductsService.getAll());
   }
 
   loadActiveEvent(): void {
@@ -227,6 +256,27 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
     return this.productService.getImageUrl(imageUrl);
   }
 
+  clearRecentlyViewed(): void {
+    this.recentlyViewedProductsService.clear();
+    this.recentlyViewedProducts.set([]);
+  }
+
+  toggleWishlist(product: Product, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    this.wishlistProducts.set(this.wishlistProductsService.toggle(product));
+  }
+
+  removeFromWishlist(productId: number, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    this.wishlistProducts.set(this.wishlistProductsService.remove(productId));
+  }
+
+  isWishlisted(productId: number): boolean {
+    return this.wishlistProducts().some(item => item.id === productId);
+  }
+
   hasPromotion(product: Product): boolean {
     return !!product.promotionApplied
       && product.originalPrice != null
@@ -269,6 +319,41 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
 
   isPreorderProduct(product: Product): boolean {
     return product.saleType === 'PREORDER';
+  }
+
+  isLowStockProduct(product: Product): boolean {
+    if (product.saleType === 'PREORDER') return false;
+    const stock = product.stockQuantity ?? 0;
+    return stock > 0 && stock <= 5;
+  }
+
+  getSmartBadge(product: Product): string {
+    if (this.hasPromotion(product)) return 'Best deal';
+    if (this.isLowStockProduct(product)) return 'Almost sold out';
+    if (this.isNewProduct(product)) return 'New pick';
+    if (this.isPreorderProduct(product)) return 'Preorder';
+    return 'Recommended';
+  }
+
+  getSmartBadgeTone(product: Product): string {
+    if (this.hasPromotion(product)) return 'deal';
+    if (this.isLowStockProduct(product)) return 'stock';
+    if (this.isNewProduct(product)) return 'new';
+    if (this.isPreorderProduct(product)) return 'preorder';
+    return 'recommended';
+  }
+
+  private getRecommendationScore(product: Product): number {
+    let score = 0;
+
+    if (this.hasPromotion(product)) score += 45;
+    if (this.isLowStockProduct(product)) score += 35;
+    if (this.isNewProduct(product)) score += 25;
+    if (this.isPreorderProduct(product)) score += 15;
+    if (product.expressDeliveryAvailable) score += 10;
+    score += Math.max(0, 10 - Math.min(10, product.stockQuantity ?? 10));
+
+    return score;
   }
 
   getActiveEventLabel(): string {

@@ -117,6 +117,7 @@
           <th>Current Price</th>
           <th>Sale Type</th>
           <th>Stock</th>
+          <th>ML Insight</th>
           <th>Status</th>
           <th>Created At</th>
           <th>Actions</th>
@@ -168,6 +169,29 @@
           </td>
 
           <td>
+            <ng-container *ngIf="getProductIntelligence(product.id) as insight; else noInsight">
+              <div class="ml-cell">
+                <span class="badge" [ngClass]="'risk-' + insight.riskLevel.toLowerCase()">
+                  {{ insight.riskLevel }}
+                </span>
+                <strong>{{ insight.performanceScore }}/100</strong>
+                <small>{{ insight.suggestedAction }}</small>
+              </div>
+            </ng-container>
+
+            <ng-template #noInsight>
+              <button
+                type="button"
+                class="mini-analyze-btn"
+                (click)="analyzeProduct(product.id)"
+                [disabled]="analyzingProductId() === product.id"
+              >
+                {{ analyzingProductId() === product.id ? 'Analyzing...' : 'Analyze' }}
+              </button>
+            </ng-template>
+          </td>
+
+          <td>
             <span
               class="badge"
               [ngClass]="product.active ? 'badge-active' : 'badge-inactive'"
@@ -181,6 +205,14 @@
           <td class="actions-cell">
             <button type="button" class="icon-btn edit-btn" (click)="openEditForm(product.id)">
               Edit
+            </button>
+            <button
+              type="button"
+              class="icon-btn ml-btn"
+              (click)="analyzeProduct(product.id)"
+              [disabled]="analyzingProductId() === product.id"
+            >
+              ML
             </button>
             <button type="button" class="icon-btn delete-btn" (click)="deleteProduct(product.id)">
               Delete

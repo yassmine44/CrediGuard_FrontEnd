@@ -32,6 +32,30 @@ export const ECOMMERCE_FRONT_ROUTES: Routes = [
         .then(m => m.CheckoutComponent)
   },
   {
+    path: 'payment-success',
+    loadComponent: () =>
+      import('./payment-success/payment-success.component')
+        .then(m => m.PaymentSuccessComponent)
+  },
+  {
+    path: 'payment-cancel',
+    loadComponent: () =>
+      import('./payment-cancel/payment-cancel.component')
+        .then(m => m.PaymentCancelComponent)
+  },
+  {
+    path: 'flouci-payment-success',
+    loadComponent: () =>
+      import('./flouci-payment-success/flouci-payment-success.component')
+        .then(m => m.FlouciPaymentSuccessComponent)
+  },
+  {
+    path: 'flouci-payment-cancel',
+    loadComponent: () =>
+      import('./flouci-payment-cancel/flouci-payment-cancel.component')
+        .then(m => m.FlouciPaymentCancelComponent)
+  },
+  {
     path: 'orders/:id',
     loadComponent: () =>
       import('./order-detail-front/order-detail-front.component')

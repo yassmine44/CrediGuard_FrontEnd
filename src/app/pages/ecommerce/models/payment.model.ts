@@ -22,4 +22,7 @@ export interface PaymentResponse {
   paymentType: PaymentType;
   paymentStatus: PaymentStatus;
   transactionRef?: string | null;
+  stripeSessionId?: string | null;
+  stripePaymentIntentId?: string | null;
+  flouciPaymentId?: string | null;
 }

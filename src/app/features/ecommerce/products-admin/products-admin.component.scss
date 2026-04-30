@@ -107,7 +107,7 @@
 .products-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1250px;
+  min-width: 1380px;
 }
 
 .products-table th,
@@ -198,6 +198,53 @@
   color: #6b7280;
 }
 
+.ml-cell {
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+}
+
+.ml-cell strong {
+  color: #111827;
+  font-size: 13px;
+}
+
+.ml-cell small {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.risk-high {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.risk-medium {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.risk-low {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.mini-analyze-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #e0f2fe;
+  color: #0369a1;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.mini-analyze-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .actions-cell {
   white-space: nowrap;
 }
@@ -214,6 +261,17 @@
   background: #2563eb;
   color: #fff;
   margin-right: 8px;
+}
+
+.ml-btn {
+  background: #0ea5e9;
+  color: #fff;
+  margin-right: 8px;
+}
+
+.ml-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .delete-btn {

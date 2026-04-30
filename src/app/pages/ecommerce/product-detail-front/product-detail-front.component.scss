@@ -116,12 +116,41 @@
   .info-section {
     animation: fadeInUp 1s ease 0.2s both;
 
+    .title-row {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
     .product-name {
       font-size: 2.45rem;
       font-weight: 700;
       color: var(--text-dark);
-      margin: 0 0 16px;
+      margin: 0;
       line-height: 1.15;
+    }
+
+    .detail-wishlist-btn {
+      border: 1px solid #fecaca;
+      border-radius: 999px;
+      padding: 11px 18px;
+      color: #b91c1c;
+      background: #fff1f2;
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 700;
+      transition: 0.25s ease;
+
+      &:hover,
+      &.saved {
+        color: #ffffff;
+        background: #ef4444;
+        border-color: #ef4444;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(239, 68, 68, 0.22);
+      }
     }
 
     .price-block {
@@ -384,6 +413,10 @@
 
   @media (max-width: 768px) {
     padding: 20px 15px;
+
+    .info-section .title-row {
+      flex-direction: column;
+    }
 
     .seller-products-grid {
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

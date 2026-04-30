@@ -88,6 +88,111 @@
       </div>
     </section>
 
+    <!-- ==================== SMART RECOMMENDATIONS ==================== -->
+    <section *ngIf="!loading() && !error() && smartRecommendations().length > 0"
+             class="smart-recommendations">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">Smart shopping</span>
+          <h2 class="section-title">Recommended for you</h2>
+          <p class="section-subtitle">Deals, fresh arrivals and low-stock picks selected from the catalog.</p>
+        </div>
+      </div>
+
+      <div class="recommendation-grid">
+        <a
+          class="recommendation-card"
+          *ngFor="let product of smartRecommendations(); trackBy: trackByProduct"
+          [routerLink]="['/front/products', product.id]"
+        >
+          <div class="recommendation-image">
+            <img [src]="getImageUrl(product.imageUrl)"
+                 [alt]="product.name"
+                 (error)="onImageError($event)"
+                 loading="lazy">
+          </div>
+          <div class="recommendation-body">
+            <span class="smart-badge" [ngClass]="getSmartBadgeTone(product)">
+              {{ getSmartBadge(product) }}
+            </span>
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.categoryName || 'Curated product' }}</p>
+            <strong>{{ getDisplayPrice(product) | currency:'TND':'symbol':'1.2-2' }}</strong>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ==================== RECENTLY VIEWED ==================== -->
+    <section *ngIf="recentlyViewedProducts().length > 0"
+             class="recently-viewed-section">
+      <div class="section-header recently-viewed-header">
+        <div>
+          <span class="section-kicker">Continue browsing</span>
+          <h2 class="section-title">Recently viewed</h2>
+          <p class="section-subtitle">Jump back to products you checked earlier.</p>
+        </div>
+
+        <button type="button" class="clear-recent-btn" (click)="clearRecentlyViewed()">
+          Clear
+        </button>
+      </div>
+
+      <div class="recently-viewed-strip">
+        <a
+          class="recently-viewed-card"
+          *ngFor="let product of recentlyViewedProducts()"
+          [routerLink]="['/front/products', product.id]"
+        >
+          <img [src]="getImageUrl(product.imageUrl)"
+               [alt]="product.name"
+               (error)="onImageError($event)"
+               loading="lazy">
+
+          <div>
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.categoryName || 'Recently viewed' }}</p>
+            <strong>{{ product.price | currency:'TND':'symbol':'1.2-2' }}</strong>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ==================== SAVED FOR LATER ==================== -->
+    <section *ngIf="wishlistProducts().length > 0"
+             class="saved-section">
+      <div class="section-header recently-viewed-header">
+        <div>
+          <span class="section-kicker">Wishlist</span>
+          <h2 class="section-title">Saved for later</h2>
+          <p class="section-subtitle">Products you marked as favorites.</p>
+        </div>
+      </div>
+
+      <div class="saved-strip">
+        <a
+          class="saved-card"
+          *ngFor="let product of wishlistProducts().slice(0, 4)"
+          [routerLink]="['/front/products', product.id]"
+        >
+          <img [src]="getImageUrl(product.imageUrl)"
+               [alt]="product.name"
+               (error)="onImageError($event)"
+               loading="lazy">
+
+          <div>
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.categoryName || 'Saved product' }}</p>
+            <strong>{{ product.price | currency:'TND':'symbol':'1.2-2' }}</strong>
+          </div>
+
+          <button type="button" class="remove-saved-btn" (click)="removeFromWishlist(product.id, $event)">
+            ×
+          </button>
+        </a>
+      </div>
+    </section>
+
     <!-- ==================== CATEGORY TABS ==================== -->
     <div class="category-tabs"
          *ngIf="!loading() && !error() && categories().length > 0">
@@ -140,6 +245,16 @@
                    (error)="onImageError($event)"
                    loading="lazy">
               <div class="overlay"></div>
+
+              <button
+                type="button"
+                class="wishlist-btn"
+                [class.saved]="isWishlisted(product.id)"
+                (click)="toggleWishlist(product, $event)"
+                aria-label="Save product"
+              >
+                {{ isWishlisted(product.id) ? '♥' : '♡' }}
+              </button>
 
               <div class="featured-promo-badge" *ngIf="hasPromotion(product)">
                 -{{ getDiscountPercent(product) }}%
@@ -208,6 +323,10 @@
         <div class="product-badges">
           <span class="badge new" *ngIf="isNewProduct(product)">NEW</span>
           <span class="badge preorder" *ngIf="isPreorderProduct(product)">PREORDER</span>
+          <span class="badge low-stock" *ngIf="isLowStockProduct(product)">LOW STOCK</span>
+          <span class="badge recommended" *ngIf="!hasPromotion(product) && !isNewProduct(product) && !isPreorderProduct(product) && !isLowStockProduct(product)">
+            RECOMMENDED
+          </span>
           <span class="badge promo" *ngIf="hasPromotion(product)">
             -{{ getDiscountPercent(product) }}%
           </span>
@@ -218,6 +337,16 @@
                [alt]="product.name"
                (error)="onImageError($event)"
                loading="lazy">
+
+          <button
+            type="button"
+            class="wishlist-btn"
+            [class.saved]="isWishlisted(product.id)"
+            (click)="toggleWishlist(product, $event)"
+            aria-label="Save product"
+          >
+            {{ isWishlisted(product.id) ? '♥' : '♡' }}
+          </button>
         </div>
 
         <div class="product-content">

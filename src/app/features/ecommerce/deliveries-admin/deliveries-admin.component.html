@@ -27,6 +27,7 @@
           <select [(ngModel)]="deliveryStatus">
             <option value="WAITING_STOCK">Waiting stock</option>
             <option value="PENDING">Pending</option>
+            <option value="PENDING_REVIEW">Pending review</option>
             <option value="IN_TRANSIT">In transit</option>
             <option value="DELIVERED">Delivered</option>
             <option value="CANCELLED">Cancelled</option>
@@ -103,7 +104,9 @@
               <ng-container *ngIf="delivery.address as address">
                 <div class="address-mini">
                   <strong>{{ address.fullName }}</strong><br>
-                  {{ address.city }}<br>
+                  {{ address.city }}
+                  <span *ngIf="address.governorate">, {{ address.governorate }}</span><br>
+                  <span *ngIf="address.delegation">{{ address.delegation }}<br></span>
                   {{ address.addressLine }}
                 </div>
               </ng-container>

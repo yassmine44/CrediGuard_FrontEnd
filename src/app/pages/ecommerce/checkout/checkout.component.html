@@ -25,7 +25,7 @@
 
         <div class="checkout-item" *ngFor="let item of cartData.items">
           <img
-            [src]="getImageUrl(item.imageUrl)"
+            [src]="getImageUrl(item.productImageUrl || item.imageUrl)"
             [alt]="item.productName"
             (error)="onImageError($event)"
             class="product-image"
@@ -35,17 +35,33 @@
             <h4>{{ item.productName }}</h4>
             <p>Quantity: {{ item.quantity }}</p>
 
-            <p *ngIf="item.promotionApplied" class="promo-line">
-              Promo applied: {{ item.promotionName }}
-            </p>
+            <span
+              class="offer-badge"
+              *ngIf="item.source === 'PRODUCT_REQUEST_OFFER'"
+            >
+              Offre acceptée
+            </span>
 
-            <p *ngIf="item.originalUnitPrice !== item.finalUnitPrice" class="price-old">
-              Old price: {{ item.originalUnitPrice | currency:'TND ' }}
-            </p>
+            <ng-container *ngIf="item.source === 'PRODUCT_REQUEST_OFFER'; else standardPrice">
+              <p class="price-new negotiated-price">
+                Prix négocié:
+                {{ (item.negotiatedUnitPrice || item.finalUnitPrice) | currency:'TND ' }}
+              </p>
+            </ng-container>
 
-            <p class="price-new">
-              Price: {{ item.finalUnitPrice | currency:'TND ' }}
-            </p>
+            <ng-template #standardPrice>
+              <p *ngIf="item.promotionApplied" class="promo-line">
+                Promo applied: {{ item.promotionName }}
+              </p>
+
+              <p *ngIf="item.originalUnitPrice !== item.finalUnitPrice" class="price-old">
+                Old price: {{ item.originalUnitPrice | currency:'TND ' }}
+              </p>
+
+              <p class="price-new">
+                Price: {{ item.finalUnitPrice | currency:'TND ' }}
+              </p>
+            </ng-template>
           </div>
 
           <div class="item-total">
@@ -59,9 +75,54 @@
 
         <input [(ngModel)]="fullName" placeholder="Full name" />
         <input [(ngModel)]="phone" placeholder="Phone" />
-        <input [(ngModel)]="city" placeholder="City" />
-        <input [(ngModel)]="addressLine" placeholder="Address line" />
+        <input [(ngModel)]="city" (ngModelChange)="onAddressChanged()" placeholder="City" />
+        <input [(ngModel)]="governorate" (ngModelChange)="onAddressChanged()" placeholder="Governorate" />
+        <input [(ngModel)]="delegation" (ngModelChange)="onAddressChanged()" placeholder="Delegation" />
+        <input [(ngModel)]="locality" (ngModelChange)="onAddressChanged()" placeholder="Locality" />
+        <input [(ngModel)]="addressLine" (ngModelChange)="onAddressChanged()" placeholder="Address line" />
         <textarea [(ngModel)]="additionalInfo" placeholder="Additional info"></textarea>
+
+        <div class="map-section">
+          <div class="map-header">
+            <h3>Delivery map</h3>
+            <span *ngIf="mapLoading()" class="map-loading">Loading map...</span>
+            <span *ngIf="geocoding()" class="map-loading">Finding address...</span>
+          </div>
+
+          <div id="delivery-map" class="delivery-map"></div>
+
+          <div class="selected-location" *ngIf="selectedLatitude() !== null && selectedLongitude() !== null">
+            <span>Selected location</span>
+            <strong>{{ selectedLatitude() }}, {{ selectedLongitude() }}</strong>
+          </div>
+
+          <div *ngIf="zoneChecking()" class="zone-card checking">
+            Checking delivery fee...
+          </div>
+
+          <div
+            *ngIf="deliveryFeeInfo() as zone"
+            class="zone-card"
+            [style.borderColor]="zone.areaColor"
+          >
+            <div class="zone-card-top">
+              <span
+                class="zone-badge"
+                [style.backgroundColor]="zone.areaColor"
+              >
+                {{ zone.areaLabel }}
+              </span>
+              <strong>{{ zone.deliveryFee | currency:'TND ' }}</strong>
+            </div>
+
+            <p>{{ zone.message }}</p>
+
+            <div class="zone-details">
+              <span>Estimated delay: {{ zone.estimatedDelayDays }} day{{ zone.estimatedDelayDays !== 1 ? 's' : '' }}</span>
+              <span>Grand Tunis: 6 DT. Other governorates: 8 DT.</span>
+            </div>
+          </div>
+        </div>
 
         <button type="button" (click)="saveDeliveryAddress()" [disabled]="savingAddress()">
           {{ savingAddress() ? 'Saving...' : 'Save address' }}

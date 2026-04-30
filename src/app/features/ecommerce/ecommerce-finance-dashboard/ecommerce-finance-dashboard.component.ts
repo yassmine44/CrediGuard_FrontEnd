@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { BaseChartDirective } from 'ng2-charts';
@@ -24,17 +24,61 @@ export class EcommerceFinanceDashboardComponent implements OnInit {
   error = signal<string | null>(null);
   overview = signal<EcommerceFinanceOverview | null>(null);
   revenueByMonth = signal<RevenueByMonth[]>([]);
-paymentMethodStats = signal<PaymentMethodStats[]>([]);
-revenueByCategory = signal<RevenueByCategory[]>([]);
-topProducts = signal<TopProductStats[]>([]);
+  paymentMethodStats = signal<PaymentMethodStats[]>([]);
+  revenueByCategory = signal<RevenueByCategory[]>([]);
+  topProducts = signal<TopProductStats[]>([]);
   revenueChartType: 'bar' = 'bar';
-lowStockProducts = signal<LowStockProduct[]>([]);
+  paymentChartType: 'doughnut' = 'doughnut';
+  categoryChartType: 'bar' = 'bar';
+  lowStockProducts = signal<LowStockProduct[]>([]);
+
+  totalPaymentVolume = computed(() =>
+    this.paymentMethodStats().reduce((sum, item) => sum + item.totalAmount, 0)
+  );
+
+  totalPaymentCount = computed(() =>
+    this.paymentMethodStats().reduce((sum, item) => sum + item.count, 0)
+  );
+
+  bestProduct = computed(() => this.topProducts()[0] ?? null);
+  criticalStockCount = computed(() =>
+    this.lowStockProducts().filter(item => item.stockQuantity <= 2).length
+  );
+
   revenueChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
     datasets: [
       {
         label: 'Revenue',
-        data: []
+        data: [],
+        backgroundColor: '#2563eb',
+        borderRadius: 8,
+        maxBarThickness: 42
+      }
+    ]
+  };
+
+  paymentChartData: ChartConfiguration<'doughnut'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: ['#2563eb', '#059669', '#f59e0b', '#7c3aed'],
+        borderColor: '#ffffff',
+        borderWidth: 4
+      }
+    ]
+  };
+
+  categoryChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        label: 'Revenue by category',
+        data: [],
+        backgroundColor: '#059669',
+        borderRadius: 8,
+        maxBarThickness: 34
       }
     ]
   };
@@ -44,7 +88,7 @@ lowStockProducts = signal<LowStockProduct[]>([]);
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: true
+        display: false
       },
       tooltip: {
         callbacks: {
@@ -54,6 +98,53 @@ lowStockProducts = signal<LowStockProduct[]>([]);
     },
     scales: {
       y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => `TND ${Number(value).toFixed(0)}`
+        }
+      }
+    }
+  };
+
+  paymentChartOptions: ChartOptions<'doughnut'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '62%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          padding: 18
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const value = Number(context.raw);
+            return ` ${context.label}: ${value} payments`;
+          }
+        }
+      }
+    }
+  };
+
+  categoryChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `TND ${Number(context.raw).toFixed(3)}`
+        }
+      }
+    },
+    scales: {
+      x: {
         beginAtZero: true,
         ticks: {
           callback: (value) => `TND ${Number(value).toFixed(0)}`
@@ -73,7 +164,20 @@ lowStockProducts = signal<LowStockProduct[]>([]);
 loadRevenueByCategory(): void {
   this.financeStatsService.getRevenueByCategory().subscribe({
     next: (data) => {
-      this.revenueByCategory.set(data ?? []);
+      const items = data ?? [];
+      this.revenueByCategory.set(items);
+      this.categoryChartData = {
+        labels: items.map(item => item.categoryName),
+        datasets: [
+          {
+            label: 'Revenue by category',
+            data: items.map(item => item.revenue),
+            backgroundColor: '#059669',
+            borderRadius: 8,
+            maxBarThickness: 34
+          }
+        ]
+      };
     },
     error: (err) => {
       console.error('Failed to load revenue by category:', err);
@@ -103,7 +207,19 @@ loadLowStockProducts(): void {
 loadPaymentMethodDistribution(): void {
   this.financeStatsService.getPaymentMethodDistribution().subscribe({
     next: (data) => {
-      this.paymentMethodStats.set(data ?? []);
+      const items = data ?? [];
+      this.paymentMethodStats.set(items);
+      this.paymentChartData = {
+        labels: items.map(item => this.formatPaymentMethod(item.paymentMethod)),
+        datasets: [
+          {
+            data: items.map(item => item.count),
+            backgroundColor: ['#2563eb', '#059669', '#f59e0b', '#7c3aed'],
+            borderColor: '#ffffff',
+            borderWidth: 4
+          }
+        ]
+      };
     },
     error: (err) => {
       console.error('Failed to load payment method distribution:', err);
@@ -144,7 +260,10 @@ formatPaymentMethod(method: string): string {
           datasets: [
             {
               label: 'Revenue',
-              data: items.map(item => item.revenue)
+              data: items.map(item => item.revenue),
+              backgroundColor: '#2563eb',
+              borderRadius: 8,
+              maxBarThickness: 42
             }
           ]
         };

@@ -1,179 +1,337 @@
 <div class="ecommerce-dashboard">
-
-
-  <!-- Header -->
-  <div class="dashboard-header">
-    <div class="header-content">
-      <span class="section-label">Administration • E-Commerce</span>
+  <header class="dashboard-header">
+    <div>
+      <span class="section-label">Administration / E-Commerce</span>
       <h1>E-Commerce Dashboard</h1>
-      <p>Centralize your catalog, orders, sellers, and promotions in one powerful workspace.</p>
+      <p>Follow catalog health, sales activity, finance and daily operations from one workspace.</p>
     </div>
-
 
     <div class="header-actions">
       <a routerLink="/admin/ecommerce/products/new" class="primary-btn">
         <mat-icon>add</mat-icon>
-        Add New Product
+        Add product
+      </a>
+      <a routerLink="/admin/ecommerce/orders" class="ghost-btn">
+        <mat-icon>receipt_long</mat-icon>
+        Orders
+      </a>
+      <a routerLink="/admin/ecommerce/finance-dashboard" class="ghost-btn">
+        <mat-icon>insights</mat-icon>
+        Finance
       </a>
     </div>
-  </div>
+  </header>
 
-
-  <!-- Loading -->
   <div *ngIf="loading()" class="loading-state">
     <div class="spinner"></div>
     <p>Loading dashboard statistics...</p>
   </div>
 
-
-  <!-- Error -->
   <div *ngIf="error()" class="error-state">
     <mat-icon>error_outline</mat-icon>
     <p>{{ error() }}</p>
   </div>
 
-
-  <!-- KPI Grid with Stagger Animation -->
-  <div class="kpi-grid" *ngIf="!loading() && !error()">
-    <div class="kpi-card"
-         *ngFor="let kpi of kpis(); let i = index"
-         [style.animation-delay]="i * 80 + 'ms'">
-
-
-      <div class="kpi-icon-wrapper">
-        <mat-icon class="kpi-icon">{{ kpi.icon }}</mat-icon>
-      </div>
-      <div class="kpi-info">
-        <span class="kpi-value">{{ kpi.value }}</span>
-        <span class="kpi-title">{{ kpi.title }}</span>
-        <p class="kpi-subtitle">{{ kpi.subtitle }}</p>
-        <span class="kpi-trend" [ngClass]="kpi.trendType || 'neutral'">
-          {{ kpi.trend }}
-        </span>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- Finance Snapshot -->
-  <div class="dashboard-section finance-section" *ngIf="!loading() && !error()">
-    <div class="section-header finance-header">
-      <div>
-        <h2>Finance Snapshot</h2>
-        <p>Quick financial overview of your e-commerce activity</p>
-      </div>
-
-
-      <a routerLink="/admin/ecommerce/finance-dashboard" class="secondary-btn">
-        <mat-icon>insights</mat-icon>
-        View Full Finance Dashboard
-      </a>
-    </div>
-
-
-    <div *ngIf="financeLoading()" class="mini-loading">
-      <p>Loading finance snapshot...</p>
-    </div>
-
-
-    <div class="finance-preview-grid" *ngIf="!financeLoading() && financeOverview() as stats">
-      <div class="mini-stat-card">
-        <span>Total Revenue</span>
-        <strong>{{ stats.totalRevenue | currency:'TND ':'symbol':'1.3-3' }}</strong>
-      </div>
-
-
-      <div class="mini-stat-card">
-        <span>Monthly Revenue</span>
-        <strong>{{ stats.monthlyRevenue | currency:'TND ':'symbol':'1.3-3' }}</strong>
-      </div>
-
-
-      <div class="mini-stat-card">
-        <span>Paid Orders</span>
-        <strong>{{ stats.paidOrders }}</strong>
-      </div>
-
-
-      <div class="mini-stat-card">
-        <span>Average Order Value</span>
-        <strong>{{ stats.averageOrderValue | currency:'TND ':'symbol':'1.3-3' }}</strong>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- Management Modules -->
-  <div class="dashboard-section">
-    <div class="section-header">
-      <h2>Management Modules</h2>
-      <p>Access each area of your e-commerce platform</p>
-    </div>
-
-
-    <div class="module-grid">
-      <div class="module-card"
-           *ngFor="let module of modules; let i = index"
-           [routerLink]="module.route"
-           [style.animation-delay]="i * 60 + 'ms'">
-
-
-        <div class="module-icon">
-          <mat-icon>{{ module.icon }}</mat-icon>
+  <ng-container *ngIf="!loading() && !error()">
+    <section class="overview-grid">
+      <article
+        class="kpi-card"
+        *ngFor="let kpi of kpis(); let i = index"
+        [style.animation-delay]="i * 50 + 'ms'"
+      >
+        <div class="kpi-icon-wrapper">
+          <mat-icon>{{ kpi.icon }}</mat-icon>
         </div>
 
+        <div class="kpi-info">
+          <span class="kpi-title">{{ kpi.title }}</span>
+          <strong>{{ kpi.value }}</strong>
+          <p>{{ kpi.subtitle }}</p>
+          <span class="kpi-trend" [ngClass]="kpi.trendType || 'neutral'">
+            {{ kpi.trend }}
+          </span>
+        </div>
+      </article>
+    </section>
 
-        <div class="module-body">
-          <h3>{{ module.title }}</h3>
-          <p>{{ module.description }}</p>
+    <section class="command-panel">
+      <div class="health-panel">
+        <div class="section-header compact">
+          <div>
+            <h2>Catalog Health</h2>
+            <p>{{ catalogHealth() }}% of products are currently active</p>
+          </div>
+          <strong>{{ activeProducts() }}/{{ totalProducts() }}</strong>
         </div>
 
+        <div class="health-meter" aria-label="Catalog health">
+          <span [style.width.%]="catalogHealth()"></span>
+        </div>
 
-        <div class="module-footer">
-          <span>{{ module.action }} →</span>
+        <div class="health-details">
+          <span>{{ inactiveProducts() }} inactive</span>
+          <span>{{ outOfStockProducts() }} out of stock</span>
+          <span>{{ preorderProducts() }} preorder</span>
         </div>
       </div>
-    </div>
-  </div>
 
+      <div class="quick-actions-card">
+        <div class="section-header compact">
+          <div>
+            <h2>Quick Actions</h2>
+            <p>Most used operations</p>
+          </div>
+        </div>
 
-  <!-- Bottom Section -->
-  <div class="bottom-grid">
+        <div class="quick-actions-list">
+          <a
+            *ngFor="let action of quickActions"
+            [routerLink]="action.route"
+            class="quick-action-item"
+          >
+            <mat-icon>{{ action.icon }}</mat-icon>
+            <span>{{ action.label }}</span>
+          </a>
+        </div>
+      </div>
+    </section>
 
-
-    <!-- Quick Actions -->
-    <div class="quick-actions-card">
+    <section class="finance-section">
       <div class="section-header">
-        <h2>Quick Actions</h2>
-        <p>Frequently used operations</p>
-      </div>
+        <div>
+          <span class="section-label">Financial view</span>
+          <h2>Finance Snapshot</h2>
+          <p>Quick financial overview of your e-commerce activity.</p>
+        </div>
 
-
-      <div class="quick-actions-list">
-        <a *ngFor="let action of quickActions"
-           [routerLink]="action.route"
-           class="quick-action-item">
-          <mat-icon>{{ action.icon }}</mat-icon>
-          <span>{{ action.label }}</span>
+        <a routerLink="/admin/ecommerce/finance-dashboard" class="secondary-btn">
+          <mat-icon>open_in_new</mat-icon>
+          Full finance dashboard
         </a>
       </div>
-    </div>
 
-
-    <!-- Best Practices -->
-    <div class="overview-card">
-      <div class="section-header">
-        <h2>Best Practices</h2>
-        <p>Recommendations for efficient management</p>
+      <div *ngIf="financeLoading()" class="mini-loading">
+        Loading finance snapshot...
       </div>
-      <ul class="overview-list">
-        <li>Maintain a clean and logical category hierarchy before creating products.</li>
-        <li>Regularly update stock levels and product images.</li>
-        <li>Monitor preorder campaigns and release dates frequently.</li>
-        <li>Review out-of-stock products to avoid dead catalog entries.</li>
-        <li>Use accurate seller information to build customer trust.</li>
-      </ul>
-    </div>
-  </div>
-</div>
 
+      <div class="finance-snapshot" *ngIf="!financeLoading() && financeOverview() as stats">
+        <article class="finance-hero-card">
+          <div>
+            <span class="snapshot-label">Revenue snapshot</span>
+            <strong>{{ stats.totalRevenue | currency:'TND ':'symbol':'1.3-3' }}</strong>
+            <p>Total confirmed e-commerce revenue from paid activity.</p>
+          </div>
+
+          <div class="revenue-progress">
+            <div class="progress-head">
+              <span>Current month contribution</span>
+              <strong>{{ monthlyRevenueShare() }}%</strong>
+            </div>
+            <div class="progress-track">
+              <span [style.width.%]="monthlyRevenueShare()"></span>
+            </div>
+          </div>
+        </article>
+
+        <div class="finance-preview-grid">
+          <article class="mini-stat-card month">
+            <mat-icon>calendar_month</mat-icon>
+            <span>Monthly Revenue</span>
+            <strong>{{ stats.monthlyRevenue | currency:'TND ':'symbol':'1.3-3' }}</strong>
+            <small>Current month</small>
+          </article>
+
+          <article class="mini-stat-card paid">
+            <mat-icon>verified</mat-icon>
+            <span>Paid Orders</span>
+            <strong>{{ stats.paidOrders }}</strong>
+            <small>Completed payments</small>
+          </article>
+
+          <article class="mini-stat-card average">
+            <mat-icon>shopping_bag</mat-icon>
+            <span>Average Order Value</span>
+            <strong>{{ stats.averageOrderValue | currency:'TND ':'symbol':'1.3-3' }}</strong>
+            <small>Revenue per paid order</small>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="intelligence-section">
+      <div class="section-header">
+        <div>
+          <span class="section-label">Machine learning</span>
+          <h2>Product Intelligence</h2>
+          <p>Stock risk, performance score and recommended admin actions generated from product sales data.</p>
+          <span
+            class="model-chip"
+            *ngIf="productIntelligenceModelInfo() as model"
+            [class.active]="model.modelLoaded"
+          >
+            {{ model.modelLoaded ? 'Trained model' : 'Fallback rules' }}
+            <ng-container *ngIf="model.rows">/ {{ model.rows }} rows</ng-container>
+          </span>
+        </div>
+
+        <button
+          type="button"
+          class="secondary-btn"
+          (click)="analyzeProductIntelligence()"
+          [disabled]="intelligenceAnalyzing()"
+        >
+          <mat-icon>{{ intelligenceAnalyzing() ? 'hourglass_top' : 'psychology' }}</mat-icon>
+          {{ intelligenceAnalyzing() ? 'Analyzing...' : 'Analyze products' }}
+        </button>
+      </div>
+
+      <div *ngIf="intelligenceLoading()" class="mini-loading">
+        Loading product intelligence...
+      </div>
+
+      <div *ngIf="!intelligenceLoading() && !productIntelligence().length" class="intelligence-empty">
+        <mat-icon>psychology_alt</mat-icon>
+        <div>
+          <h3>No intelligence analysis yet</h3>
+          <p>Run the analysis to generate stock risk, product score and suggested actions.</p>
+        </div>
+      </div>
+
+      <div class="intelligence-grid" *ngIf="!intelligenceLoading() && productIntelligence().length">
+        <article class="intelligence-summary">
+          <div class="summary-head">
+            <div class="summary-icon">
+              <mat-icon>psychology</mat-icon>
+            </div>
+            <div>
+              <span>ML Snapshot</span>
+              <strong>{{ highRiskProducts() }}</strong>
+              <p>High-risk products</p>
+            </div>
+          </div>
+
+          <div class="queue-metrics">
+            <div>
+              <small>Restock</small>
+              <b>{{ restockActions() }}</b>
+            </div>
+            <div>
+              <small>Promote</small>
+              <b>{{ promoteActions() }}</b>
+            </div>
+            <div>
+              <small>Confident ML</small>
+              <b>{{ confidentMlDecisions() }}</b>
+            </div>
+          </div>
+
+          <a routerLink="/admin/ecommerce/product-intelligence" class="summary-link">
+            Open intelligence board
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </article>
+
+        <div class="intelligence-cards-panel">
+          <article
+            class="intelligence-card"
+            *ngFor="let item of intelligencePreview()"
+            [ngClass]="item.riskLevel.toLowerCase()"
+          >
+            <div class="intelligence-top">
+              <div>
+                <h3>{{ item.productName }}</h3>
+                <p>
+                  {{ item.performanceScore }}/100
+                  <span>/</span>
+                  {{ formatPerformanceLabel(item.performanceLabel) }}
+                </p>
+              </div>
+              <span class="risk-badge" [ngClass]="item.riskLevel.toLowerCase()">
+                {{ formatRiskLevel(item.riskLevel) }}
+              </span>
+            </div>
+
+            <div class="action-row compact">
+              <span>{{ item.daysToStockout >= 999 ? 'No stockout risk' : item.daysToStockout + ' days left' }}</span>
+              <strong>{{ formatSuggestedAction(item.suggestedAction) }}</strong>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace-layout">
+      <div class="modules-area">
+        <div class="section-header">
+          <div>
+            <span class="section-label">Workspace</span>
+            <h2>Management Modules</h2>
+            <p>Access each operational area without losing context.</p>
+          </div>
+        </div>
+
+        <div class="module-group" *ngFor="let group of moduleGroups()">
+          <div class="group-header">
+            <mat-icon>{{ group.icon }}</mat-icon>
+            <div>
+              <h3>{{ group.title }}</h3>
+              <p>{{ group.subtitle }}</p>
+            </div>
+          </div>
+
+          <div class="module-grid">
+            <a
+              class="module-card"
+              *ngFor="let module of group.modules"
+              [routerLink]="module.route"
+            >
+              <mat-icon>{{ module.icon }}</mat-icon>
+              <div>
+                <h4>{{ module.title }}</h4>
+                <p>{{ module.description }}</p>
+              </div>
+              <span>{{ module.action }}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <aside class="attention-panel">
+        <div class="section-header compact">
+          <div>
+            <span class="section-label">Smart alerts</span>
+            <h2>Action Center</h2>
+            <p>ML, stock and finance signals that need an admin decision.</p>
+          </div>
+          <strong>{{ attentionItems().length }}</strong>
+        </div>
+
+        <div class="attention-list">
+          <div
+            class="attention-item"
+            *ngFor="let item of attentionItems()"
+            [ngClass]="item.tone"
+          >
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <div>
+              <div class="attention-title-row">
+                <h3>{{ item.title }}</h3>
+                <span *ngIf="item.metric !== undefined">{{ item.metric }}</span>
+              </div>
+              <p>{{ item.description }}</p>
+              <a *ngIf="item.route" [routerLink]="item.route" class="alert-link">
+                {{ item.actionLabel || 'Open' }}
+                <mat-icon>arrow_forward</mat-icon>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="operator-note">
+          <mat-icon>tips_and_updates</mat-icon>
+          <p>Start with danger alerts, then use ML promote actions to prepare campaigns without overloading stock.</p>
+        </div>
+      </aside>
+    </section>
+  </ng-container>
+</div>
