@@ -44,6 +44,41 @@
       </div>
     </div>
 
+    <!-- ==================== SHOP SNAPSHOT ==================== -->
+    <section *ngIf="!loading() && !error() && products().length > 0"
+             class="shop-snapshot">
+      <div class="snapshot-heading">
+        <span class="section-kicker">Shop snapshot</span>
+        <h2>Today in the store</h2>
+      </div>
+
+      <div class="snapshot-grid">
+        <button type="button" class="snapshot-card promo" (click)="selectCategory('PROMO')">
+          <span>Promotions</span>
+          <strong>{{ promotedProducts().length }}</strong>
+          <small>Live deals</small>
+        </button>
+
+        <button type="button" class="snapshot-card new" (click)="selectCategory('All')">
+          <span>New arrivals</span>
+          <strong>{{ newProductsCount() }}</strong>
+          <small>Added this week</small>
+        </button>
+
+        <button type="button" class="snapshot-card express" (click)="selectCategory('All')">
+          <span>Express ready</span>
+          <strong>{{ expressProductsCount() }}</strong>
+          <small>Fast delivery products</small>
+        </button>
+
+        <button type="button" class="snapshot-card stock" (click)="selectCategory('All')">
+          <span>Low stock</span>
+          <strong>{{ lowStockProductsCount() }}</strong>
+          <small>Buy before sellout</small>
+        </button>
+      </div>
+    </section>
+
     <!-- ==================== CAMPAIGN SECTION ==================== -->
     <section *ngIf="!loading() && !error() && activeEvent() && promotedProducts().length > 0"
              class="campaign-section">
@@ -193,30 +228,6 @@
       </div>
     </section>
 
-    <!-- ==================== CATEGORY TABS ==================== -->
-    <div class="category-tabs"
-         *ngIf="!loading() && !error() && categories().length > 0">
-
-      <button class="tab-btn"
-              [class.active]="selectedCategory() === 'All'"
-              (click)="selectCategory('All')">
-        All Products
-      </button>
-
-      <button class="tab-btn promo-tab"
-              [class.active]="selectedCategory() === 'PROMO'"
-              (click)="selectCategory('PROMO')">
-        On Promotion
-      </button>
-
-      <button class="tab-btn"
-              *ngFor="let category of categories()"
-              [class.active]="selectedCategory() === category"
-              (click)="selectCategory(category)">
-        {{ category }}
-      </button>
-    </div>
-
     <!-- ==================== FEATURED CAROUSEL ==================== -->
     <section *ngIf="selectedCategory() === 'All' && featuredProducts().length > 0 && !loading() && !error()"
              class="featured-section">
@@ -291,12 +302,6 @@
       </div>
     </section>
 
-    <!-- ==================== PROMO FILTER INFO ==================== -->
-    <div *ngIf="!loading() && !error() && selectedCategory() === 'PROMO'"
-         class="promo-filter-info">
-      Showing only products included in the current promotional campaign.
-    </div>
-
     <!-- ==================== STATES ==================== -->
     <div *ngIf="loading()" class="state-message loading-state">
       <div class="spinner"></div>
@@ -306,6 +311,56 @@
     <div *ngIf="error()" class="state-message error">
       {{ error() }}
     </div>
+
+    <!-- ==================== CATALOG WITH FILTERS ==================== -->
+    <div class="catalog-layout" *ngIf="!loading() && !error()">
+      <aside class="catalog-sidebar" *ngIf="categories().length > 0">
+        <div class="filter-panel">
+          <span class="filter-kicker">Catalog filters</span>
+          <h3>Browse products</h3>
+
+          <button class="filter-btn"
+                  [class.active]="selectedCategory() === 'All'"
+                  (click)="selectCategory('All')">
+            <span>All Products</span>
+            <strong>{{ products().length }}</strong>
+          </button>
+
+          <button class="filter-btn promo-tab"
+                  [class.active]="selectedCategory() === 'PROMO'"
+                  (click)="selectCategory('PROMO')">
+            <span>On Promotion</span>
+            <strong>{{ promotedProducts().length }}</strong>
+          </button>
+
+          <div class="filter-divider"></div>
+
+          <button class="filter-btn"
+                  *ngFor="let category of categories()"
+                  [class.active]="selectedCategory() === category"
+                  (click)="selectCategory(category)">
+            <span>{{ category }}</span>
+            <strong>{{ getCategoryCount(category) }}</strong>
+          </button>
+        </div>
+      </aside>
+
+      <div class="catalog-results">
+        <div class="catalog-head">
+          <div>
+            <span class="section-kicker">Product catalog</span>
+            <h2>{{ getSelectedCategoryLabel() }}</h2>
+          </div>
+          <p>
+            {{ filteredProducts().length }} product{{ filteredProducts().length !== 1 ? 's' : '' }}
+            · page {{ currentPage() }} / {{ totalPages() }}
+          </p>
+        </div>
+
+        <div *ngIf="selectedCategory() === 'PROMO'"
+             class="promo-filter-info">
+          Showing only products included in the current promotional campaign.
+        </div>
 
     <div *ngIf="!loading() && !error() && filteredProducts().length === 0"
          class="state-message empty-state">
@@ -318,7 +373,7 @@
              class="products-grid">
 
       <article class="product-card"
-               *ngFor="let product of filteredProducts(); trackBy: trackByProduct">
+               *ngFor="let product of paginatedProducts(); trackBy: trackByProduct">
 
         <div class="product-badges">
           <span class="badge new" *ngIf="isNewProduct(product)">NEW</span>
@@ -387,6 +442,34 @@
         </div>
       </article>
     </section>
+
+        <nav class="catalog-pagination"
+             *ngIf="filteredProducts().length > pageSize"
+             aria-label="Product pagination">
+          <button type="button"
+                  class="pagination-btn"
+                  (click)="previousPage()"
+                  [disabled]="currentPage() === 1">
+            Previous
+          </button>
+
+          <button type="button"
+                  class="pagination-page"
+                  *ngFor="let page of visiblePages()"
+                  [class.active]="page === currentPage()"
+                  (click)="goToPage(page)">
+            {{ page }}
+          </button>
+
+          <button type="button"
+                  class="pagination-btn"
+                  (click)="nextPage()"
+                  [disabled]="currentPage() === totalPages()">
+            Next
+          </button>
+        </nav>
+      </div>
+    </div>
 
   </div>
 </div>

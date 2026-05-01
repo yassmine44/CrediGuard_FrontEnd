@@ -299,6 +299,46 @@
     }
   }
 
+  .delivery-pricing-card {
+    margin: -4px 0 10px;
+    padding: 16px;
+    border: 1px solid #fed7aa;
+    border-radius: 16px;
+    background: #fff7ed;
+    color: #9a3412;
+
+    div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    span {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    strong {
+      color: #c2410c;
+      font-size: 1.15rem;
+    }
+
+    p {
+      margin: 0;
+      color: #9a3412;
+      line-height: 1.5;
+    }
+
+    .warning {
+      color: #b91c1c;
+      font-weight: 700;
+    }
+  }
+
   // ====================== SUMMARY BOX ======================
   .summary-box {
     background: white;

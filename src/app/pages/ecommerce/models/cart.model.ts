@@ -29,6 +29,8 @@ export interface CartItem {
 source?: 'STANDARD' | 'PRODUCT_REQUEST_OFFER';
 sourceOfferId?: number | null;
 negotiatedUnitPrice?: number | null;
+expressDeliveryAvailable?: boolean | null;
+expressDeliveryFee?: number | null;
 
 }
 

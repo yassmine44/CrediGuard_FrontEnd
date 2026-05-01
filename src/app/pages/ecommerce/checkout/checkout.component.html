@@ -139,6 +139,22 @@
           <option value="EXPRESS">EXPRESS</option>
         </select>
 
+        <div class="delivery-pricing-card" *ngIf="deliveryType === 'EXPRESS'">
+          <div>
+            <span>Express surcharge</span>
+            <strong>{{ expressSurcharge() | currency:'TND ' }}</strong>
+          </div>
+
+          <p *ngIf="!expressUnavailableProducts().length">
+            Express fee is calculated from the eligible products in your cart.
+          </p>
+
+          <p class="warning" *ngIf="expressUnavailableProducts().length">
+            Express is not available for:
+            {{ expressUnavailableProducts().join(', ') }}
+          </p>
+        </div>
+
         <select [(ngModel)]="deliverySlot">
           <option value="MORNING">MORNING</option>
           <option value="AFTERNOON">AFTERNOON</option>
@@ -176,7 +192,17 @@
           </div>
 
           <div class="summary-line">
-            <span>Delivery fee</span>
+            <span>Base delivery</span>
+            <span>{{ baseDeliveryFee() | currency:'TND ' }}</span>
+          </div>
+
+          <div class="summary-line" *ngIf="deliveryType === 'EXPRESS'">
+            <span>Express surcharge</span>
+            <span>{{ expressSurcharge() | currency:'TND ' }}</span>
+          </div>
+
+          <div class="summary-line">
+            <span>Total delivery</span>
             <span>{{ deliveryFee() | currency:'TND ' }}</span>
           </div>
 

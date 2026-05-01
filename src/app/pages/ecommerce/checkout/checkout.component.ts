@@ -58,7 +58,16 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   addressLine = '';
   additionalInfo = '';
 
-  deliveryType: DeliveryType = 'STANDARD';
+  private selectedDeliveryType = signal<DeliveryType>('STANDARD');
+
+  get deliveryType(): DeliveryType {
+    return this.selectedDeliveryType();
+  }
+
+  set deliveryType(value: DeliveryType) {
+    this.selectedDeliveryType.set(value);
+  }
+
   deliverySlot: DeliverySlot = 'MORNING';
   paymentType: PaymentType = 'CARD';
   scheduledAt = '';
@@ -69,11 +78,26 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private addressLookupTimer: ReturnType<typeof setTimeout> | null = null;
 
   baseDeliveryFee = computed(() => this.deliveryFeeInfo()?.deliveryFee ?? 8);
-  deliveryFee = computed(() => this.baseDeliveryFee());
+  expressSurcharge = computed(() => {
+    if (this.deliveryType !== 'EXPRESS') return 0;
+
+    return this.cart()?.items.reduce((total, item) => {
+      const fee = Number(item.expressDeliveryFee ?? 0);
+      return total + fee * item.quantity;
+    }, 0) ?? 0;
+  });
+
+  expressUnavailableProducts = computed(() =>
+    this.cart()?.items
+      .filter(item => !item.expressDeliveryAvailable)
+      .map(item => item.productName) ?? []
+  );
+
+  deliveryFee = computed(() => this.baseDeliveryFee() + this.expressSurcharge());
 
   productsTotal = computed(() => this.cart()?.total ?? 0);
 
-finalTotal = computed(() => this.productsTotal() + this.deliveryFee());
+  finalTotal = computed(() => this.productsTotal() + this.deliveryFee());
 
   ngOnInit(): void {
     this.loadCart();
@@ -154,6 +178,11 @@ finalTotal = computed(() => this.productsTotal() + this.deliveryFee());
 
     if (!address) {
       this.error.set('Please save a delivery address first.');
+      return;
+    }
+
+    if (this.deliveryType === 'EXPRESS' && this.expressUnavailableProducts().length) {
+      this.error.set(`Express delivery is not available for: ${this.expressUnavailableProducts().join(', ')}.`);
       return;
     }
 

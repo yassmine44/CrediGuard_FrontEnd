@@ -44,6 +44,7 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
   loading = signal(false);
   error = signal<string | null>(null);
   selectedCategory = signal<string>('All');
+  currentPage = signal(1);
   carouselOffset = signal(0);
   activeEvent = signal<CalendarEvent | null>(null);
   recentlyViewedProducts = signal<RecentlyViewedProduct[]>([]);
@@ -83,6 +84,26 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
     return allProducts.filter(p => p.categoryName?.trim() === category);
   });
 
+  readonly pageSize = 12;
+
+  totalPages = computed<number>(() => {
+    return Math.max(1, Math.ceil(this.filteredProducts().length / this.pageSize));
+  });
+
+  paginatedProducts = computed<Product[]>(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.filteredProducts().slice(start, start + this.pageSize);
+  });
+
+  visiblePages = computed<number[]>(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  });
+
   featuredProducts = computed<Product[]>(() => {
     return [...this.products()]
       .sort((a, b) => {
@@ -95,6 +116,18 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
 
   promotedProducts = computed<Product[]>(() => {
     return this.products().filter(product => this.hasPromotion(product));
+  });
+
+  newProductsCount = computed<number>(() => {
+    return this.products().filter(product => this.isNewProduct(product)).length;
+  });
+
+  expressProductsCount = computed<number>(() => {
+    return this.products().filter(product => product.expressDeliveryAvailable).length;
+  });
+
+  lowStockProductsCount = computed<number>(() => {
+    return this.products().filter(product => this.isLowStockProduct(product)).length;
   });
 
   smartRecommendations = computed<Product[]>(() => {
@@ -162,6 +195,7 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
 
   selectCategory(category: string): void {
     this.selectedCategory.set(category);
+    this.currentPage.set(1);
 
     if (!this.isBrowser) return;
 
@@ -174,6 +208,33 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     setTimeout(() => this.observeCards(), 100);
+  }
+
+  getCategoryCount(category: string): number {
+    return this.products().filter(product => product.categoryName?.trim() === category).length;
+  }
+
+  getSelectedCategoryLabel(): string {
+    const category = this.selectedCategory();
+
+    if (category === 'All') return 'All products';
+    if (category === 'PROMO') return 'Products on promotion';
+
+    return category;
+  }
+
+  goToPage(page: number): void {
+    const nextPage = Math.min(Math.max(1, page), this.totalPages());
+    this.currentPage.set(nextPage);
+    setTimeout(() => this.observeCards(), 100);
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage() + 1);
+  }
+
+  previousPage(): void {
+    this.goToPage(this.currentPage() - 1);
   }
 
   private startAutoCarousel(): void {
