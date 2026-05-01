@@ -44,41 +44,6 @@
       </div>
     </div>
 
-    <!-- ==================== SHOP SNAPSHOT ==================== -->
-    <section *ngIf="!loading() && !error() && products().length > 0"
-             class="shop-snapshot">
-      <div class="snapshot-heading">
-        <span class="section-kicker">Shop snapshot</span>
-        <h2>Today in the store</h2>
-      </div>
-
-      <div class="snapshot-grid">
-        <button type="button" class="snapshot-card promo" (click)="selectCategory('PROMO')">
-          <span>Promotions</span>
-          <strong>{{ promotedProducts().length }}</strong>
-          <small>Live deals</small>
-        </button>
-
-        <button type="button" class="snapshot-card new" (click)="selectCategory('All')">
-          <span>New arrivals</span>
-          <strong>{{ newProductsCount() }}</strong>
-          <small>Added this week</small>
-        </button>
-
-        <button type="button" class="snapshot-card express" (click)="selectCategory('All')">
-          <span>Express ready</span>
-          <strong>{{ expressProductsCount() }}</strong>
-          <small>Fast delivery products</small>
-        </button>
-
-        <button type="button" class="snapshot-card stock" (click)="selectCategory('All')">
-          <span>Low stock</span>
-          <strong>{{ lowStockProductsCount() }}</strong>
-          <small>Buy before sellout</small>
-        </button>
-      </div>
-    </section>
-
     <!-- ==================== CAMPAIGN SECTION ==================== -->
     <section *ngIf="!loading() && !error() && activeEvent() && promotedProducts().length > 0"
              class="campaign-section">

@@ -118,18 +118,6 @@ export class EcommerceFrontComponent implements OnInit, AfterViewInit, OnDestroy
     return this.products().filter(product => this.hasPromotion(product));
   });
 
-  newProductsCount = computed<number>(() => {
-    return this.products().filter(product => this.isNewProduct(product)).length;
-  });
-
-  expressProductsCount = computed<number>(() => {
-    return this.products().filter(product => product.expressDeliveryAvailable).length;
-  });
-
-  lowStockProductsCount = computed<number>(() => {
-    return this.products().filter(product => this.isLowStockProduct(product)).length;
-  });
-
   smartRecommendations = computed<Product[]>(() => {
     return [...this.products()]
       .filter(product => product.active !== false)

@@ -1,7 +1,10 @@
 <nav class="navbar">
   <div class="auth-actions">
     <ng-container *ngIf="authService.isLoggedIn()">
-      <button type="button" class="btn-auth outline" (click)="logout()">Logout</button>
+      <button type="button" class="btn-auth logout-front" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
     </ng-container>
   </div>
 

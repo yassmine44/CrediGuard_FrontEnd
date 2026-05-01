@@ -93,6 +93,33 @@
   transform: translateY(-1px);
 }
 
+.btn-auth.logout-front {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #fecaca;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #b91c1c;
+  background: #fff7f7;
+  box-shadow: 0 8px 18px rgba(185, 28, 28, 0.08);
+}
+
+.btn-auth.logout-front mat-icon {
+  width: 19px;
+  height: 19px;
+  font-size: 19px;
+}
+
+.btn-auth.logout-front:hover {
+  opacity: 1;
+  color: #ffffff;
+  background: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.24);
+}
+
 
 .nav-actions {
   display: flex;

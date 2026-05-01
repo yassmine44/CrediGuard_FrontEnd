@@ -21,3 +21,32 @@ input {
   border-radius: 6px;
   border: 1px solid #ddd;
 }
+
+.logout-btn {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #b91c1c;
+  background: #fef2f2;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.logout-btn mat-icon {
+  width: 19px;
+  height: 19px;
+  font-size: 19px;
+}
+
+.logout-btn:hover {
+  border-color: #ef4444;
+  color: #ffffff;
+  background: #ef4444;
+  box-shadow: 0 10px 22px rgba(239, 68, 68, 0.22);
+  transform: translateY(-1px);
+}
