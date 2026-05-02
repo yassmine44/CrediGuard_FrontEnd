@@ -21,7 +21,7 @@ import { Notification, NotificationCategory } from '../../../core/models/notific
 
       <div class="notification-list">
         <div *ngIf="filteredNotifications.length === 0" class="empty-notifications">
-          Aucune notification à afficher.
+          Aucune notification Ã  afficher.
         </div>
         
         <div *ngFor="let n of filteredNotifications" 
@@ -29,10 +29,10 @@ import { Notification, NotificationCategory } from '../../../core/models/notific
              [class.unread]="!n.isRead"
              (click)="onNotificationClick(n)">
           <div class="notification-icon" [ngClass]="n.category.toLowerCase()">
-            <span *ngIf="n.statusTag === 'Validée' || n.statusTag === 'Actif'">✅</span>
-            <span *ngIf="n.statusTag === 'Refusée'">❌</span>
-            <span *ngIf="n.statusTag === 'Renouvellement'">⚠️</span>
-            <span *ngIf="n.statusTag === 'Soumis' || n.statusTag === 'En cours'">📩</span>
+            <span *ngIf="n.statusTag === 'ValidÃ©e' || n.statusTag === 'Actif'">âœ…</span>
+            <span *ngIf="n.statusTag === 'RefusÃ©e'">âŒ</span>
+            <span *ngIf="n.statusTag === 'Renouvellement'">âš ï¸</span>
+            <span *ngIf="n.statusTag === 'Soumis' || n.statusTag === 'En cours'">ðŸ“©</span>
           </div>
           <div class="notification-content">
             <div class="notification-top">
@@ -42,7 +42,7 @@ import { Notification, NotificationCategory } from '../../../core/models/notific
             </div>
             <p class="message">{{ n.message }}</p>
             <div class="notification-bottom">
-              <span class="status-pill" [ngClass]="n.statusTag?.toLowerCase()">{{ n.statusTag }}</span>
+              <span class="status-pill" [ngClass]="n.statusTag.toLowerCase()">{{ n.statusTag }}</span>
               <span class="details">{{ n.details }}</span>
             </div>
           </div>
@@ -150,8 +150,8 @@ import { Notification, NotificationCategory } from '../../../core/models/notific
       font-weight: 600;
       text-transform: uppercase;
     }
-    .status-pill.validée, .status-pill.actif { background: #e8f5e9; color: #2e7d32; }
-    .status-pill.refusée { background: #ffebee; color: #c62828; }
+    .status-pill.validÃ©e, .status-pill.actif { background: #e8f5e9; color: #2e7d32; }
+    .status-pill.refusÃ©e { background: #ffebee; color: #c62828; }
     .status-pill.renouvellement { background: #fff3e0; color: #f57c00; }
     .status-pill.soumis { background: #e3f2fd; color: #1976d2; }
     .details { font-size: 0.8rem; color: #666; }
