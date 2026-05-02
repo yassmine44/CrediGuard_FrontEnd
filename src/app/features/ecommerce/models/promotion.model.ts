@@ -1,6 +1,7 @@
 export type PromotionType = 'SEASONAL' | 'HOLIDAY' | 'FLASH' | 'CLEARANCE';
 export type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
 export type PromotionTargetType = 'ALL_PRODUCTS' | 'CATEGORY' | 'PRODUCT';
+export type PromotionStatus = 'SCHEDULED' | 'LIVE' | 'EXPIRED' | 'DISABLED';
 
 export interface Promotion {
   id: number;
@@ -12,6 +13,7 @@ export interface Promotion {
   discountValue: number;
   minOrderAmount: number | null;
   maxDiscountAmount: number | null;
+  status?: PromotionStatus | null;
   active: boolean;
   priority: number;
   autoApply: boolean;

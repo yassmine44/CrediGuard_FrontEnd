@@ -8,6 +8,7 @@ import {
   DemandeCreditRequest,
   TypeCredit,
 } from '../../models/demande-credit.model';
+import { ProfilCreditResponse } from '../../models/profil-credit.model';
 
 @Component({
   selector: 'app-demande-credit-form',
@@ -24,7 +25,7 @@ export class DemandeCreditFormComponent implements OnInit {
 
   saving = signal(false);
   loadingProfile = signal(true);
-  hasProfile = signal(false);
+  profile = signal<ProfilCreditResponse | null>(null);
   error = signal('');
   success = signal('');
 
@@ -55,14 +56,13 @@ export class DemandeCreditFormComponent implements OnInit {
     this.error.set('');
 
     this.profilService.getMyProfile().subscribe({
-      next: () => {
-        this.hasProfile.set(true);
+      next: (profile) => {
+        this.profile.set(profile);
         this.loadingProfile.set(false);
       },
       error: (err) => {
-        if (err.status === 404) {
-          this.hasProfile.set(false);
-          this.loadingProfile.set(false);
+        if (err.status === 401) {
+          this.router.navigate(['/auth/sign-in']);
           return;
         }
 
@@ -74,7 +74,7 @@ export class DemandeCreditFormComponent implements OnInit {
   }
 
   submit(): void {
-    if (!this.hasProfile()) {
+    if (!this.profile()) {
       this.error.set('You must complete your credit profile before sending a request.');
       return;
     }

@@ -84,6 +84,12 @@ export const ECOMMERCE_ADMIN_ROUTES: Routes = [
   loadComponent: () =>
     import('./admin/product-requests-admin/admin-product-request-detail/admin-product-request-detail.component')
       .then(m => m.AdminProductRequestDetailComponent)
+},
+{
+  path: 'ecommerce/product-intelligence',
+  loadComponent: () =>
+    import('./product-intelligence-admin/product-intelligence-admin.component')
+      .then(m => m.ProductIntelligenceAdminComponent)
 }
 ];
 

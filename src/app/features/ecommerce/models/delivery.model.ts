@@ -2,6 +2,7 @@ export type DeliveryType = 'STANDARD' | 'EXPRESS';
 export type DeliveryStatus =
   | 'WAITING_STOCK'
   | 'PENDING'
+  | 'PENDING_REVIEW'
   | 'IN_TRANSIT'
   | 'DELIVERED'
   | 'CANCELLED';
@@ -12,8 +13,13 @@ export interface DeliveryAddressResponse {
   fullName: string;
   phone: string;
   city: string;
+  governorate?: string | null;
+  delegation?: string | null;
+  locality?: string | null;
   addressLine: string;
   additionalInfo?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface DeliveryResponse {
@@ -28,6 +34,11 @@ export interface DeliveryResponse {
   deliveredAt?: string | null;
   trackingNumber?: string | null;
   carrier?: string | null;
+  deliveryZoneId?: number | null;
+  deliveryZoneName?: string | null;
+  zoneRiskLevel?: string | null;
+  extraDelayDays?: number | null;
+  requiresAdminApproval?: boolean | null;
   address?: DeliveryAddressResponse | null;
   createdAt?: string | null;
   updatedAt?: string | null;

@@ -1,0 +1,22 @@
+<div class="payment-result-page">
+  <div class="result-panel">
+    <div *ngIf="loading()" class="state-message">Verifying Flouci payment...</div>
+
+    <div *ngIf="error()" class="state-message error">
+      {{ error() }}
+    </div>
+
+    <ng-container *ngIf="!loading() && !error()">
+      <h1>Payment confirmed</h1>
+      <p>Your Flouci payment has been verified successfully.</p>
+
+      <div class="payment-box" *ngIf="payment() as pay">
+        <span>Order #{{ pay.orderId }}</span>
+        <strong>{{ pay.amount | currency:'TND ':'symbol':'1.2-2' }}</strong>
+        <small>Status: {{ pay.paymentStatus }}</small>
+      </div>
+
+      <a routerLink="/front/orders" class="primary-link">View my orders</a>
+    </ng-container>
+  </div>
+</div>

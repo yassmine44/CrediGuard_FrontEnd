@@ -550,8 +550,5 @@ export class FinanceAdminComponent implements OnInit {
     if (remboursement) {
       this.performDeleteRemboursement(remboursement);
     }
-    
   }
-  
-  
 }

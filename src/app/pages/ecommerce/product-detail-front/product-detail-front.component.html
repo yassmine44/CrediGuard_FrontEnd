@@ -34,7 +34,17 @@
 
       <!-- Informations produit -->
       <div class="info-section">
-        <h1 class="product-name">{{ p.name }}</h1>
+        <div class="title-row">
+          <h1 class="product-name">{{ p.name }}</h1>
+          <button
+            type="button"
+            class="detail-wishlist-btn"
+            [class.saved]="wishlisted()"
+            (click)="toggleWishlist(p)"
+          >
+            {{ wishlisted() ? '♥ Saved' : '♡ Save' }}
+          </button>
+        </div>
 
         <!-- Prix + Promotion -->
         <div class="price-block">

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { ClaimsAdminService } from '../../features/claims-admin/claims-admin.service';
+import { ClaimService } from '../../core/services/insurance/claim.service';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -13,7 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class MyClaimsComponent implements OnInit {
 
-  private claimsService = inject(ClaimsAdminService);
+  private claimsService = inject(ClaimService);
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -32,18 +32,21 @@ export class MyClaimsComponent implements OnInit {
     }
 
     this.loading = true;
-    this.claimsService.getByClient(user.id).then(claims => {
-      this.userClaims = claims;
-      this.loading = false;
-    }).catch(() => this.loading = false);
+    this.claimsService.getByClient(user.id).subscribe({
+      next: (claims: any[]) => {
+        this.userClaims = claims;
+        this.loading = false;
+      },
+      error: () => this.loading = false
+    });
   }
 
   getStatusLabel(status: string): string {
-    switch(status) {
+    switch(status?.toUpperCase()) {
       case 'PENDING': return '⏳ EN ATTENTE';
       case 'APPROVED': return '✅ VALIDÉE';
       case 'REJECTED': return '❌ REFUSÉE';
-      default: return status;
+      default: return status || 'INCONNU';
     }
   }
 
@@ -52,7 +55,6 @@ export class MyClaimsComponent implements OnInit {
       return claim.rejectionReason;
     }
     
-    // Génération automatique d'un motif si aucun n'est fourni
     const amount = claim.voucher?.amount || 0;
     if (amount > 1000) {
       return "Le montant demandé dépasse le plafond d'approbation automatique pour votre contrat actuel.";

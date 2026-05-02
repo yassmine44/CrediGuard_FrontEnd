@@ -1,0 +1,379 @@
+<div class="product-intelligence-page">
+  <div class="page-top">
+    <div>
+      <a routerLink="/admin/ecommerce" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+        Back to E-Commerce Dashboard
+      </a>
+      <h1>Product Intelligence</h1>
+      <p>ML-powered stock risk, product performance and recommended admin actions.</p>
+    </div>
+
+    <button type="button" class="btn btn-primary" (click)="analyzeAll()" [disabled]="analyzing()">
+      <mat-icon>{{ analyzing() ? 'hourglass_top' : 'psychology' }}</mat-icon>
+      {{ analyzing() ? 'Analyzing...' : 'Run analysis' }}
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <h3>Analyzed Products</h3>
+      <p>{{ totalAnalyzed() }}</p>
+    </div>
+
+    <div class="stat-card red">
+      <h3>High Risk</h3>
+      <p>{{ highRiskCount() }}</p>
+    </div>
+
+    <div class="stat-card orange">
+      <h3>Restock Actions</h3>
+      <p>{{ restockCount() }}</p>
+    </div>
+
+    <div class="stat-card green">
+      <h3>Promote Actions</h3>
+      <p>{{ promoteCount() }}</p>
+    </div>
+  </div>
+
+  <div class="model-info-card" *ngIf="modelInfo() as model">
+    <div>
+      <span class="model-label">ML Model</span>
+      <h2>{{ model.modelLoaded ? 'Trained model active' : 'Fallback mode' }}</h2>
+      <p>
+        {{ model.modelLoaded ? (model.modelType || model.mode) : (model.message || model.mode) }}
+      </p>
+    </div>
+
+    <div class="model-meta">
+      <span [class.active]="model.modelLoaded">
+        {{ model.mode }}
+      </span>
+      <strong *ngIf="model.rows">{{ model.rows }} rows</strong>
+    </div>
+  </div>
+
+  <div class="action-queue" *ngIf="items().length">
+    <button type="button" class="queue-card danger" (click)="showCriticalRestock()">
+      <mat-icon>priority_high</mat-icon>
+      <span>Critical restock</span>
+      <strong>{{ criticalRestockCount() }}</strong>
+      <small>High risk products that need stock action</small>
+    </button>
+
+    <button type="button" class="queue-card warning" (click)="showPromotionCandidates()">
+      <mat-icon>local_offer</mat-icon>
+      <span>Promotion candidates</span>
+      <strong>{{ promoteCount() }}</strong>
+      <small>Products recommended for commercial boost</small>
+    </button>
+
+    <button type="button" class="queue-card info" (click)="showConfidentMl()">
+      <mat-icon>verified</mat-icon>
+      <span>Confident ML decisions</span>
+      <strong>{{ confidentMlCount() }}</strong>
+      <small>Predictions with strong risk and action confidence</small>
+    </button>
+
+    <button type="button" class="queue-card neutral" (click)="showNeedsReview()">
+      <mat-icon>manage_search</mat-icon>
+      <span>Needs review</span>
+      <strong>{{ needsReviewCount() }}</strong>
+      <small>Fallback or lower-confidence items to inspect manually</small>
+    </button>
+  </div>
+
+  <div *ngIf="loading()" class="state-box">
+    Loading product intelligence...
+  </div>
+
+  <div *ngIf="error()" class="state-box error">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="!loading() && !items().length" class="empty-card">
+    <h3>No analysis yet</h3>
+    <p>Run the analysis to generate product risk and recommended actions.</p>
+    <button type="button" class="btn btn-primary" (click)="analyzeAll()" [disabled]="analyzing()">
+      Run analysis
+    </button>
+  </div>
+
+  <div *ngIf="!loading() && items().length" class="insight-workspace">
+    <div class="table-card">
+      <div class="card-head">
+        <div>
+          <h2>Product Intelligence Results</h2>
+          <p>
+            Showing {{ filteredItems().length }} of {{ totalAnalyzed() }} products, sorted by highest stock risk and urgency.
+          </p>
+        </div>
+      </div>
+
+      <div class="filters-bar">
+        <label class="search-filter">
+          <mat-icon>search</mat-icon>
+          <input
+            type="text"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            placeholder="Search product or category"
+          />
+        </label>
+
+        <select [ngModel]="riskFilter()" (ngModelChange)="riskFilter.set($event)">
+          <option value="ALL">All risks</option>
+          <option value="HIGH">High risk</option>
+          <option value="MEDIUM">Medium risk</option>
+          <option value="LOW">Low risk</option>
+        </select>
+
+        <select [ngModel]="actionFilter()" (ngModelChange)="actionFilter.set($event)">
+          <option value="ALL">All actions</option>
+          <option value="RESTOCK">Restock</option>
+          <option value="PROMOTE">Promote</option>
+          <option value="MONITOR">Monitor</option>
+          <option value="KEEP">Keep</option>
+        </select>
+
+        <select [ngModel]="modelFilter()" (ngModelChange)="modelFilter.set($event)">
+          <option value="ALL">All models</option>
+          <option value="ML">Trained ML</option>
+          <option value="FALLBACK">Fallback</option>
+        </select>
+
+        <button type="button" class="btn btn-light" (click)="resetFilters()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Reset
+        </button>
+
+        <button type="button" class="btn btn-light" (click)="exportCsv()" [disabled]="!filteredItems().length">
+          <mat-icon>download</mat-icon>
+          Export CSV
+        </button>
+      </div>
+
+      <div class="empty-filter" *ngIf="!filteredItems().length">
+        <h3>No products match these filters</h3>
+        <p>Try another risk, action, model source or search term.</p>
+      </div>
+
+      <table *ngIf="filteredItems().length">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Risk</th>
+            <th>Confidence</th>
+            <th>Score</th>
+            <th>Stock</th>
+            <th>Sales</th>
+            <th>Action</th>
+            <th>Detail</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let item of sortedItems()"
+            [class.selected-row]="selectedInsight()?.productId === item.productId"
+          >
+            <td>
+              <div class="product-cell">
+                <strong>{{ item.productName }}</strong>
+                <span>{{ item.categoryName || 'Uncategorized' }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="'risk-' + item.riskLevel.toLowerCase()">
+                {{ formatRiskLevel(item.riskLevel) }}
+              </span>
+            </td>
+            <td>
+              <div class="confidence-stack" *ngIf="item.riskConfidence !== null && item.riskConfidence !== undefined; else noConfidence">
+                <span>Risk {{ item.riskConfidence }}%</span>
+                <span *ngIf="item.actionConfidence !== null && item.actionConfidence !== undefined">
+                  Action {{ item.actionConfidence }}%
+                </span>
+              </div>
+              <ng-template #noConfidence>
+                <span class="muted">Fallback</span>
+              </ng-template>
+            </td>
+            <td>
+              <strong>{{ item.performanceScore }}/100</strong>
+              <span class="muted">{{ formatPerformanceLabel(item.performanceLabel) }}</span>
+            </td>
+            <td>
+              <strong>{{ item.currentStock }}</strong>
+              <span class="muted">
+                {{ item.daysToStockout >= 999 ? 'No stockout risk' : item.daysToStockout + ' days left' }}
+              </span>
+            </td>
+            <td>
+              <strong>{{ item.salesLast30Days }}</strong>
+              <span class="muted">{{ item.salesLast7Days }} last 7 days</span>
+            </td>
+            <td>
+              <span class="action-badge" [ngClass]="'action-' + item.suggestedAction.toLowerCase()">
+                {{ formatSuggestedAction(item.suggestedAction) }}
+              </span>
+              <span class="muted" *ngIf="item.recommendedRestock > 0">
+                Restock {{ item.recommendedRestock }}
+              </span>
+            </td>
+            <td>
+              <button type="button" class="btn btn-light" (click)="selectInsight(item)">
+                <mat-icon>insights</mat-icon>
+                View
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <aside class="insight-detail-card" *ngIf="selectedInsight() as selected">
+      <div class="detail-head">
+        <div>
+          <span class="model-label">Selected insight</span>
+          <h2>{{ selected.productName }}</h2>
+          <p>{{ selected.categoryName || 'Uncategorized' }}</p>
+        </div>
+
+        <button type="button" class="icon-btn" (click)="closeInsight()" aria-label="Close insight detail">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="detail-kpis">
+        <div>
+          <span>Risk</span>
+          <strong>{{ formatRiskLevel(selected.riskLevel) }}</strong>
+        </div>
+        <div>
+          <span>Score</span>
+          <strong>{{ selected.performanceScore }}/100</strong>
+        </div>
+        <div>
+          <span>Action</span>
+          <strong>{{ formatSuggestedAction(selected.suggestedAction) }}</strong>
+        </div>
+      </div>
+
+      <div class="confidence-panel" *ngIf="selected.riskConfidence !== null && selected.riskConfidence !== undefined">
+        <div>
+          <span>Risk confidence</span>
+          <strong>{{ selected.riskConfidence }}%</strong>
+        </div>
+        <div *ngIf="selected.actionConfidence !== null && selected.actionConfidence !== undefined">
+          <span>Action confidence</span>
+          <strong>{{ selected.actionConfidence }}%</strong>
+        </div>
+      </div>
+
+      <section class="explanation-block" *ngIf="selected.mlDecision">
+        <h3>ML decision</h3>
+        <p>{{ selected.mlDecision }}</p>
+      </section>
+
+      <section class="explanation-block" *ngIf="selected.mainDrivers?.length">
+        <h3>Main drivers</h3>
+        <ul>
+          <li *ngFor="let driver of selected.mainDrivers">{{ driver }}</li>
+        </ul>
+      </section>
+
+      <section class="explanation-block" *ngIf="selected.businessRecommendation">
+        <h3>Recommendation</h3>
+        <p>{{ selected.businessRecommendation }}</p>
+      </section>
+
+      <section class="explanation-block">
+        <h3>Observed data</h3>
+        <ul>
+          <li>Current stock: {{ selected.currentStock }}</li>
+          <li>Sales last 7 days: {{ selected.salesLast7Days }}</li>
+          <li>Sales last 30 days: {{ selected.salesLast30Days }}</li>
+          <li>
+            Stockout:
+            {{ selected.daysToStockout >= 999 ? 'No stockout risk' : selected.daysToStockout + ' days left' }}
+          </li>
+          <li *ngIf="selected.modelType">Model: {{ selected.modelType }}</li>
+        </ul>
+      </section>
+
+      <section class="trend-summary-card" *ngIf="trendSummary() as summary">
+        <span class="model-label">Trend summary</span>
+        <h3
+          [class.up]="summary.scoreDelta > 0"
+          [class.down]="summary.scoreDelta < 0"
+        >
+          Score {{ summary.scoreDelta > 0 ? 'improved' : summary.scoreDelta < 0 ? 'declined' : 'is stable' }}
+          <ng-container *ngIf="summary.scoreDelta !== 0">
+            by {{ summary.scoreDelta > 0 ? '+' : '' }}{{ summary.scoreDelta }}
+          </ng-container>
+        </h3>
+        <p>
+          Risk is {{ summary.riskTrend }} across the last {{ summary.count }} analyses.
+          Latest action: {{ formatSuggestedAction(summary.latestAction) }}.
+        </p>
+      </section>
+
+      <section class="explanation-block history-block">
+        <div class="history-head">
+          <h3>Analysis history</h3>
+          <span *ngIf="historyLoading()">Loading...</span>
+        </div>
+
+        <div class="history-empty" *ngIf="!historyLoading() && !selectedHistory().length">
+          No previous analysis snapshots yet.
+        </div>
+
+        <div class="history-list" *ngIf="!historyLoading() && selectedHistory().length">
+          <div class="history-item" *ngFor="let history of selectedHistory(); let i = index">
+            <div>
+              <strong>{{ history.performanceScore }}/100</strong>
+              <span>{{ history.analyzedAt | date:'short' }}</span>
+            </div>
+            <div>
+              <span class="status-badge" [ngClass]="'risk-' + history.riskLevel.toLowerCase()">
+                {{ formatRiskLevel(history.riskLevel) }}
+              </span>
+              <span class="action-badge" [ngClass]="'action-' + history.suggestedAction.toLowerCase()">
+                {{ formatSuggestedAction(history.suggestedAction) }}
+              </span>
+            </div>
+            <div class="trend-row" *ngIf="scoreDelta(history, i) !== null || riskTrend(history, i) || actionChanged(history, i)">
+              <span
+                *ngIf="scoreDelta(history, i) !== null"
+                class="trend-pill"
+                [class.up]="(scoreDelta(history, i) || 0) > 0"
+                [class.down]="(scoreDelta(history, i) || 0) < 0"
+              >
+                Score {{ (scoreDelta(history, i) || 0) > 0 ? '+' : '' }}{{ scoreDelta(history, i) }}
+              </span>
+
+              <span
+                *ngIf="riskTrend(history, i) as trend"
+                class="trend-pill"
+                [class.up]="trend === 'improved'"
+                [class.down]="trend === 'worsened'"
+              >
+                Risk {{ trend }}
+              </span>
+
+              <span *ngIf="actionChanged(history, i) as actionChange" class="trend-pill neutral">
+                Action {{ actionChange }}
+              </span>
+            </div>
+            <small>
+              Stock {{ history.currentStock }},
+              sales 7d {{ history.salesLast7Days }},
+              sales 30d {{ history.salesLast30Days }}
+            </small>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>

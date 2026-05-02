@@ -28,11 +28,19 @@ export class ClaimsAdminService {
     }).then(res => res.json());
   }
 
-  getByClient(clientId: number) {
+  getByClient(clientId: number): Promise<any[]> {
     if (!this.isBrowser()) return Promise.resolve([]);
 
-    return this.getAll().then((claims: any[]) => {
-      return claims.filter(c => c.voucher?.client?.id === clientId);
+    return fetch(`${this.api}/by-client/${clientId}`, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`
+      }
+    }).then(res => {
+      if (!res.ok) return [];
+      return res.json();
+    }).catch(err => {
+      console.error('Error fetching claims for client:', err);
+      return [];
     });
   }
 
@@ -75,6 +83,22 @@ export class ClaimsAdminService {
   // ===== INSURANCES (LISTE → length) =====
   getInsurances(): Promise<any[]> {
     return fetch(`http://localhost:8089/api/insurance/companies/all`, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`
+      }
+    }).then(res => res.json());
+  }
+
+  getVouchersByClient(clientId: number): Promise<any[]> {
+    return fetch(`http://localhost:8089/api/vouchers/client/${clientId}`, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`
+      }
+    }).then(res => res.json());
+  }
+
+  getPurchasesByClient(clientId: number): Promise<any[]> {
+    return fetch(`http://localhost:8089/api/partnership/purchases/client/${clientId}`, {
       headers: {
         Authorization: `Bearer ${this.getToken()}`
       }

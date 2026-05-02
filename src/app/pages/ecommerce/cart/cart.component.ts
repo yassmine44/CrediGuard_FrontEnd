@@ -119,17 +119,38 @@ export class CartComponent implements OnInit {
       return 'assets/default-product.png';
     }
 
-    const value = imageUrl.trim().replace(/^"+|"+$/g, '');
+    const value = imageUrl.trim().replace(/^"+|"+$/g, '').replace(/\\/g, '/');
 
-    if (value.startsWith('http://') || value.startsWith('https://')) {
+    if (
+      value.startsWith('http://') ||
+      value.startsWith('https://') ||
+      value.startsWith('data:') ||
+      value.startsWith('blob:')
+    ) {
       return value;
+    }
+
+    if (value.startsWith('/api/uploads/')) {
+      return `http://localhost:8089${value}`;
+    }
+
+    if (value.startsWith('api/uploads/')) {
+      return `http://localhost:8089/${value}`;
     }
 
     if (value.startsWith('/uploads/')) {
       return `http://localhost:8089/api${value}`;
     }
 
-    return 'assets/default-product.png';
+    if (value.startsWith('uploads/')) {
+      return `http://localhost:8089/api/${value}`;
+    }
+
+    if (value.startsWith('assets/')) {
+      return value;
+    }
+
+    return `http://localhost:8089/api/uploads/${value}`;
   }
 
   onImageError(event: Event): void {

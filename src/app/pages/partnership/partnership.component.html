@@ -1,215 +1,201 @@
-<div class="finance-container">
-
+<div class="partnership-portal fade-in">
+  
+  <!-- BOUTON RETOUR ESPACE CLIENT (STYLE ORIGINAL) -->
   <div class="top-nav-actions">
-     <button class="btn-track" (click)="router.navigate(['/front/client-space'])">
-       📋 Mon Espace Client
-     </button>
+    <button class="btn-track" (click)="router.navigate(['/front/client-space'])">
+       👤 Mon Espace Client
+    </button>
   </div>
 
-  <!-- ===================== -->
-  <!-- SMART RECOMMENDATION -->
-  <!-- ===================== -->
-  <div *ngIf="recommendation && !selectedType && !showCheckout && !success" class="recommendation-banner fade-in">
-    <div class="banner-icon">🧠</div>
-    <div class="banner-content">
-      <div class="banner-badge">IA Recommendation</div>
-      <h3>Conseil Personnalisé : Sécurisez votre activité</h3>
-      <p>
-        Basé sur votre dossier de crédit, nous vous recommandons l'assurance 
-        <strong>{{ recommendation.suggestedOffers[0].name }}</strong>. 
-        Score de risque : <span class="risk-score" [class.high]="recommendation.riskScore > 70">{{ recommendation.riskScore }}%</span>
-      </p>
-      <div class="reasons-list">
-        <span *ngFor="let reason of recommendation.reasons" class="reason-tag">✓ {{ reason }}</span>
-      </div>
-    </div>
-    <button class="btn-action-banner" routerLink="/front/claim">En savoir plus</button>
+  <!-- HEADER ÉPURÉ (SANS BANDE BLEUE) -->
+  <div class="section-header-centered">
+    <h2 *ngIf="!selectedType && !showCheckout">🤝 Espace Partenariat</h2>
+    <h2 *ngIf="selectedType && !selectedPartner && !showCheckout">Sélectionnez un partenaire : {{ selectedType }}</h2>
+    <h2 *ngIf="selectedPartner && !showCheckout">Finaliser l'achat chez {{ selectedPartner.name }}</h2>
+    <h2 *ngIf="showCheckout">Paiement Sécurisé</h2>
+    <p *ngIf="!selectedPartner && !showCheckout">Choisissez un partenaire pour bénéficier de vos avantages exclusifs.</p>
   </div>
 
-  <!-- ===================== -->
-  <!-- ÉTAPE 1 : TYPES -->
-  <!-- ===================== -->
-  <div *ngIf="!selectedType && !showCheckout && !success" class="fade-in">
-    <header class="section-header">
-      <h2>🤝 Espace Partenaires</h2>
-      <p>Utilisez votre voucher chez nos partenaires.</p>
-    </header>
+  <!-- BOUTON RETOUR DANS LE FLOW -->
+  <div class="container">
+    <button *ngIf="selectedType || selectedPartner || showCheckout" class="btn-back-flow" (click)="goBack()">
+      ← Retour
+    </button>
+  </div>
 
-    <div class="cards-section">
-      <div class="nav-card" *ngFor="let type of partnerTypes" (click)="selectType(type)">
+  <div class="container main-content">
+    
+    <!-- ÉTAPE 1 : CHOIX DU TYPE (ORIGINAL) -->
+    <div *ngIf="!selectedType && !showCheckout" class="cards-section">
+      <div *ngFor="let type of partnerTypes" class="nav-card" (click)="selectType(type)">
+        <div class="card-image-wrapper">
+          <img *ngIf="type === 'Produits'"
+            src="https://images.openai.com/static-rsc-4/hGczz9OJF2eFVrzMTXfhlRJBQ0-qGg4V25wDhiZ7I40F1NooYNwKXtzoCtTo-TbIdQXbHqWAEgnhFV7vaEYH1d6tZK7aPPosvOcxAIQF5zuJIsiXj3JWzItKny0EoucUC1m4ZUXQaYzJsGbWPJTTGSkITr0qPxgwu91gOfN3yAJz-J2tOoM09WrF57wBRZjX?purpose=fullsize"
+            alt="Produits">
+          <img *ngIf="type === 'Equipement'"
+            src="https://images.openai.com/static-rsc-4/QsNF2xpGQzJTKNBGbhhrTqbvBQEIPEKGYuGcVapJCi0c2rr7gLAY4TYDgtco4SsT2UEZYXY6HXJFiGBS-3ya2HAlQ3nZmHyaevh6HQcMR-BYbq4iGiM5oKbniL98CJ5NkdEPKjpjAmd6PzFd34uEZqaHUtPHDH79CM0Xg-MrFKZzOSh0F3OFz2g8-jRv6dp9?purpose=inline"
+            alt="Equipement">
+          <img *ngIf="type === 'Services'"
+            src="https://images.openai.com/static-rsc-4/MV5mlyQZm1jgb3j7wJZIwltu1DwEDACciZJTLyi5JUWpQ97ekmjSDMhzLyw1eef0finY965VGRV4_Q2OCOjAUCR91D16AOHMFZA8RIyp6ALUDY86_bAkZYvIbCHV1uDO50kfNK2FLTRYjpjJDpUHq-3bPw4zs0vgEPEKy_s8cyqRI1GZF9xVZgyC0L8XjHNs?purpose=fullsize"
+            alt="Services">
+        </div>
         <div class="card-content">
-          <div class="icon-circle">
-            {{ type === 'Produits' ? '🛒' : type === 'Equipement' ? '🧰' : '🚚' }}
-          </div>
           <h3>{{ type }}</h3>
-          <p>
-            {{ type === 'Produits' ? 'Achetez des produits pour votre activité' : 
-               type === 'Equipement' ? 'Investissez dans du matériel professionnel' : 
-               'Accédez à des services utiles' }}
-          </p>
-          <span class="link-text">Accéder →</span>
+          <p>Découvrez nos partenaires certifiés dans cette catégorie.</p>
+          <span class="link-text">Voir les boutiques →</span>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ===================== -->
-  <!-- ÉTAPE 2 : PARTENAIRES -->
-  <!-- ===================== -->
-  <div *ngIf="selectedType && !selectedPartner && !showCheckout && !success" class="fade-in">
-    <header class="section-header">
-      <h2>{{ selectedType }} — Choisir un partenaire</h2>
-    </header>
-    <button class="btn-back" (click)="selectedType = null">← Retour</button>
-
-    <div class="cards-section">
-      <div class="nav-card" *ngFor="let p of partners" (click)="selectPartner(p)">
+    <!-- ÉTAPE 2 : CHOIX DU PARTENAIRE -->
+    <div *ngIf="selectedType && !selectedPartner && !showCheckout" class="cards-section">
+      <div *ngFor="let partner of filteredPartners" class="nav-card" (click)="selectPartner(partner)">
+        <div class="card-image-wrapper">
+          <img *ngIf="partner.name.includes('Equipement')" 
+               src="https://s.alicdn.com/@sc04/kf/H7f80fce9565741ea9461954fe9d18cbfC.jpg_720x720q50.jpg" 
+               [alt]="partner.name">
+          <img *ngIf="partner.name.includes('Services')" 
+               src="https://images.openai.com/static-rsc-4/2XH6Vyiz4V6Rlh6hD5HhDGT--uS3-CRfIpncqrlyfDCodSU1MpSipOZ8lTS07UR7D_QHfvlPybwuutuLVfHsO5lAkjBwbQmCkU3xhh7dfD-7GsIL3BQez7a5LkuKMGiYPO_Tzx5qaMJTXdV1zh0_fp42FZhcVAgC4CFqgNU2OSo?purpose=inline" 
+               [alt]="partner.name">
+          <img *ngIf="partner.name.includes('Alimentaire')" 
+               src="https://images.openai.com/static-rsc-4/V2M6JfcpsrwUNiE-gqL4cBc2zBDecjjoI8NaJtKKoiHAhDzox02WoHmPb8OTnZW7f-TASTEhhf30D2yz24CZN_im7Gq5XpoGBbkIy5z-KR252TR-808V11st_P0Ryh0YODbAz7i6UBUzIXEdN5Ld8nJfgv-kSNAicX8oueOTk2Y?purpose=inline" 
+               [alt]="partner.name">
+          <img *ngIf="!partner.name.includes('Equipement') && !partner.name.includes('Alimentaire') && !partner.name.includes('Services')" 
+               src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=600&auto=format&fit=crop" 
+               [alt]="partner.name">
+        </div>
         <div class="card-content">
-          <div class="icon-circle">🏪</div>
-          <h3>{{ p.name }}</h3>
-          <span class="link-text">Choisir →</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===================== -->
-  <!-- ÉTAPE 3 : PRODUITS (Multi-sélection) -->
-  <!-- ===================== -->
-  <div *ngIf="selectedPartner && !showCheckout && !success" class="fade-in">
-    <header class="section-header">
-      <h2>{{ selectedPartner.name }} — Sélection des produits</h2>
-      <p>Sélectionnez tous les produits que vous souhaitez commander.</p>
-    </header>
-    <button class="btn-back" (click)="selectedPartner = null">← Retour</button>
-
-    <div class="cards-section">
-      <div class="nav-card" 
-           *ngFor="let p of products; trackBy: trackById" 
-           [class.selected]="isSelected(p)"
-           (click)="selectProduct(p)">
-        <div class="card-content">
-          <div class="icon-circle">🛍️</div>
-          <h3>{{ p.name }}</h3>
-          <p class="price">{{ p.price }} TND</p>
-          <span class="link-text">{{ isSelected(p) ? 'Retirer ❌' : 'Ajouter ➕' }}</span>
+          <h3>{{ partner.name }}</h3>
+          <p>{{ partner.description || 'Partenaire agréé CrediGuard' }}</p>
+          <span class="link-text">Acheter ici →</span>
         </div>
       </div>
     </div>
 
-    <div *ngIf="products.length === 0" class="empty-state">
-      Aucun produit disponible pour ce partenaire.
-    </div>
-
-    <!-- Barre d'action fixe en bas ou bouton large -->
-    <div style="text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05);" *ngIf="selectedProducts.length > 0">
-       <h3 style="margin-bottom: 15px;">Total sélectionné : <span class="text-success">{{ totalAmount }} TND</span></h3>
-       <button class="btn-submit" (click)="finalizeSelection()" style="width: auto; padding: 15px 60px; font-size: 1.1rem;">
-         Confirmer ces {{ selectedProducts.length }} produit(s) →
-       </button>
-    </div>
-  </div>
-
-  <!-- ===================== -->
-  <!-- ÉTAPE 4 : CHECKOUT (Voucher + Assurance) -->
-  <!-- ===================== -->
-  <div *ngIf="showCheckout && !success" class="fade-in">
-    <div class="section-header-row">
-      <button class="btn-back" (click)="showCheckout = false">← Revenir au choix des produits</button>
-      <header class="section-header">
-        <h2>🎟️ Finaliser votre commande</h2>
-        <p>Récapitulatif et Paiement</p>
-      </header>
-      <div style="width: 100px;"></div>
-    </div>
-
-    <div class="form-card">
-      <!-- Recap -->
-      <div style="background: #f0f7ff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #cce5ff;">
-        <h4 style="margin-top: 0;">Votre panier :</h4>
-        <div *ngFor="let p of selectedProducts" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-           <span>{{ p.name }}</span>
-           <span style="font-weight: bold;">{{ p.price }} TND</span>
-        </div>
-        <hr style="border: none; border-top: 1px solid #b8daff; margin: 10px 0;">
-        <div style="display: flex; justify-content: space-between; font-size: 1.2rem;">
-           <strong>TOTAL</strong>
-           <strong class="text-success">{{ totalAmount }} TND</strong>
-        </div>
+    <!-- ÉTAPE 3 : LISTE DES PRODUITS -->
+    <div *ngIf="selectedPartner && !showCheckout" class="fade-in">
+      <div class="section-header-centered">
+        <h3>Produits disponibles chez {{ selectedPartner.name }}</h3>
+        <p>Sélectionnez les articles que vous souhaitez acheter.</p>
       </div>
 
-      <!-- Voucher -->
-      <div class="voucher-payment">
-        <h3>1. Entrez votre Code Voucher</h3>
-        <div class="input-group">
-          <label>Identifiant unique du voucher</label>
-          <div style="position: relative;">
-            <input type="text" [(ngModel)]="voucherCode" placeholder="Ex: VOUCHER-123" class="search-input" style="padding-left: 45px;">
-            <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%);">🎟️</span>
+      <div class="cards-section">
+        <div *ngFor="let p of products" class="nav-card product-card" [class.selected]="isSelected(p)" (click)="selectProduct(p)">
+          <div class="card-image-wrapper">
+            <img *ngIf="p.name.toLowerCase().includes('réfrigérateur')" src="https://images.unsplash.com/photo-1722603929403-de9e80c46a9a?w=600&auto=format&fit=crop&q=60" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('four') && !p.name.toLowerCase().includes('fournitures')" src="https://media.istockphoto.com/id/1166162330/photo/industrial-convection-oven-with-cooked-bakery-products-for-catering-professional-kitchen.jpg?s=1024x1024&w=is&k=20&c=sBYbOx9OreVU-md2CDwagmrzsu3_Ine-SMsYUB5r4iQ=" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('machine café')" src="https://plus.unsplash.com/premium_photo-1764263981035-40d1f1f16ac6?w=600&auto=format&fit=crop&q=60" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('caisse')" src="https://images.unsplash.com/photo-1556742044-3c52d6e88c62?q=80&w=1024&auto=format&fit=crop" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('livraison')" src="https://images.openai.com/static-rsc-4/9ZGEFbfnm3iTJU2CnEpCdUrAicy5x-0D21j1fReor-vZ9OnYrsk80rnzos6s-kU7psn8cYSOGX1njzrEtvAzF49VSHHUbsBtzcj8M4mpsu_HDj38uN5jmTtb53JGjkotf2J84yK9y_jp3YLLv-P8WT_3ZPeDiFEtud0UYqmgxIxa6olgzmlz3ZDguCMwX9bq?purpose=fullsize" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('transport')" src="https://images.openai.com/static-rsc-4/yEc_ds2ujWtzGIFJ7pr_5wMop6Aphfvm1v06bhpGyILJJcqQ0khcytX7PBFYqtDvVkHAwiBDbUCR146ySoXmHNxvOUDGrqvaWfaEt71KPhNbduhUkKYS1uDzPW0YddM5esozZMLO6RtlHTu3RtQPOlW6jDMIX3S8X4PORfdz39bIWw6qARH74DVm1u1-gek-?purpose=fullsize" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('maintenance')" src="https://images.openai.com/static-rsc-4/YLS6n8bSCnudoiAj2cerA960N-WxLLE2yRBRuCanyl7YtAYIiAn3M8esHdWcLogtdxojwy_pDAT22_jSm6SHaQT27Mjoi5r1Yq8gn25gqGTPk_fTh0o64HhWKGpiD-qsXz29vL4XX4CHDz5EJRa9qvkdJ57SlTfEzhvHcEpDu_4?purpose=inline" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('installation')" src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=800&auto=format&fit=crop" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('fournitures')" src="https://images.openai.com/static-rsc-4/PtBlj5uMuuD4ZCDMtJZeRmm_nd5v3YNOo5uM4bqmbNQer3--PMS05ttvBDdEtit2YA50QZE6xWr6lJBVvRVcCP0pBFkfCc5414OWoykNC9EfJoK7JX1za96Xi25LDj83JmRjj0uFYdvlfkXxYYKYuYU5TPubyuPrdDVGPmTnXh4pasYdi38_fChjvYhz0ubj?purpose=inline" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('matières')" src="https://images.openai.com/static-rsc-4/cVyL9SRWyITO6ejppJoStktLOWOSiG7kQ7S9fBzwtk95irsNdpPNT6DwM1v7GzJp2fLmBaMVPI3yio7vXbcrQi4ddEDOKav5LUKn9MvGGkZNDBxCBKDPdqGiOrQHw6IW7qb4xPykKPbnlfWmvbK64y9layUvjUs0JrUxV-2kpYb8UmqnuvJ6p_4CPu0rrKDc?purpose=fullsize" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('alimentaire') && !p.name.toLowerCase().includes('réfrigérateur')" src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=600&auto=format&fit=crop" [alt]="p.name">
+            <img *ngIf="p.name.toLowerCase().includes('consommation')" src="https://images.openai.com/static-rsc-4/uFhzQYAMEJwtsiwcjvYTBt05aAkUcQfn9khKR1M-5dJal7ASKXYCt9gIVdUG_2Bm5E-DjVAB66ZMH4aU4HZp5x_jHwp211LQ2-DI6oTPffz0YhF7n4ImnfmGeJuAltFWKp-3H4scEWjfAIsrlbpJMWvXj72Z_HNxCr0MWDGEsow4y37CRkF-zfAxc72q0CTV?purpose=fullsize" [alt]="p.name">
+            <img *ngIf="!p.name.toLowerCase().includes('réfrigérateur') && !p.name.toLowerCase().includes('four') && !p.name.toLowerCase().includes('machine café') && !p.name.toLowerCase().includes('caisse') && !p.name.toLowerCase().includes('matières') && !p.name.toLowerCase().includes('alimentaire') && !p.name.toLowerCase().includes('livraison') && !p.name.toLowerCase().includes('transport') && !p.name.toLowerCase().includes('maintenance') && !p.name.toLowerCase().includes('consommation') && !p.name.toLowerCase().includes('fournitures') && !p.name.toLowerCase().includes('installation')" src="https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop" [alt]="p.name">
+          </div>
+          <div class="card-content">
+            <h3>{{ p.name }}</h3>
+            <p class="price-tag">{{ p.price | number }} TND</p>
+            <span class="link-text">{{ isSelected(p) ? '✅ Sélectionné' : 'Sélectionner' }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Progressive Reveal -->
-      <div *ngIf="voucherCode.length >= 3" class="fade-in">
-        <div class="divider">2. CHOISISSEZ VOTRE MODE DE VALIDATION</div>
+      <div style="text-align: center; margin-top: 40px;" *ngIf="!showCheckout">
+        <button class="btn-submit" style="max-width: 300px;" [disabled]="selectedProducts.length === 0" (click)="finalizeSelection()">
+          Passer au paiement ({{ totalAmount | number }} TND) →
+        </button>
+      </div>
+    </div>
 
-        <div style="display: flex; gap: 15px; flex-direction: column;">
-            <button class="btn-submit" (click)="buy()" style="margin-top: 0; background: #28a745;">
-                ✅ Payer directement avec Voucher
-            </button>
+    <!-- ÉTAPE 4 : CHECKOUT (INTÉGRÉ) -->
+    <div *ngIf="showCheckout" class="form-card fade-in">
+      <div class="checkout-section">
+        <h3 style="color: #1e293b; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+          💳 Paiement via Voucher
+          <span class="step-indicator">Étape {{ verificationStep }}/3</span>
+        </h3>
 
-            <div class="insurance-option" style="margin-bottom: 0; background: #fff;">
-                <h3>🛡️ Utiliser mon Assurance</h3>
-                <p *ngIf="policy" style="font-size: 0.9rem;">
-                  Assurance active : <strong>{{ policy.insuranceCompany?.name }}</strong>
-                </p>
-                <p *ngIf="!policy" style="color: #666; font-size: 0.85rem;">Aucune police détectée. Vous pouvez toujours payer par voucher.</p>
-                
-                <button class="btn-insurance" (click)="submitClaimInPartnership()" [disabled]="claimLoading || !policy">
-                    {{ claimLoading ? '⏳ Traitement...' : '🛡️ Couvrir cet achat via Assurance' }}
-                </button>
+        <div *ngIf="verificationStep === 1" class="fade-in">
+          <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 20px;">Saisissez votre code voucher et votre numéro pour recevoir un code de vérification.</p>
+          <div class="input-group">
+            <label>Code du Voucher (Crédit)</label>
+            <input type="text" [(ngModel)]="voucherCode" placeholder="CG-XXXX-XXXX">
+          </div>
+          <div class="input-group">
+            <label>Montant de l'achat (TND)</label>
+            <input type="number" [(ngModel)]="purchaseAmount" readonly style="background-color: #f8fafc;">
+          </div>
+          <div class="input-group">
+            <label>Numéro de téléphone (Vérification)</label>
+            <div class="phone-input">
+              <span class="prefix">🇹🇳</span>
+              <input type="text" [(ngModel)]="phoneNumber" placeholder="+216 XX XXX XXX">
             </div>
+          </div>
+          <div class="info-alert" style="margin-bottom: 20px;">ℹ️ Un code de vérification sera envoyé via <strong>Trellio</strong> pour confirmer votre identité.</div>
+          <button class="btn-submit" [disabled]="!voucherCode || !phoneNumber || claimLoading" (click)="payWithVoucher()">
+            {{ claimLoading ? 'Envoi en cours...' : 'Envoyer le code de vérification' }}
+          </button>
+        </div>
+
+        <div *ngIf="verificationStep === 2" class="fade-in">
+          <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 25px; text-align: center;">Veuillez saisir le code à 6 chiffres envoyé au <br><strong>{{ phoneNumber }}</strong></p>
+          <div class="otp-container">
+            <input *ngFor="let digit of otpDigits; let i = index" type="text" [id]="'otp-' + i" maxlength="1" [value]="otpDigits[i]" (keydown)="onOtpKeyDown($event, i)" (paste)="i === 0 ? onOtpPaste($event) : null" (focus)="$any($event.target).select()" class="otp-input" inputmode="numeric">
+          </div>
+          <div class="timer-box" [class.expired]="countdown === 0"><span class="icon">⏳</span> Expire dans : <strong>{{ formatTime }}</strong></div>
+          <div style="text-align: center; margin-top: 25px;">
+            <button class="btn-submit" [disabled]="otpDigits.join('').length < 6 || claimLoading" (click)="verifyOtp()">{{ claimLoading ? 'Vérification...' : 'Vérifier le code' }}</button>
+          </div>
+          <div style="text-align: center; margin-top: 15px;">
+            <p style="font-size: 0.85rem; color: #64748b;">Vous n'avez pas reçu le code ?</p>
+            <button class="btn-text" [disabled]="countdown > 240 || claimLoading" (click)="resendOtp()">Renvoyer le code</button>
+          </div>
+        </div>
+
+        <div *ngIf="verificationStep === 3" class="fade-in">
+          <div class="recap-card">
+            <div class="recap-header">Récapitulatif de la transaction</div>
+            <div class="recap-item"><span>Partenaire :</span><strong>{{ selectedPartner?.name }}</strong></div>
+            <div class="recap-item"><span>Voucher utilisé :</span><strong>{{ voucherCode }}</strong></div>
+            <div class="recap-item total"><span>Montant Total :</span><strong>{{ purchaseAmount | number }} TND</strong></div>
+            <div class="recap-item status"><span>Vérification :</span><strong style="color: #10b981;">✅ Validée (SMS)</strong></div>
+          </div>
+          <button class="btn-submit success" [disabled]="claimLoading" (click)="confirmFinalPayment()">{{ claimLoading ? 'Traitement...' : 'Confirmer et Payer maintenant' }}</button>
         </div>
       </div>
 
-      <div *ngIf="message" class="message-box" [class.success]="message.includes('✅')" [class.error]="message.includes('❌')">
-        {{ message }}
+      <div style="margin: 40px 0; border-top: 1px dashed #cbd5e1; position: relative;">
+        <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: white; padding: 0 15px; color: #94a3b8; font-size: 0.8rem; font-weight: 700;">OU</span>
       </div>
-    </div>
-  </div>
 
-  <!-- ===================== -->
-  <!-- ÉTAPE 5 : SUCCÈS / STATUT -->
-  <!-- ===================== -->
-  <div *ngIf="success" class="form-card fade-in success-card" [class.insurance-pending]="isInsuranceMode">
-    
-    <div *ngIf="!isInsuranceMode">
-      <div class="icon-circle">🎉</div>
-      <h2>Commande Confirmée !</h2>
-      <p>Votre achat de {{ selectedProducts.length }} produit(s) a été validé.</p>
-      <p class="text-success" style="font-size: 1.5rem; font-weight: bold;">{{ totalAmount }} TND payés</p>
-    </div>
-
-    <div *ngIf="isInsuranceMode">
-      <div class="icon-circle" style="background: #fff8e1; color: #f57f17;">🛡️</div>
-      <h2>Demande en cours...</h2>
-      <p>Votre achat de {{ selectedProducts.length }} produit(s) est en attente d'approbation d'assurance.</p>
-      <div style="margin: 20px 0; background: #fff3e0; color: #ef6c00; padding: 10px; border-radius: 8px; font-weight: 700; display: inline-block;">
-        ⏳ STATUT : PENDING (Analyse en cours)
+      <div class="checkout-section-insurance">
+        <h3>🛡️ Protection Assurance</h3>
+        <p>Si vous avez un contrat actif, vous pouvez déclarer cet achat comme un sinistre pour prise en charge.</p>
+        
+        <!-- BANNIÈRE SOMBRE (MÊME STYLE QUE CAPTURE) -->
+        <div *ngIf="recommendationOffer" class="recommendation-banner-dark">
+          <div class="banner-badge-blue">CONSEIL PROTECTION</div>
+          <div class="banner-content-row">
+            <div class="star-circle">⭐</div>
+            <div class="banner-text">
+              <h4>🛡️ {{ recommendationOffer.name }}</h4>
+              <p>Protection recommandée pour vos achats {{ selectedType }}.</p>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn-insurance-white" (click)="declareClaim()">
+          ⚖️ Déclarer un Sinistre pour cet achat
+        </button>
       </div>
-      <p style="font-size: 0.9rem; color: #666;">
-        Notre moteur de risque intelligent traite votre demande. <br>
-        Vous recevrez une notification dès que l'assureur aura validé ou refusé votre dossier.
-      </p>
+
+      <div *ngIf="message" class="message-box" [ngClass]="success ? 'success' : 'error'" style="margin-top: 20px;">{{ message }}</div>
     </div>
 
-    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-    
-    <div style="display: flex; gap: 15px; justify-content: center;">
-      <button class="btn-submit" (click)="reset()" style="width: auto; padding: 12px 40px; margin: 0;">Faire un nouvel achat</button>
-      <button *ngIf="isInsuranceMode" class="btn-track" (click)="router.navigate(['/front/client-space'])" style="padding: 10px 30px;">Voir mon espace</button>
-    </div>
   </div>
-
 </div>

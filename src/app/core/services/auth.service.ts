@@ -21,7 +21,8 @@ interface PendingOtpAuth {
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:8089/api/auth';
+  private apiUrl = 'http://127.0.0.1:8089/api/auth';
+  private userUrl = 'http://127.0.0.1:8089/api/users';
 
   private readonly tokenKey = 'accessToken';
   private readonly userKey = 'currentUser';
@@ -237,5 +238,24 @@ export class AuthService {
 
   logout(): void {
     this.clearSession();
+  }
+
+  // ================= PROFILE =================
+
+  updateProfile(data: any): Observable<any> {
+    return new Observable(observer => {
+      this.http.put(`${this.userUrl}/me`, data).subscribe({
+        next: (response: any) => {
+          // Mettre à jour l'utilisateur stocké localement
+          const currentUser = this.getUser();
+          if (currentUser) {
+            this.saveUser({ ...currentUser, ...response });
+          }
+          observer.next(response);
+          observer.complete();
+        },
+        error: (err) => observer.error(err)
+      });
+    });
   }
 }

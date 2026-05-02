@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ClaimsAdminService } from './claims-admin.service';
+import { ClaimService, SegmentationResult } from '../../core/services/insurance/claim.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ClaimStatus } from '../../core/models/insurance.model';
 
 interface RiskBreakdown {
   rule: string;
@@ -27,12 +29,20 @@ export class ClaimsAdminComponent implements OnInit {
   claims: any[] = [];
   selectedClaim: any = null;
   search: string = '';
-  
+
   // Intelligence System State
   autoAnalysisEnabled = false;
   riskTrend: TrendPoint[] = [];
 
-  constructor(private service: ClaimsAdminService) {}
+  // Segmentation state
+  segmentationLoading = false;
+  segmentationResult: SegmentationResult | null = null;
+  segmentationError: string | null = null;
+
+  constructor(
+    private service: ClaimService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.load();
@@ -47,23 +57,23 @@ export class ClaimsAdminComponent implements OnInit {
 
   // ===== DATA LOADING & ANALYSIS =====
   load(): void {
-    this.service.getAll().then((data: any[]) => {
+    this.service.getAll().subscribe((data: any[]) => {
       this.claims = data.map(c => {
          const analysis = this.analyzeRisk(c, data);
          return {
            ...c,
-           riskScore: analysis.score,
-           riskLevel: this.getRiskLevel(analysis.score),
-           recommendation: this.getRecommendation(analysis.score),
-           breakdown: analysis.breakdown
+           claimReference: c.claimNumber || `CLM-${c.id}`, // Map backend claimNumber to frontend claimReference
+           riskScore: c.fraudScore || analysis.score,
+           riskLevel: this.getRiskLevel(c.fraudScore || analysis.score),
+           recommendation: this.getRecommendation(c.fraudScore || analysis.score),
+           breakdown: analysis.breakdown,
+           // ML segmentation fields (loaded on demand)
+           mlSegment: null as SegmentationResult | null,
+           mlLoading: false
          };
       });
-      
+
       this.calculateTrend();
-      
-      if (this.autoAnalysisEnabled) {
-        this.runAutoAnalysis();
-      }
     });
   }
 
@@ -71,8 +81,7 @@ export class ClaimsAdminComponent implements OnInit {
   calculateTrend() {
     const days: { [key: string]: number[] } = {};
     const today = new Date();
-    
-    // Initialize last 7 days
+
     for(let i=6; i>=0; i--) {
       const d = new Date();
       d.setDate(today.getDate() - i);
@@ -94,7 +103,7 @@ export class ClaimsAdminComponent implements OnInit {
       return {
         day,
         avgScore: Math.round(avg),
-        height: Math.max(avg, 5) // Min height for visibility
+        height: Math.max(avg, 5)
       };
     });
   }
@@ -104,7 +113,7 @@ export class ClaimsAdminComponent implements OnInit {
     let score = 0;
     const breakdown: RiskBreakdown[] = [];
 
-    const amount = c.voucher?.amount || 0;
+    const amount = c.amountRequested || c.voucher?.amount || 0;
     if (amount > 2000) {
       score += 40;
       breakdown.push({ rule: 'MONTANT_ELEVE', points: 40, description: 'Montant supérieur à 2000 TND' });
@@ -132,7 +141,7 @@ export class ClaimsAdminComponent implements OnInit {
     }
 
     if (!this.isPolicyValid(c)) {
-      score += 100; 
+      score += 100;
       breakdown.push({ rule: 'POLICE_EXPIREE', points: 100, description: 'Contrat d\'assurance non valide ou expiré' });
     }
 
@@ -149,8 +158,7 @@ export class ClaimsAdminComponent implements OnInit {
       breakdown.push({ rule: 'MOTIF_EXPERIMENTAL', points: 20, description: 'Référence associée à un profil de test/expérimental' });
     }
 
-    // New: Geography of risk (simulated)
-    if (c.id % 7 === 0) { 
+    if (c.id % 7 === 0) {
       score += 10;
       breakdown.push({ rule: 'ALEA_AUDIT', points: 10, description: 'Audit aléatoire périodique du moteur de risque' });
     }
@@ -171,6 +179,57 @@ export class ClaimsAdminComponent implements OnInit {
     return '🚨 REJET RECOMMANDÉ (FRAUDE)';
   }
 
+  // ===== ML SEGMENTATION 🤖 =====
+  runSegmentation(claim: any): void {
+    claim.mlLoading = true;
+    claim.mlSegment = null;
+
+    // Also update the modal if this is the selected claim
+    if (this.selectedClaim?.id === claim.id) {
+      this.segmentationLoading = true;
+      this.segmentationResult = null;
+      this.segmentationError = null;
+    }
+
+    this.service.segmentClaim(claim.id).subscribe({
+      next: (result) => {
+        claim.mlSegment = result;
+        claim.mlLoading = false;
+
+        if (this.selectedClaim?.id === claim.id) {
+          this.segmentationResult = result;
+          this.segmentationLoading = false;
+        }
+      },
+      error: (err) => {
+        claim.mlLoading = false;
+        if (this.selectedClaim?.id === claim.id) {
+          this.segmentationLoading = false;
+          this.segmentationError = 'Modèle indisponible — vérifiez que le serveur Flask est démarré.';
+        }
+        console.error('Segmentation error:', err);
+      }
+    });
+  }
+
+  getSegmentClass(segment: string | null): string {
+    if (!segment) return '';
+    if (segment === 'High Risk') return 'seg-high';
+    if (segment === 'Medium Risk') return 'seg-medium';
+    return 'seg-low';
+  }
+
+  getSegmentIcon(segment: string | null): string {
+    if (segment === 'High Risk') return '🔴';
+    if (segment === 'Medium Risk') return '🟡';
+    if (segment === 'Low Risk') return '🟢';
+    return '🤖';
+  }
+
+  getProbabilityEntries(probabilities: { [key: string]: number }): { key: string, value: number }[] {
+    return Object.entries(probabilities).map(([key, value]) => ({ key, value }));
+  }
+
   // ===== AUTOMATED ACTIONS =====
   runAutoAnalysis(): void {
     const safeClaims = this.claims.filter(c => c.status === 'PENDING' && c.riskScore < 15);
@@ -188,26 +247,42 @@ export class ClaimsAdminComponent implements OnInit {
 
   // ===== ACTIONS =====
   approve(id: number): void {
-    const claim = this.claims.find(c => c.id === id);
-    if (claim && claim.riskScore >= 70) {
-      if (!confirm(`ATTENTION: Score de risque ${claim.riskScore}%. Ce dossier est classé CRITIQUE. Confirmer l'approbation manuelle ?`)) return;
-    }
-    this.service.approve(id).then(() => this.load());
+    const admin: any = this.authService.getUser();
+    const adminId = admin?.id || 1; // Fallback to ID 1 if not found
+    console.log(`Approving claim ${id} with adminId ${adminId}`);
+    
+    this.service.updateStatus(id, ClaimStatus.APPROVED, adminId, "Approuvé par admin", 1000.0).subscribe({
+      next: () => this.load(),
+      error: (err) => console.error('Approval failed:', err)
+    });
   }
 
   reject(id: number): void {
+    const admin: any = this.authService.getUser();
+    const adminId = admin?.id || 1;
     const reason = prompt("Raison du rejet :");
     if (reason !== null) {
-      this.service.reject(id).then(() => this.load());
+      console.log(`Rejecting claim ${id} with adminId ${adminId}, reason: ${reason}`);
+      this.service.updateStatus(id, ClaimStatus.REJECTED, adminId, "Rejeté par admin", 0, reason).subscribe({
+        next: () => this.load(),
+        error: (err) => console.error('Rejection failed:', err)
+      });
     }
   }
 
   openDetails(claim: any): void {
     this.selectedClaim = claim;
+    // Restore ML result if already computed
+    this.segmentationResult = claim.mlSegment || null;
+    this.segmentationError = null;
+    this.segmentationLoading = false;
   }
 
   closeDetails(): void {
     this.selectedClaim = null;
+    this.segmentationResult = null;
+    this.segmentationError = null;
+    this.segmentationLoading = false;
   }
 
   // ===== HELPERS =====
@@ -218,11 +293,11 @@ export class ClaimsAdminComponent implements OnInit {
   }
 
   getClientClaimsCount(c: any, allData: any[]): number {
-    const clientId = c.voucher?.client?.id;
+    const clientId = c.user?.id || c.voucher?.client?.id;
     if (!clientId) return 0;
-    
+
     return allData.filter(
-      x => x.voucher?.client?.id === clientId
+      x => (x.user?.id || x.voucher?.client?.id) === clientId
     ).length;
   }
 
@@ -246,5 +321,9 @@ export class ClaimsAdminComponent implements OnInit {
 
   get rejectedCount(): number {
     return this.claims.filter(c => c.status === 'REJECTED').length;
+  }
+
+  get mlSegmentedCount(): number {
+    return this.claims.filter(c => c.mlSegment !== null).length;
   }
 }

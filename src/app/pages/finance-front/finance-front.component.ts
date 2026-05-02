@@ -1,15 +1,11 @@
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe, PercentPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-
+import { forkJoin } from 'rxjs';
 
 
 import {
-  FinancialAccountApi,
-  FinanceSummary,
   CompteTypeApi,
   CreateRegleRemboursementRequest,
   CreateRemboursementRequest,
@@ -25,7 +21,7 @@ import {
 } from '../../services/finance';
 import { Chatbot } from '../../components/chatbot/chatbot';
 import { UserService ,UserProfileResponse} from '../../core/services/user.service';
-import { AuthService   } from '../../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 type AccountFormField =
   | 'firstName'
@@ -229,77 +225,64 @@ export class FinanceFrontComponent implements OnInit {
   }
 
   private loadFinanceCollections(): void {
-    this.loadingApi.set(true);
-    this.apiError.set(null);
-  
     forkJoin({
-      accounts: this.financeService.getAccountsApi().pipe(
-        catchError(err => {
-          console.error('❌ ACCOUNTS:', err.status, err.url);
-          return of([] as FinancialAccountApi[]);
-        })
-      ),
-      transactions: this.financeService.getTransactionsApi().pipe(
-        catchError(err => {
-          console.error('❌ TRANSACTIONS:', err.status, err.url);
-          return of([] as TransactionApi[]);
-        })
-      ),
-      remboursements: this.financeService.getRemboursementsApi().pipe(
-        catchError(err => {
-          console.error('❌ REMBOURSEMENTS:', err.status, err.url);
-          return of([] as RemboursementApi[]);
-        })
-      ),
-      regles: this.financeService.getReglesRemboursementApi().pipe(
-        catchError(err => {
-          console.error('❌ REGLES:', err.status, err.url);
-          return of([] as RegleRemboursementApi[]);
-        })
-      )
-      // ← summary et credits supprimés car endpoints inexistants
+      accounts: this.financeService.getAccountsApi(),
+      transactions: this.financeService.getTransactionsApi(),
+      remboursements: this.financeService.getRemboursementsApi(),
+      regles: this.financeService.getReglesRemboursementApi(),
+      summary: this.financeService.getFinanceSummary(),
+      credits: this.financeService.getCreditsApi()
     }).subscribe({
-      next: ({ accounts, transactions, remboursements, regles }) => {
-        this.transactions.set(
-          transactions.map(item => this.mapTransactionApiToLegacy(item))
-        );
+      next: ({ accounts, transactions, remboursements, regles, summary, credits }) => {
+        this.transactions.set(transactions.map((item) => this.mapTransactionApiToLegacy(item)));
         this.remboursementsApi.set(remboursements);
         this.reglesApi.set(regles);
-  
-        // Chercher le compte de l'utilisateur connecté dans la liste
+        this.availableCredits.set(credits);
+
+        this.creditStats.set({
+          totalCredit: Math.max(summary.totalRevenue + summary.totalExpenses, 1),
+          repaid: summary.totalRemboursements,
+          remaining: Math.max(summary.totalRevenue + summary.totalExpenses - summary.totalRemboursements, 0)
+        });
+
         const profileUserId = this.user().id_utilisateur;
-        const accountForUser = accounts.find(acc => acc.utilisateurId === profileUserId);
-  
+        const accountForUser = accounts.find((acc) => acc.utilisateurId === profileUserId);
+
         if (accountForUser) {
-          this.applyAccount(
-            accountForUser.idCompte,
-            accountForUser.solde,
-            accountForUser.typeCompte,
-            accountForUser.utilisateurId
-          );
+          this.applyAccount(accountForUser.idCompte, accountForUser.solde, accountForUser.typeCompte, accountForUser.utilisateurId);
           this.loadTransactionsForCompte(accountForUser.idCompte);
         } else {
-          // Aucun compte trouvé → afficher formulaire de création
-          this.hasAccount.set(false);
+          this.loadCurrentAccountByUser();
         }
-  
+
         this.loadingApi.set(false);
       },
-      error: (err) => {
-        console.error('❌ FORKJOIN GLOBAL:', err);
+      error: () => {
         this.loadingApi.set(false);
-        this.apiError.set('Erreur inattendue lors du chargement.');
+        this.apiError.set('Impossible de charger les donnees finance depuis le backend.');
       }
     });
   }
 
   private loadCurrentAccountByUser(): void {
-    // L'endpoint /comptes-financiers/utilisateur/{id} n'existe pas
-    // On affiche simplement le formulaire de création
-    console.warn('Aucun compte trouvé pour cet utilisateur.');
-    this.hasAccount.set(false);
-    this.loadingApi.set(false);
+    const userId = this.user().id_utilisateur;
+    if (!userId) {
+      this.hasAccount.set(false);
+      return;
+    }
+
+    this.financeService.getAccountByUserIdApi(userId).subscribe({
+      next: (account) => {
+        this.hasAccount.set(true);
+        this.applyAccount(account.idCompte, account.solde, account.typeCompte, account.utilisateurId);
+        this.loadTransactionsForCompte(account.idCompte);
+      },
+      error: () => {
+        this.hasAccount.set(false);
+      }
+    });
   }
+
   private applyAccount(id: number, solde: number, typeCompte: CompteTypeApi, utilisateurId: number): void {
     this.account.set({
       id_compte: id,
@@ -386,19 +369,12 @@ export class FinanceFrontComponent implements OnInit {
   }
 
   private loadTransactionsForCompte(compteId: number): void {
-    console.log('📡 Chargement transactions pour compte:', compteId);
-    
     this.financeService.getTransactionsByCompteApi(compteId).subscribe({
       next: (items) => {
-        console.log('✅ TRANSACTIONS reçues:', items.length);
-        this.transactions.set(items.map(item => this.mapTransactionApiToLegacy(item)));
+        this.transactions.set(items.map((item) => this.mapTransactionApiToLegacy(item)));
       },
-      error: (err) => {
-        console.error('❌ TRANSACTIONS compte', compteId, ':', err.status, err.url, err.error);
-        // Ne pas bloquer l'UI — garder les transactions mock
-        this.apiError.set(
-          `Transactions introuvables pour le compte #${compteId} (${err.status})`
-        );
+      error: () => {
+        this.apiError.set('Impossible de charger les transactions du compte.');
       }
     });
   }
@@ -557,12 +533,11 @@ export class FinanceFrontComponent implements OnInit {
     }
 
     const payload: CreateTransactionRequest = {
-      typeTransaction:    this.transactionForm.typeTransaction,
+      typeTransaction: this.transactionForm.typeTransaction,
       montant,
-      compteSourceId:     current.id_compte,
+      compteSourceId: current.id_compte,
       compteDestinationId,
-      // orderId est @NotNull en base — utilisez la valeur saisie ou 1 par défaut
-      orderId: Number(this.transactionForm.orderId) || 1
+      orderId: Number(this.transactionForm.orderId) || Date.now()
     };
 
     this.loadingApi.set(true);

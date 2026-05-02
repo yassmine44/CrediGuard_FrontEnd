@@ -186,6 +186,93 @@
       margin-top: 8px;
     }
 
+    .map-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .map-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+
+      h3 {
+        margin: 0;
+      }
+    }
+
+    .map-loading {
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .delivery-map {
+      width: 100%;
+      height: 320px;
+      border: 2px solid #e5e7eb;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #e2e8f0;
+    }
+
+    .selected-location {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 0.9rem;
+    }
+
+    .zone-card {
+      border: 2px solid #16a34a;
+      border-radius: 14px;
+      background: white;
+      padding: 14px;
+
+      &.checking {
+        color: #64748b;
+        border-color: #cbd5e1;
+      }
+
+      p {
+        margin: 10px 0;
+        color: #475569;
+      }
+    }
+
+    .zone-card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .zone-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 5px 9px;
+      border-radius: 6px;
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .zone-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: #334155;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
     // Place Order Button
     .place-order-btn {
       width: 100%;
@@ -209,6 +296,46 @@
         opacity: 0.75;
         cursor: not-allowed;
       }
+    }
+  }
+
+  .delivery-pricing-card {
+    margin: -4px 0 10px;
+    padding: 16px;
+    border: 1px solid #fed7aa;
+    border-radius: 16px;
+    background: #fff7ed;
+    color: #9a3412;
+
+    div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    span {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    strong {
+      color: #c2410c;
+      font-size: 1.15rem;
+    }
+
+    p {
+      margin: 0;
+      color: #9a3412;
+      line-height: 1.5;
+    }
+
+    .warning {
+      color: #b91c1c;
+      font-weight: 700;
     }
   }
 
@@ -292,4 +419,21 @@
       gap: 30px;
     }
   }
+}
+.offer-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 6px 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.negotiated-price {
+  color: #047857;
+  font-weight: 700;
 }

@@ -20,9 +20,9 @@ export class DecisionCreditService {
     );
   }
 
-getByDemande(demandeId: number): Observable<DecisionCreditResponse> {
-  return this.http.get<DecisionCreditResponse>(
-    `${this.apiUrl}/by-demande?demandeId=${demandeId}`
-  );
-}
+  getByDemande(demandeId: number): Observable<DecisionCreditResponse> {
+    return this.http.get<DecisionCreditResponse>(
+      `${this.apiUrl}?demandeId=${demandeId}`
+    );
+  }
 }

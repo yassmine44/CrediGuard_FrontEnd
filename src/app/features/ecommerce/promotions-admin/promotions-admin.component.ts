@@ -254,6 +254,8 @@ linkedToEventsCount = computed(() =>
     return value.length === 16 ? `${value}:00` : value;
   }
   getPromotionStatus(promotion: any): 'LIVE' | 'SCHEDULED' | 'EXPIRED' | 'DISABLED' {
+  if (promotion.status) return promotion.status;
+
   if (!promotion.active) return 'DISABLED';
 
   const now = Date.now();

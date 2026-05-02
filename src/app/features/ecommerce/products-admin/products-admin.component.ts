@@ -4,8 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { CategoryService } from '../services/category.service';
+import { ProductIntelligenceService } from '../services/product-intelligence.service';
 import { Product } from '../models/product.model';
 import { Category } from '../models/category.model';
+import { ProductIntelligence } from '../models/product-intelligence.model';
 
 
 type SortOption =
@@ -27,11 +29,14 @@ type SortOption =
 export class ProductsAdminComponent implements OnInit {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
+  private productIntelligenceService = inject(ProductIntelligenceService);
   private router = inject(Router);
 
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
+  productIntelligence = signal<ProductIntelligence[]>([]);
+  analyzingProductId = signal<number | null>(null);
   loading = signal(false);
   error = signal('');
   success = signal('');
@@ -122,6 +127,12 @@ export class ProductsAdminComponent implements OnInit {
     return this.filteredProducts().slice(start, end);
   });
 
+  intelligenceByProductId = computed(() => {
+    const map = new Map<number, ProductIntelligence>();
+    this.productIntelligence().forEach(item => map.set(item.productId, item));
+    return map;
+  });
+
 
   startItem = computed(() => {
     const total = this.filteredProducts().length;
@@ -138,6 +149,7 @@ export class ProductsAdminComponent implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
+    this.loadProductIntelligence();
   }
 
 
@@ -163,6 +175,37 @@ export class ProductsAdminComponent implements OnInit {
         console.error('Error loading products:', err);
         this.error.set(this.extractErrorMessage(err, 'Unable to load products.'));
         this.loading.set(false);
+      }
+    });
+  }
+
+  loadProductIntelligence(): void {
+    this.productIntelligenceService.getAll().subscribe({
+      next: (data) => this.productIntelligence.set(data || []),
+      error: (err) => console.error('Error loading product intelligence:', err)
+    });
+  }
+
+  getProductIntelligence(productId: number): ProductIntelligence | undefined {
+    return this.intelligenceByProductId().get(productId);
+  }
+
+  analyzeProduct(productId: number): void {
+    this.analyzingProductId.set(productId);
+    this.error.set('');
+    this.success.set('');
+
+    this.productIntelligenceService.analyzeProduct(productId).subscribe({
+      next: (result) => {
+        const existing = this.productIntelligence().filter(item => item.productId !== productId);
+        this.productIntelligence.set([...existing, result]);
+        this.success.set('Product intelligence updated successfully.');
+        this.analyzingProductId.set(null);
+      },
+      error: (err) => {
+        console.error('Error analyzing product:', err);
+        this.error.set(this.extractErrorMessage(err, 'Unable to analyze product intelligence.'));
+        this.analyzingProductId.set(null);
       }
     });
   }

@@ -1,20 +1,142 @@
-<h1>Analytics</h1>
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>Tableau de Bord Admin</h1>
+      <p>Analyse financière avancée et indicateurs de performance.</p>
+    </div>
+    <div class="header-actions">
+      <button class="refresh-btn" (click)="loadStats()" [disabled]="loading()">
+        Actualiser
+      </button>
+    </div>
+  </header>
 
-<div class="cards">
-
-  <div class="card">
-    <h3>Total Users</h3>
-    <p>2,300</p>
+  <!-- Alerts Section -->
+  <div *ngIf="stats()?.activeAlerts?.length" class="alerts-container">
+    <div *ngFor="let alert of stats()?.activeAlerts" class="alert-item animate-pulse">
+      <span class="alert-icon">⚠️</span>
+      <span class="alert-message">{{ alert }}</span>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Total Revenue</h3>
-    <p>$34,000</p>
+  <div *ngIf="loading()" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Chargement des analyses...</p>
   </div>
 
-  <div class="card">
-    <h3>Total Loans</h3>
-    <p>281</p>
+  <div *ngIf="error()" class="error-banner">
+    <p>{{ error() }}</p>
+    <button (click)="loadStats()">Réessayer</button>
   </div>
 
+  <ng-container *ngIf="!loading() && stats() as s">
+    
+    <!-- Top KPIs with Trends -->
+    <section class="stats-grid top-kpis">
+      <div class="stat-card revenue">
+        <div class="stat-label">Revenu Total</div>
+        <div class="stat-main">
+          <span class="stat-value">{{ s.totalRevenue | currency:'TND':'code' }}</span>
+          <span class="trend-badge" [ngClass]="s.revenueTrend >= 0 ? 'trend-up' : 'trend-down'">
+            {{ s.revenueTrend >= 0 ? '▲' : '▼' }} {{ Math.abs(s.revenueTrend) | number:'1.1-1' }}%
+          </span>
+        </div>
+        <div class="stat-sub">vs mois dernier</div>
+      </div>
+
+      <div class="stat-card expenses">
+        <div class="stat-label">Dépenses Totales</div>
+        <div class="stat-main">
+          <span class="stat-value">{{ s.totalExpenses | currency:'TND':'code' }}</span>
+          <span class="trend-badge" [ngClass]="s.expenseTrend <= 0 ? 'trend-up' : 'trend-down'">
+            {{ s.expenseTrend > 0 ? '▲' : '▼' }} {{ Math.abs(s.expenseTrend) | number:'1.1-1' }}%
+          </span>
+        </div>
+        <div class="stat-sub">vs mois dernier</div>
+      </div>
+
+      <div class="stat-card balance">
+        <div class="stat-label">Flux de Trésorerie</div>
+        <div class="stat-main">
+          <span class="stat-value">{{ (s.totalRevenue - s.totalExpenses) | currency:'TND':'code' }}</span>
+        </div>
+        <div class="stat-sub">Liquidité actuelle</div>
+      </div>
+
+      <div class="stat-card forecast">
+        <div class="stat-label">Prévision Revenus</div>
+        <div class="stat-main">
+          <span class="stat-value">{{ s.forecastedRevenue | currency:'TND':'code' }}</span>
+        </div>
+        <div class="stat-sub">Estimation mois prochain</div>
+      </div>
+    </section>
+
+    <!-- Main Chart Section -->
+    <section class="chart-section card">
+      <div class="chart-header">
+        <h2 class="section-title">Évolution des Flux Financiers</h2>
+        <div class="chart-legend">
+          <span class="legend-rev">● Revenus</span>
+          <span class="legend-exp">● Dépenses</span>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas baseChart
+          [data]="lineChartData"
+          [options]="lineChartOptions"
+          [type]="lineChartType">
+        </canvas>
+      </div>
+    </section>
+
+    <div class="details-grid">
+      <!-- User Distribution -->
+      <section class="stats-section">
+        <h2 class="section-title">Utilisateurs</h2>
+        <div class="stats-grid mini">
+          <div class="stat-card">
+            <span class="mini-label">Total</span>
+            <span class="mini-value">{{ s.totalUsers }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="mini-label">Admins</span>
+            <span class="mini-value">{{ s.totalAdmins }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="mini-label">Bénéf.</span>
+            <span class="mini-value">{{ s.totalBeneficiaries }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="mini-label">Part.</span>
+            <span class="mini-value">{{ s.totalPartners }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Credit Management -->
+      <section class="stats-section">
+        <h2 class="section-title">Gestion des Crédits</h2>
+        <div class="stats-grid mini">
+          <div class="stat-card">
+            <span class="mini-label">Actifs</span>
+            <span class="mini-value">{{ s.activeCredits }}</span>
+          </div>
+          <div class="stat-card">
+            <span class="mini-label">Clôturés</span>
+            <span class="mini-value">{{ s.closedCredits }}</span>
+          </div>
+          <div class="stat-card wide">
+            <span class="mini-label">Restant à Recouvrer</span>
+            <span class="mini-value">{{ s.totalAmountRemaining | currency:'TND':'code' }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </ng-container>
+
+  <footer class="dashboard-footer">
+    <p>Système de Monitoring CrediGuard v2.0 | <a routerLink="/admin/finance">Gestion Détaillée</a></p>
+  </footer>
 </div>

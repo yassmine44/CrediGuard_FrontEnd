@@ -80,7 +80,7 @@ goBack(): void {
     this.error.set(null);
     this.success.set(null);
 
-    this.deliveryService.update(this.editingId, {
+    this.deliveryService.updateAdmin(this.editingId, {
       deliveryType: this.deliveryType,
       deliveryStatus: this.deliveryStatus,
       deliverySlot: this.deliverySlot,
@@ -108,7 +108,7 @@ goBack(): void {
       return;
     }
 
-    this.deliveryService.delete(id).subscribe({
+    this.deliveryService.cancelAdmin(id).subscribe({
       next: () => {
         this.success.set('Delivery cancelled.');
         this.loadDeliveries();
@@ -138,6 +138,8 @@ goBack(): void {
     switch (status) {
       case 'PENDING':
         return 'badge pending';
+      case 'PENDING_REVIEW':
+        return 'badge waiting';
       case 'WAITING_STOCK':
         return 'badge waiting';
       case 'IN_TRANSIT':

@@ -1,0 +1,120 @@
+.admin-container {
+  padding: 30px;
+  background: #f8f9fa;
+  min-height: 100vh;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+
+    h1 {
+      font-size: 1.8rem;
+      color: #333;
+      margin: 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 15px;
+    }
+  }
+
+  .alert {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    &.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    &.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  }
+
+  .form-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+
+    h3 { margin-top: 0; margin-bottom: 20px; color: #007bff; }
+
+    .grid-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        label { font-size: 0.9rem; font-weight: 600; color: #666; }
+        input, select, textarea {
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          font-size: 1rem;
+          &:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
+        }
+      }
+    }
+  }
+
+  .btn-primary { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+  .btn-secondary { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+  .btn-save { width: 100%; background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+  .btn-delete { background: #fee; border: 1px solid #fcc; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+
+  .list-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+
+    h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4rem; }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      
+      th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      th { background: #fcfcfc; font-weight: 600; color: #555; }
+      
+      .type-badge {
+        padding: 4px 10px;
+        background: #e7f3ff;
+        color: #007bff;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .status-badge {
+        font-size: 0.85rem;
+        &.active { color: #28a745; font-weight: bold; }
+      }
+
+      .empty { text-align: center; color: #999; padding: 40px; }
+    }
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

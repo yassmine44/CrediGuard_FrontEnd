@@ -26,10 +26,19 @@ export class DeliveryService {
     return this.http.put<DeliveryResponse>(`${this.apiUrl}/${id}`, payload);
   }
 
+  updateAdmin(id: number, payload: DeliveryUpdateRequest): Observable<DeliveryResponse> {
+    return this.http.patch<DeliveryResponse>(`${this.apiUrl}/admin/${id}`, payload);
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  cancelAdmin(id: number): Observable<DeliveryResponse> {
+    return this.updateAdmin(id, { deliveryStatus: 'CANCELLED' });
+  }
+
   getAll() {
-  return this.http.get<DeliveryResponse[]>(`${this.apiUrl}/admin`);
-}
+    return this.http.get<DeliveryResponse[]>(`${this.apiUrl}/admin`);
+  }
 }
