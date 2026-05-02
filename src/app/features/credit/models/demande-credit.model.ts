@@ -25,6 +25,7 @@ export interface DemandeCreditResponse {
   clientId: number;
   clientName: string;
   voucherId: number | null;
+  voucherCode?: string;
   createdAt: string;
   updatedAt: string;
 }

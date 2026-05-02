@@ -1,8 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { ClaimsAdminService } from '../../features/claims-admin/claims-admin.service';
-import { PolicyService } from '../../services/policy.service';
+import { ContratService } from '../../core/services/insurance/contrat.service';
+import { ClaimService } from '../../core/services/insurance/claim.service';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -14,14 +15,17 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class ClientSpaceComponent implements OnInit {
 
-  private claimsService = inject(ClaimsAdminService);
-  private policyService = inject(PolicyService);
+  private claimsService = inject(ClaimService);
+  private contratService = inject(ContratService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private http = inject(HttpClient);
 
-  activeTab: 'policies' | 'claims' = 'policies';
+  activeTab: 'policies' | 'claims' | 'vouchers' | 'orders' = 'policies';
   userClaims: any[] = [];
+  userPurchases: any[] = [];
   userPolicies: any[] = [];
+  userVouchers: any[] = [];
   loading = false;
 
   ngOnInit() {
@@ -37,21 +41,30 @@ export class ClientSpaceComponent implements OnInit {
 
     this.loading = true;
     
-    // Load both policies and claims
-    Promise.all([
-      this.policyService.getByClient(user.id).toPromise(),
-      this.claimsService.getByClient(user.id)
-    ]).then(([policies, claims]) => {
-      this.userPolicies = policies as any[];
-      this.userClaims = claims as any[];
-      this.loading = false;
-    }).catch(err => {
-      console.error('Error loading client data:', err);
-      this.loading = false;
+    import('rxjs').then(({ forkJoin }) => {
+      forkJoin({
+        policies: this.contratService.getByClient(user.id),
+        claims: this.claimsService.getByClient(user.id),
+        vouchers: this.http.get<any[]>(`http://127.0.0.1:8089/api/vouchers/client/${user.id}`),
+        purchases: this.http.get<any[]>(`http://127.0.0.1:8089/api/partnership/purchases/client/${user.id}`)
+      }).subscribe({
+        next: (res: any) => {
+          this.userPolicies = res.policies;
+          this.userClaims = res.claims;
+          this.userVouchers = res.vouchers;
+          this.userPurchases = res.purchases;
+          this.loading = false;
+        },
+        error: (err: any) => {
+          console.error('Error loading client data:', err);
+          this.loading = false;
+        }
+      });
     });
   }
 
-  switchTab(tab: 'policies' | 'claims') {
+
+  switchTab(tab: 'policies' | 'claims' | 'vouchers' | 'orders') {
     this.activeTab = tab;
   }
 
@@ -76,5 +89,26 @@ export class ClientSpaceComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/front/partnership']);
+  }
+
+  downloadPdf(policyId: number) {
+    this.contratService.downloadPdf(policyId).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Contrat_Assurance_${policyId}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => console.error('Erreur téléchargement PDF:', err)
+    });
+  }
+
+  copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      // On pourrait utiliser un service de toast ici, mais une alerte simple confirme le fonctionnement
+      alert('Code voucher copié dans le presse-papier !');
+    });
   }
 }

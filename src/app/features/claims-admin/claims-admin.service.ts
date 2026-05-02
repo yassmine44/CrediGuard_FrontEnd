@@ -5,11 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ClaimsAdminService {
 
-<<<<<<< HEAD
   private api = 'http://localhost:8089/api/insurance/claims';
-=======
-  private api = 'http://localhost:8082/api/insurance/claims';
->>>>>>> eya
 
   private isBrowser(): boolean {
     return typeof window !== 'undefined';
@@ -32,12 +28,19 @@ export class ClaimsAdminService {
     }).then(res => res.json());
   }
 
-  getByClient(clientId: number) {
+  getByClient(clientId: number): Promise<any[]> {
     if (!this.isBrowser()) return Promise.resolve([]);
 
-    return this.getAll().then((claims: any[]) => {
-      // Filtrage local car le endpoint by-client pour les claims peut ne pas exister
-      return claims.filter(c => c.voucher?.client?.id === clientId);
+    return fetch(`${this.api}/by-client/${clientId}`, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`
+      }
+    }).then(res => {
+      if (!res.ok) return [];
+      return res.json();
+    }).catch(err => {
+      console.error('Error fetching claims for client:', err);
+      return [];
     });
   }
 
@@ -70,11 +73,7 @@ export class ClaimsAdminService {
 
   // ===== PRODUCTS (LISTE → length) =====
   getProducts(): Promise<any[]> {
-<<<<<<< HEAD
     return fetch(`http://localhost:8089/api/partner-products/all`, {
-=======
-    return fetch(`http://localhost:8082/api/partner-products/all`, {
->>>>>>> eya
       headers: {
         Authorization: `Bearer ${this.getToken()}`
       }
@@ -83,11 +82,23 @@ export class ClaimsAdminService {
 
   // ===== INSURANCES (LISTE → length) =====
   getInsurances(): Promise<any[]> {
-<<<<<<< HEAD
     return fetch(`http://localhost:8089/api/insurance/companies/all`, {
-=======
-    return fetch(`http://localhost:8082/api/insurance/companies/all`, {
->>>>>>> eya
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`
+      }
+    }).then(res => res.json());
+  }
+
+  getVouchersByClient(clientId: number): Promise<any[]> {
+    return fetch(`http://localhost:8089/api/vouchers/client/${clientId}`, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`
+      }
+    }).then(res => res.json());
+  }
+
+  getPurchasesByClient(clientId: number): Promise<any[]> {
+    return fetch(`http://localhost:8089/api/partnership/purchases/client/${clientId}`, {
       headers: {
         Authorization: `Bearer ${this.getToken()}`
       }

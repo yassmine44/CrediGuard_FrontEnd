@@ -2,7 +2,7 @@
   <header class="page-header">
     <button class="btn-back" (click)="goBack()">← Retour au Shop</button>
     <h1>🛡️ Mon Espace Client</h1>
-    <p>Gérez vos contrats d'assurance et suivez vos demandes de remboursement.</p>
+    <p>Gérez vos contrats, suivez vos commandes et vos remboursements.</p>
   </header>
 
   <!-- Navigation Tabs -->
@@ -10,8 +10,14 @@
     <button [class.active]="activeTab === 'policies'" (click)="switchTab('policies')">
       📋 Mes Contrats ({{ userPolicies.length }})
     </button>
+    <button [class.active]="activeTab === 'orders'" (click)="switchTab('orders')">
+      🛒 Mes Commandes ({{ userPurchases.length }})
+    </button>
     <button [class.active]="activeTab === 'claims'" (click)="switchTab('claims')">
-      🛍️ Suivi Achats ({{ userClaims.length }})
+      🛡️ Mes Claims ({{ userClaims.length }})
+    </button>
+    <button [class.active]="activeTab === 'vouchers'" (click)="switchTab('vouchers')">
+      🎟️ Mes Vouchers ({{ userVouchers.length }})
     </button>
   </div>
 
@@ -20,7 +26,7 @@
     <p>Chargement de votre espace...</p>
   </div>
 
-  <!-- POLICIES SECTION -->
+  <!-- 1. POLICIES SECTION -->
   <div *ngIf="!loading && activeTab === 'policies'" class="fade-in">
     <div *ngIf="userPolicies.length > 0" class="cards-list">
       <div class="item-card" *ngFor="let p of userPolicies">
@@ -55,7 +61,7 @@
               <span class="icon">💰</span>
               <div class="text">
                 <span class="label">Prime annuelle</span>
-                <span class="value">{{ p.premium }} TND</span>
+                <span class="value">{{ p.premiumAmount }} TND</span>
               </div>
             </div>
             <div class="detail-item">
@@ -70,6 +76,11 @@
           <div *ngIf="p.status === 'PENDING'" class="info-footer">
             <p class="hint">Votre contrat est en cours de validation par l'assureur. Un conseiller vous contactera si nécessaire.</p>
           </div>
+
+          <!-- PDF Download Action -->
+          <button class="btn-download" (click)="downloadPdf(p.id)">
+            📄 Télécharger mon contrat (PDF)
+          </button>
         </div>
       </div>
     </div>
@@ -77,12 +88,67 @@
     <div *ngIf="userPolicies.length === 0" class="empty-state">
       <div class="icon-circle">📄</div>
       <h2>Aucun contrat actif</h2>
-      <p>Vous n'avez pas encore souscrit à une assurance. Utilisez l'assistant pour trouver l'offre idéale.</p>
+      <p>Vous n'avez pas encore souscrit à une assurance.</p>
       <button class="btn-primary" (click)="goBack()">Découvrir les offres</button>
     </div>
   </div>
 
-  <!-- CLAIMS SECTION -->
+  <!-- 2. ORDERS SECTION (Commandes) -->
+  <div *ngIf="!loading && activeTab === 'orders'" class="fade-in">
+    <div *ngIf="userPurchases.length > 0" class="cards-list">
+      <div class="item-card purchase-card" *ngFor="let p of userPurchases">
+        <div class="card-status-strip validated"></div>
+        <div class="card-body">
+          <div class="card-header-info">
+            <div class="ref-section">
+              <span class="label">N° de Commande</span>
+              <span class="value">{{ p.purchaseReference }}</span>
+            </div>
+            <div class="status-pill validated">✅ PAYÉ</div>
+          </div>
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="icon">🏪</span>
+              <div class="text">
+                <span class="label">Partenaire</span>
+                <span class="value">{{ p.partnerName }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon">💰</span>
+              <div class="text">
+                <span class="label">Total</span>
+                <span class="value">{{ p.totalAmount }} TND</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon">📅</span>
+              <div class="text">
+                <span class="label">Date</span>
+                <span class="value">{{ p.createdAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+            <div *ngIf="p.productNames" class="detail-item full-width">
+               <span class="icon">📦</span>
+               <div class="text">
+                 <span class="label">Articles</span>
+                 <span class="value">{{ p.productNames }}</span>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="userPurchases.length === 0" class="empty-state">
+      <div class="icon-circle">🛒</div>
+      <h2>Aucune commande</h2>
+      <p>Vous n'avez pas encore effectué d'achats via voucher.</p>
+      <button class="btn-primary" (click)="goBack()">Faire mes achats</button>
+    </div>
+  </div>
+
+  <!-- 3. CLAIMS SECTION -->
   <div *ngIf="!loading && activeTab === 'claims'" class="fade-in">
     <div *ngIf="userClaims.length > 0" class="cards-list">
       <div class="item-card" *ngFor="let c of userClaims">
@@ -126,7 +192,7 @@
             <div *ngIf="c.status === 'REJECTED'" class="rejection-alert">
                <strong>Motif du rejet :</strong> {{ getRejectionReason(c) }}
             </div>
-            <p *ngIf="c.status === 'PENDING'" class="hint">Notre moteur de risque analyse votre dossier. Une réponse vous sera apportée sous peu.</p>
+            <p *ngIf="c.status === 'PENDING'" class="hint">Notre moteur de risque analyse votre dossier.</p>
             <p *ngIf="c.status === 'APPROVED'" class="hint-success">Votre achat a été validé et couvert par votre assurance.</p>
           </div>
         </div>
@@ -134,10 +200,61 @@
     </div>
 
     <div *ngIf="userClaims.length === 0" class="empty-state">
-      <div class="icon-circle">🛒</div>
-      <h2>Aucun achat assuré</h2>
-      <p>Vous n'avez pas encore effectué de demande de remboursement pour vos achats.</p>
-      <button class="btn-primary" (click)="goBack()">Faire mes achats</button>
+      <div class="icon-circle">🛡️</div>
+      <h2>Aucune demande d'assurance</h2>
+      <p>Vous n'avez pas de demandes d'indemnisation en cours.</p>
+    </div>
+  </div>
+
+  <!-- 4. VOUCHERS SECTION -->
+  <div *ngIf="!loading && activeTab === 'vouchers'" class="fade-in">
+    <div *ngIf="userVouchers.length > 0" class="cards-list">
+      <div class="item-card" *ngFor="let v of userVouchers">
+        <div class="card-status-strip" [ngClass]="v.status?.toLowerCase()"></div>
+        <div class="card-body">
+          <div class="card-header-info">
+            <div class="ref-section voucher-ref">
+              <span class="label">Code Voucher</span>
+              <div class="code-container">
+                <span class="value code-display">{{ v.code }}</span>
+                <button class="btn-copy" (click)="copyToClipboard(v.code)" title="Copier le code">
+                  📋
+                </button>
+              </div>
+            </div>
+            <div class="status-pill" [ngClass]="v.status?.toLowerCase()">
+               {{ v.status }}
+            </div>
+          </div>
+
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="icon">💰</span>
+              <div class="text">
+                <span class="label">Montant Disponible</span>
+                <span class="value">{{ v.amount }} TND</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon">📅</span>
+              <div class="text">
+                <span class="label">Date d'expiration</span>
+                <span class="value text-danger">{{ v.expirationDate | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-footer">
+            <p class="hint">Copiez ce code pour l'utiliser lors de vos achats.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="userVouchers.length === 0" class="empty-state">
+      <div class="icon-circle">🎟️</div>
+      <h2>Aucun voucher</h2>
+      <p>Vous n'avez pas encore de vouchers actifs.</p>
     </div>
   </div>
 </div>

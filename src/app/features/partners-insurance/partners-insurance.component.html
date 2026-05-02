@@ -41,7 +41,7 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th>Email</th>
+        <th>Registration #</th>
         <th>Type</th>
       </tr>
     </thead>
@@ -50,16 +50,16 @@
       <tr *ngFor="let p of partners">
         <td class="name-cell">
           <div class="avatar">
-            {{ p.fullName.charAt(0) }}
+            {{ p.name.charAt(0) }}
           </div>
-          <span>{{ p.fullName }}</span>
+          <span>{{ p.name }}</span>
         </td>
 
-        <td>{{ p.email }}</td>
+        <td>{{ p.registrationNumber }}</td>
 
         <td>
-          <span class="badge" [ngClass]="p.partnerType.toLowerCase()">
-            {{ p.partnerType }}
+          <span class="badge" [ngClass]="'insurance'">
+            Assureur
           </span>
         </td>
       </tr>

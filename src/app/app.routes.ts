@@ -89,6 +89,11 @@ export const routes: Routes = [
         path: 'client-space',
         loadComponent: () =>
           import('./pages/client-space/client-space.component').then(m => m.ClientSpaceComponent)
+      },
+      {
+        path: 'insurance',
+        loadComponent: () =>
+          import('./pages/insurance-space/insurance-space.component').then(m => m.InsuranceSpaceComponent)
       }
     ]
   },
@@ -207,6 +212,12 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./features/products-admin/products-admin.component')
                 .then(m => m.ProductsComponent)
+          },
+          {
+            path: 'offers',
+            loadComponent: () =>
+              import('./features/offers-admin/offers-admin.component')
+                .then(m => m.OffersAdminComponent)
           },
           {
             path: 'policies',

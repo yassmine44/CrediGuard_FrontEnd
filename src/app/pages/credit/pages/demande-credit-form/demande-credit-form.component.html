@@ -19,7 +19,7 @@
     <div *ngIf="error()" class="message error">{{ error() }}</div>
     <div *ngIf="success()" class="message success">{{ success() }}</div>
 
-    <div class="locked-card" *ngIf="!loadingProfile() && !hasProfile()">
+    <div class="locked-card" *ngIf="!loadingProfile() && !profile()">
       <h3>Credit profile required</h3>
       <p>
         You cannot submit a credit request until your credit profile is completed.
@@ -39,7 +39,7 @@
       class="request-card"
       [formGroup]="form"
       (ngSubmit)="submit()"
-      *ngIf="!loadingProfile() && hasProfile()"
+      *ngIf="!loadingProfile() && profile()"
     >
       <div class="form-grid">
         <div class="form-field">

@@ -23,6 +23,7 @@
     <li><a routerLink="/front/crowdfunding" routerLinkActive="active">Crowdfunding</a></li>
     <li><a routerLink="/front/finance" routerLinkActive="active">Finance</a></li>
     <li><a routerLink="/front/partnership" routerLinkActive="active">Partnership</a></li>
+    <li><a routerLink="/front/insurance" routerLinkActive="active">Insurance</a></li>
     <li><a routerLink="/front/events" routerLinkActive="active">Events</a></li>
     <li><a routerLink="/front/ecommerce" routerLinkActive="active">E-Commerce</a></li>
 
@@ -60,8 +61,18 @@
     </button>
 
     <!-- 🔔 notifications -->
-    <button type="button" class="icon-btn btn-notify" aria-label="Notifications">
-      <mat-icon>notifications</mat-icon>
-    </button>
+    <div class="notification-wrapper" *ngIf="authService.isLoggedIn()">
+      <button type="button" class="icon-btn btn-notify" aria-label="Notifications" (click)="toggleNotifications()">
+        <mat-icon>notifications</mat-icon>
+        <span *ngIf="unreadCount > 0" class="notify-badge">{{ unreadCount }}</span>
+      </button>
+
+      <app-notification-panel 
+        *ngIf="showNotifications"
+        [notifications]="notifications"
+        (markAsRead)="markNotificationAsRead($event)"
+        (markAllRead)="markAllNotificationsAsRead()">
+      </app-notification-panel>
+    </div>
   </div>
 </nav>

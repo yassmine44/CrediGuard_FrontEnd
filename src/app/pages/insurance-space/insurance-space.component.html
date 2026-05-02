@@ -1,0 +1,444 @@
+<div class="insurance-space">
+  <!-- Header Section -->
+  <header class="hero-section">
+    <div class="container">
+      <button class="btn-back" (click)="goBack()">← Espace Client</button>
+      <h1>🛡️ Espace Assurances Partenaires</h1>
+      <p>Sécurisez votre avenir et vos crédits avec nos offres sur-mesure.</p>
+    </div>
+  </header>
+
+  <div class="container main-content">
+    
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button [class.active]="activeTab === 'insurers'" (click)="activeTab = 'insurers'">Nos assureurs</button>
+      <button [class.active]="activeTab === 'offers'" (click)="activeTab = 'offers'">Offres & comparaison</button>
+      <button [class.active]="activeTab === 'simulator'" (click)="activeTab = 'simulator'">Simulateur</button>
+      <button [class.active]="activeTab === 'subscribe'" (click)="activeTab = 'subscribe'">Souscrire</button>
+      <button [class.active]="activeTab === 'ai'" (click)="activeTab = 'ai'">Assistant IA</button>
+    </nav>
+
+    <!-- Success / Message Bar -->
+    <div *ngIf="message" class="alert" [ngClass]="success ? 'alert-success' : 'alert-info'">
+      {{ message }}
+      <button *ngIf="success" class="btn-reset" (click)="reset()">Retour aux offres</button>
+    </div>
+
+    <!-- TAB 1: Nos Assureurs -->
+    <section *ngIf="activeTab === 'insurers'" class="fade-in">
+      <div class="section-header-centered">
+        <h2>Nos Assureurs Partenaires</h2>
+        <p>Cliquez sur un assureur pour voir ses offres</p>
+      </div>
+      <div class="grid">
+        <div class="partner-card-premium" *ngFor="let company of companies" (click)="selectInsurersTab(company)">
+          <div class="card-logo">
+            <img [src]="company.logo" [alt]="company.name">
+          </div>
+          <h3>{{ company.name }}</h3>
+          <p class="description">{{ company.description || 'Expert en solutions d\'assurance crédit.' }}</p>
+          <div class="tags">
+            <span *ngFor="let tag of getCompanyTags(company.name)" class="tag">{{ tag }}</span>
+          </div>
+          <div class="stats-mini">
+            <span>{{ getOfferCount(company.id) }} offres disponibles</span>
+          </div>
+          <button class="btn-select">Découvrir les offres →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Offres & Comparaison -->
+    <section *ngIf="activeTab === 'offers'" class="fade-in">
+       <div class="filter-bar">
+         <button *ngIf="companyFilter" class="btn-clear-filter" (click)="resetFilters()">
+           Affichage : {{ companyFilter.name }} (Tout voir ✕)
+         </button>
+         <button *ngFor="let type of offerTypes" 
+                 [class.active]="selectedType === type"
+                 (click)="selectedType = type">
+           {{ type }}
+         </button>
+       </div>
+
+       <div class="offers-list">
+         <div class="offer-card-premium" *ngFor="let offer of filteredOffers">
+           <div *ngIf="offer.matchScore > 80" class="badge-recom">Recommandé pour vous</div>
+           <div class="card-header">
+              <div class="title-box">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <h3>{{ offer.companyName || offer.insuranceCompany?.name }} — {{ offer.name }}</h3>
+                  
+                  <!-- TIER BADGES -->
+                  <span *ngIf="offer.tags?.includes('BASIC')" class="badge-tier tier-basic">🟢 BASIC</span>
+                  <span *ngIf="offer.tags?.includes('STANDARD')" class="badge-tier tier-standard">🔵 STANDARD</span>
+                  <span *ngIf="offer.tags?.includes('PREMIUM')" class="badge-tier tier-premium">⭐ PREMIUM</span>
+                </div>
+                <p>{{ offer.coverageDetails || offer.description }}</p>
+              </div>
+             <div class="price-box">
+               <span class="price">{{ offer.annualPremium | number }} TND<small>/an</small></span>
+               <span class="monthly">{{ (offer.annualPremium / 12) | number:'1.0-0' }} TND/mois</span>
+             </div>
+           </div>
+
+           <div class="match-score-bar">
+             <div class="label">Adéquation profil <span>{{ offer.matchScore || 70 }}%</span></div>
+             <div class="progress">
+               <div class="progress-fill" [style.width.%]="offer.matchScore || 70" [style.background-color]="getScoreColor(offer.matchScore || 70)"></div>
+             </div>
+           </div>
+
+           <div class="tags-row">
+             <span class="tag-pill" *ngFor="let tag of offer.tags">{{ tag }}</span>
+           </div>
+
+           <div class="features-grid">
+             <div class="feature-item">
+               <span class="f-label">Couverture max</span>
+               <span class="f-value">{{ offer.coverageAmount | number }} TND</span>
+             </div>
+             <div class="feature-item">
+               <span class="f-label">Franchise</span>
+               <span class="f-value">{{ (offer.franchise || 0) | number }} TND</span>
+             </div>
+             <div class="feature-item">
+               <span class="f-label">Taux couverture</span>
+               <span class="f-value">{{ (offer.coverageRate || 0) }}%</span>
+             </div>
+           </div>
+
+           <div class="card-actions">
+             <button class="btn-primary" (click)="startSubscription(offer)">Souscrire à cette offre</button>
+             <button class="btn-outline" [class.active-compare]="comparisonOffers.includes(offer)" (click)="toggleComparison(offer)">
+               {{ comparisonOffers.includes(offer) ? '✕ Retirer' : '⚖️ Comparer' }}
+             </button>
+             <button class="btn-outline" (click)="activeTab = 'simulator'">Simuler</button>
+           </div>
+         </div>
+       </div>
+
+       <!-- FLOATING COMPARISON BAR -->
+       <div *ngIf="comparisonOffers.length > 0" class="comparison-bar fade-in">
+          <div class="comp-info">
+            <strong>{{ comparisonOffers.length }} offre{{ comparisonOffers.length > 1 ? 's' : '' }}</strong> à comparer
+          </div>
+          <div class="comp-thumbnails">
+            <div *ngFor="let o of comparisonOffers" class="thumb">
+              <span>{{ o.name }}</span>
+              <button (click)="removeFromComparison(o.id)">✕</button>
+            </div>
+          </div>
+          <button class="btn-compare-now" (click)="showComparisonTable = true" [disabled]="comparisonOffers.length < 2">
+            Comparer maintenant
+          </button>
+       </div>
+
+       <!-- COMPARISON MODAL / TABLE -->
+       <div *ngIf="showComparisonTable" class="comparison-overlay fade-in">
+         <div class="comparison-modal">
+           <header>
+             <h2>⚖️ Comparatif des Offres</h2>
+             <button class="btn-close" (click)="showComparisonTable = false">✕</button>
+           </header>
+           <div class="table-responsive">
+             <table class="comparison-table">
+               <thead>
+                 <tr>
+                   <th>Caractéristiques</th>
+                   <th *ngFor="let o of comparisonOffers">
+                     <div class="offer-th">
+                       <strong>{{ o.name }}</strong>
+                       <small>{{ o.companyName || o.insuranceCompany?.name }}</small>
+                     </div>
+                   </th>
+                 </tr>
+               </thead>
+               <tbody>
+                 <tr>
+                   <td>Prime Annuelle</td>
+                   <td *ngFor="let o of comparisonOffers" class="highlight">{{ o.annualPremium | number }} TND</td>
+                 </tr>
+                 <tr>
+                   <td>Couverture Max</td>
+                   <td *ngFor="let o of comparisonOffers">{{ o.coverageAmount | number }} TND</td>
+                 </tr>
+                 <tr>
+                   <td>Franchise</td>
+                   <td *ngFor="let o of comparisonOffers" [class.text-danger]="o.franchise > 500">{{ o.franchise || 0 }} TND</td>
+                 </tr>
+                 <tr>
+                   <td>Taux de Remboursement</td>
+                   <td *ngFor="let o of comparisonOffers">{{ o.coverageRate || 100 }}%</td>
+                 </tr>
+                 <tr>
+                   <td>Niveau (Tier)</td>
+                   <td *ngFor="let o of comparisonOffers">
+                     <span *ngIf="o.tags?.includes('BASIC')" class="badge-tier tier-basic">BASIC</span>
+                     <span *ngIf="o.tags?.includes('STANDARD')" class="badge-tier tier-standard">STANDARD</span>
+                     <span *ngIf="o.tags?.includes('PREMIUM')" class="badge-tier tier-premium">PREMIUM</span>
+                   </td>
+                 </tr>
+                 <tr>
+                   <td>Adéquation Profil</td>
+                   <td *ngFor="let o of comparisonOffers">
+                     <div class="score-pill" [style.background-color]="getScoreColor(o.matchScore || 70)">
+                       {{ o.matchScore || 70 }}%
+                     </div>
+                   </td>
+                 </tr>
+                 <tr>
+                   <td>Action</td>
+                   <td *ngFor="let o of comparisonOffers">
+                     <button class="btn-primary" (click)="startSubscription(o); showComparisonTable = false">Souscrire</button>
+                   </td>
+                 </tr>
+               </tbody>
+             </table>
+           </div>
+         </div>
+       </div>
+    </section>
+
+    <!-- TAB 3: Simulateur -->
+    <section *ngIf="activeTab === 'simulator'" class="fade-in simulator-section">
+      <div class="sim-card">
+        <h3>Décrivez votre projet</h3>
+        <div class="sim-grid">
+          <div class="sim-group">
+            <label>Type d'activité</label>
+            <select [(ngModel)]="simData.activity" (change)="runSimulation()">
+              <option value="Transport">Transport de marchandises</option>
+              <option value="Commerce">Commerce de détail</option>
+              <option value="Industrie">Industrie manufacturière</option>
+              <option value="Services">Services aux entreprises</option>
+            </select>
+          </div>
+          <div class="sim-group">
+            <label>Région</label>
+            <select [(ngModel)]="simData.region" (change)="runSimulation()">
+              <option value="Tunis">Tunis</option>
+              <option value="Sousse">Sousse</option>
+              <option value="Sfax">Sfax</option>
+              <option value="Bizerte">Bizerte</option>
+              <option value="Gabès">Gabès</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sim-sliders">
+          <div class="slider-group">
+            <div class="slider-label">Valeur à assurer <span>{{ simData.value | number }} TND</span></div>
+            <input type="range" [(ngModel)]="simData.value" min="5000" max="100000" step="5000" (input)="runSimulation()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">Durée du contrat <span>{{ simData.duration }} an{{ simData.duration > 1 ? 's' : '' }}</span></div>
+            <input type="range" [(ngModel)]="simData.duration" min="1" max="10" step="1" (input)="runSimulation()">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">Niveau de couverture <span>{{ simData.coverage }}%</span></div>
+            <input type="range" [(ngModel)]="simData.coverage" min="50" max="100" step="10" (input)="runSimulation()">
+          </div>
+        </div>
+
+        <div class="sim-results" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; background: #fbfaf8; padding: 25px; border-radius: 12px; margin-bottom: 25px;">
+           <div class="res-item" style="text-align: center;">
+             <span class="res-label" style="display: block; font-size: 13px; color: #555; margin-bottom: 8px;">Prime estimée</span>
+             <span class="res-value" style="display: block; font-size: 28px; font-weight: bold; color: #1976d2;">{{ simResult.prime | number }} TND</span>
+             <span class="res-sub-label" style="display: block; font-size: 12px; color: #777; margin-top: 5px;">{{ simResult.annualPremium | number }} TND / an</span>
+           </div>
+           
+           <div class="res-item" style="text-align: center; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; padding: 0 15px;">
+             <span class="res-label" style="display: block; font-size: 13px; color: #555; margin-bottom: 8px;">Score de risque</span>
+             <span class="res-value" style="display: block; font-size: 24px; font-weight: bold; color: #8d6e63;">{{ simResult.risk }} / 100</span>
+             
+             <!-- Progress bar -->
+             <div style="width: 100%; background: #e0e0e0; height: 6px; border-radius: 3px; margin: 10px 0; overflow: hidden;">
+                <div [style.width.%]="simResult.risk" [style.background-color]="getSubScoreColor(simResult.risk)" style="height: 100%; border-radius: 3px;"></div>
+             </div>
+             <span class="res-sub-label" [style.color]="getSubScoreColor(simResult.risk)" style="display: block; font-size: 13px; font-weight: 500;">{{ simResult.riskLabel }}</span>
+           </div>
+
+           <div class="res-item" style="text-align: center;">
+             <span class="res-label" style="display: block; font-size: 13px; color: #555; margin-bottom: 8px;">Offres éligibles</span>
+             <span class="res-value" style="display: block; font-size: 24px; font-weight: bold; color: #2e7d32;">{{ simResult.offersCount }} offres</span>
+             <span class="res-sub-label" style="display: block; font-size: 13px; color: #555; margin-top: 5px;">{{ simResult.profileLabel }}</span>
+           </div>
+        </div>
+
+        <!-- Sub-scores & Insights -->
+        <div class="sim-insights" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 25px; margin-bottom: 25px;">
+           <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #555; text-transform: uppercase;">Détail du score de risque</h4>
+           
+           <!-- 3 Sub-scores -->
+           <div class="sub-scores-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px;">
+              <div class="sub-score-card" style="background: #fbfaf8; padding: 15px; border-radius: 8px;">
+                 <span style="display: block; font-size: 13px; color: #555; margin-bottom: 10px;">Risque activité</span>
+                 <div style="display: flex; align-items: baseline; gap: 10px;">
+                   <span style="font-size: 22px; font-weight: bold; color: #333;">{{ simResult.activityRisk }}</span>
+                   <span [style.background-color]="getSubScoreBg(simResult.activityRisk)" [style.color]="getSubScoreColor(simResult.activityRisk)" style="padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ getSubScoreLabel(simResult.activityRisk) }}</span>
+                 </div>
+              </div>
+              <div class="sub-score-card" style="background: #fbfaf8; padding: 15px; border-radius: 8px;">
+                 <span style="display: block; font-size: 13px; color: #555; margin-bottom: 10px;">Risque région</span>
+                 <div style="display: flex; align-items: baseline; gap: 10px;">
+                   <span style="font-size: 22px; font-weight: bold; color: #333;">{{ simResult.regionRisk }}</span>
+                   <span [style.background-color]="getSubScoreBg(simResult.regionRisk)" [style.color]="getSubScoreColor(simResult.regionRisk)" style="padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ getSubScoreLabel(simResult.regionRisk) }}</span>
+                 </div>
+              </div>
+              <div class="sub-score-card" style="background: #fbfaf8; padding: 15px; border-radius: 8px;">
+                 <span style="display: block; font-size: 13px; color: #555; margin-bottom: 10px;">Risque couverture</span>
+                 <div style="display: flex; align-items: baseline; gap: 10px;">
+                   <span style="font-size: 22px; font-weight: bold; color: #333;">{{ simResult.coverageRisk }}</span>
+                   <span [style.background-color]="getSubScoreBg(simResult.coverageRisk)" [style.color]="getSubScoreColor(simResult.coverageRisk)" style="padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ getSubScoreLabel(simResult.coverageRisk) }}</span>
+                 </div>
+              </div>
+           </div>
+           
+           <!-- Dynamic Tags -->
+           <h4 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: #555; text-transform: uppercase;">Risques spécifiques à la région</h4>
+           <div class="region-tags" style="display: flex; gap: 10px; flex-wrap: wrap;">
+             <span *ngFor="let tag of simResult.regionTags" [ngStyle]="getTagStyle(tag.type)" style="padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500;">
+               {{ tag.name }}
+             </span>
+           </div>
+        </div>
+
+        <!-- Personalized Advice -->
+        <div class="advice-box" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 25px; margin-bottom: 25px;">
+           <h4 style="margin: 0 0 20px 0; font-size: 14px; font-weight: 600; color: #555; text-transform: uppercase;">Conseils personnalisés</h4>
+           <ul style="list-style: none; padding: 0; margin: 0;">
+              <li *ngFor="let advice of simResult.advices; let last = last" [style.border-bottom]="last ? 'none' : '1px solid #eee'" style="padding: 12px 0; display: flex; align-items: center; gap: 12px;">
+                 <span [style.background-color]="advice.type === 'red' ? '#e53935' : (advice.type === 'orange' ? '#f57c00' : '#2e7d32')" style="width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;"></span>
+                 <span style="font-size: 14px; color: #333; font-weight: 500;">{{ advice.text }}</span>
+              </li>
+           </ul>
+        </div>
+
+        <div class="sim-actions">
+          <button class="btn-primary" (click)="activeTab = 'offers'">Voir les offres correspondantes</button>
+          <button class="btn-outline">Demander à l'IA ↗</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Souscrire -->
+    <section *ngIf="activeTab === 'subscribe'" class="fade-in subscription-section">
+       <div *ngIf="!selectedOfferForSub" class="empty-sub">
+         <div class="icon">🛒</div>
+         <h3>Aucune offre sélectionnée</h3>
+         <p>Veuillez choisir une offre dans l'onglet "Offres" ou via le simulateur pour commencer la souscription.</p>
+         <button class="btn-primary" (click)="activeTab = 'offers'">Voir les offres</button>
+       </div>
+
+       <div *ngIf="selectedOfferForSub" class="sub-form">
+          <div class="sub-header">
+            <span>Offre sélectionnée</span>
+            <h4>{{ selectedOfferForSub.companyName || selectedOfferForSub.insuranceCompany?.name }} — {{ selectedOfferForSub.name }} · {{ selectedOfferForSub.annualPremium | number }} TND/an</h4>
+            <button class="btn-change" (click)="activeTab = 'offers'">Modifier</button>
+          </div>
+
+          <div class="steps">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h5>Informations personnelles</h5>
+                <div class="adequacy-hint">
+                  <span class="hint-icon">💡</span>
+                  <p>Complétez votre profil pour permettre à notre algorithme d'affiner votre <strong>score d'adéquation</strong> avec cette offre.</p>
+                </div>
+                <div class="form-grid">
+                  <div class="input-group"><label>Nom complet</label><input type="text" [(ngModel)]="subForm.name"></div>
+                  <div class="input-group"><label>CIN / Matricule fiscal</label><input type="text" [(ngModel)]="subForm.cin"></div>
+                  <div class="input-group"><label>Email</label><input type="email" [(ngModel)]="subForm.email"></div>
+                  <div class="input-group"><label>Téléphone</label><input type="text" [(ngModel)]="subForm.phone"></div>
+                  <div class="input-group"><label>Secteur d'activité</label>
+                    <select [(ngModel)]="subForm.sector">
+                      <option value="AGRICULTURE">Agriculture</option>
+                      <option value="INDUSTRIE">Industrie</option>
+                      <option value="SERVICES">Services</option>
+                      <option value="COMMERCE">Commerce</option>
+                    </select>
+                  </div>
+                  <div class="input-group"><label>Métier / Activité</label><input type="text" [(ngModel)]="subForm.activityType" placeholder="ex: Transport, Oliviculture..."></div>
+                  <div class="input-group"><label>Région</label><input type="text" [(ngModel)]="subForm.region" placeholder="ex: Tunis, Sfax..."></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h5>Détails du projet à assurer</h5>
+                <div class="form-grid">
+                  <div class="input-group"><label>Nature des biens</label><input type="text" [(ngModel)]="subForm.goods"></div>
+                  <div class="input-group"><label>Valeur déclarée (TND)</label><input type="number" [(ngModel)]="subForm.value"></div>
+                  <div class="input-group"><label>Date de début souhaitée</label><input type="date" [(ngModel)]="subForm.startDate" [min]="minDate"></div>
+                  <div class="input-group"><label>Durée</label>
+                    <select [(ngModel)]="subForm.duration">
+                      <option value="1">1 an</option>
+                      <option value="2">2 ans</option>
+                      <option value="3">3 ans</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 3: CONFIRMATION -->
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h5>Confirmation & Activation</h5>
+                <div class="activation-card">
+                  <i class="ai-shield-icon">🛡️</i>
+                  <p>En confirmant, votre contrat sera activé immédiatement. <strong>Aucun paiement direct n'est requis aujourd'hui.</strong></p>
+                  <p class="hint">Vos futurs achats chez nos partenaires seront automatiquement couverts selon les garanties de cette offre.</p>
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <!-- Alerte de proximité pour voir le résultat sans scroller -->
+        <div *ngIf="message" class="alert" [ngClass]="success ? 'alert-success' : 'alert-danger'" style="margin-top: 20px; padding: 15px; border-radius: 8px;">
+          <strong>{{ success ? '✅ SUCCÈS :' : '❌ ERREUR :' }}</strong> {{ message }}
+          <button *ngIf="success" class="btn-reset" (click)="reset()" style="margin-left: 15px;">Retour</button>
+        </div>
+
+        <div class="sub-actions">
+          <button class="btn-primary-big" [disabled]="loading || !subForm.goods" (click)="confirmSubscription()">
+            {{ loading ? 'Activation en cours...' : 'Confirmer la souscription' }}
+          </button>
+        </div>
+       </div>
+    </section>
+
+    <!-- TAB 5: Assistant IA -->
+    <section *ngIf="activeTab === 'ai'" class="fade-in ai-assistant-section">
+      <div class="chat-container">
+        <div class="chat-header">
+          <div class="ai-status"><span></span> Assistant CrediGuard IA</div>
+          <p>Je peux vous aider à choisir la meilleure assurance selon votre projet.</p>
+        </div>
+        <div class="chat-messages" #scrollMe [scrollTop]="scrollMe.scrollHeight">
+          <div *ngFor="let msg of chatMessages" class="message" [ngClass]="msg.type">
+            <div class="avatar">{{ msg.type === 'ai' ? '🤖' : '👤' }}</div>
+            <div class="bubble">
+              <p>{{ msg.text }}</p>
+            </div>
+          </div>
+          <div *ngIf="chatLoading" class="message ai">
+            <div class="avatar">🤖</div>
+            <div class="bubble dots">...</div>
+          </div>
+        </div>
+        <div class="chat-input">
+          <input type="text" [(ngModel)]="userMessage" (keyup.enter)="sendMessage()" placeholder="Posez votre question ici...">
+          <button (click)="sendMessage()">➔</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
