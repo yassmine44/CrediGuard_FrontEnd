@@ -480,3 +480,266 @@
   input:checked + .slider { background-color: #10b981; }
   input:checked + .slider:before { transform: translateX(20px); }
 }
+
+// =============================================
+// 🤖 ML SEGMENTATION STYLES
+// =============================================
+
+// Stat card for ML count
+.stat-card.ml-stat {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  border: none;
+  .label { color: rgba(255,255,255,0.7); }
+  .ml-value { color: #a5b4fc; }
+  .ml-total { font-size: 1rem; color: rgba(255,255,255,0.4); }
+}
+
+// Table ML cell
+.ml-cell {
+  min-width: 150px;
+}
+
+.ml-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 14px;
+  border-radius: 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 100px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+
+  .ml-type {
+    font-size: 0.6rem;
+    background: rgba(255, 193, 7, 0.2);
+    color: #b45309;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 800;
+  }
+
+  .ml-source {
+    font-size: 0.55rem;
+    opacity: 0.6;
+    text-transform: uppercase;
+    margin-top: 2px;
+    font-weight: 600;
+  }
+
+  .confidence {
+    font-size: 0.68rem;
+    opacity: 0.75;
+  }
+
+  &.seg-high   { background: #fee2e2; color: #991b1b; }
+  &.seg-medium { background: #fef3c7; color: #92400e; }
+  &.seg-low    { background: #d1fae5; color: #065f46; }
+}
+
+.btn-segment {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s;
+  &:hover { transform: scale(1.05); filter: brightness(1.1); }
+}
+
+.ml-spinner {
+  font-size: 1.1rem;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+// ======= MODAL ML PANEL =======
+.ml-panel {
+  margin-top: 28px;
+  border: 2px solid #e0e7ff;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #fafafe;
+}
+
+.ml-panel-header {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  padding: 18px 24px;
+  h3 {
+    margin: 0;
+    color: white;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+  p {
+    margin: 4px 0 0;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.8rem;
+  }
+}
+
+.ml-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 24px;
+  gap: 14px;
+  .ml-idle-icon { font-size: 3rem; }
+  p { color: #64748b; margin: 0; font-size: 0.9rem; text-align: center; }
+}
+
+.ml-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 24px;
+  gap: 14px;
+  p { color: #64748b; margin: 0; font-size: 0.9rem; }
+}
+
+.ml-spinner-lg {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #e0e7ff;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.ml-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  gap: 12px;
+  color: #991b1b;
+  font-weight: 600;
+  font-size: 0.88rem;
+  background: #fef2f2;
+}
+
+.ml-result {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ml-segment-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 24px;
+  border-radius: 16px;
+  font-weight: 800;
+
+  .ml-seg-icon { font-size: 2rem; }
+  .ml-seg-label { font-size: 1.4rem; flex: 1; }
+  .ml-seg-conf { font-size: 0.85rem; opacity: 0.7; }
+
+  &.seg-high   { background: #fef2f2; color: #991b1b; border: 2px solid #fca5a5; }
+  &.seg-medium { background: #fffbeb; color: #92400e; border: 2px solid #fcd34d; }
+  &.seg-low    { background: #ecfdf5; color: #065f46; border: 2px solid #6ee7b7; }
+}
+
+.ml-probabilities {
+  h4 {
+    margin: 0 0 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
+.prob-bar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+
+  .prob-label {
+    width: 110px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .prob-track {
+    flex: 1;
+    height: 10px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+
+    .prob-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      &.seg-high   { background: linear-gradient(to right, #ef4444, #f87171); }
+      &.seg-medium { background: linear-gradient(to right, #f59e0b, #fbbf24); }
+      &.seg-low    { background: linear-gradient(to right, #10b981, #34d399); }
+    }
+  }
+
+  .prob-pct {
+    width: 45px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #334155;
+    text-align: right;
+  }
+}
+
+.ml-interpretation {
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  strong { display: block; margin-bottom: 4px; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  &.seg-high   { background: #fef2f2; color: #7f1d1d; border-left: 4px solid #ef4444; }
+  &.seg-medium { background: #fffbeb; color: #78350f; border-left: 4px solid #f59e0b; }
+  &.seg-low    { background: #ecfdf5; color: #14532d; border-left: 4px solid #10b981; }
+}
+
+.btn-segment-lg {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  &:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4); }
+}
+
+.btn-segment-sm {
+  align-self: flex-end;
+  background: transparent;
+  border: 1px solid #c7d2fe;
+  color: #4f46e5;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  &:hover { background: #eef2ff; }
+}

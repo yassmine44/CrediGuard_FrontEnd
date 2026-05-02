@@ -106,6 +106,12 @@ export class ProfilCreditFormComponent implements OnInit {
 
     this.profilService.getMyProfile().subscribe({
       next: (profile) => {
+        if (!profile) {
+          this.profile.set(null);
+          this.loading.set(false);
+          return;
+        }
+
         this.profile.set(profile);
         this.form.patchValue({
           personAge: profile.personAge,
@@ -126,12 +132,6 @@ export class ProfilCreditFormComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        if (err.status === 404) {
-          this.profile.set(null);
-          this.loading.set(false);
-          return;
-        }
-
         if (err.status === 401) {
           this.router.navigate(['/auth/sign-in']);
           return;

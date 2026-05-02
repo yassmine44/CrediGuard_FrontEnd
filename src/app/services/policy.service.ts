@@ -52,7 +52,8 @@ export class PolicyService {
   delete(id: number): Observable<any> {
     return this.http.delete<any>(`${this.api}/${id}`);
   }
-  getByClient(clientId: number) {
-  return this.http.get(`http://localhost:8089/insurance/policies/by-client/${clientId}`);
-}
+
+  getByClient(clientId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/by-client/${clientId}`);
+  }
 }

@@ -3,9 +3,9 @@
   <div class="analytics-header">
     <div class="title-section">
        <h1>📑 Moteur de Décision Assurance</h1>
-       <p>Gestion intelligente des réclamations via règles métier</p>
+       <p>Gestion intelligente des réclamations — Règles métier + IA Segmentation Client</p>
     </div>
-    
+
     <div class="analytics-toggle">
        <div class="indicator" [class.active]="autoAnalysisEnabled"></div>
        <label class="switch">
@@ -31,6 +31,10 @@
         <span class="label">Risque Moyen Global</span>
         <span class="value">{{ totalRiskScore }}%</span>
         <div class="risk-gauge"><div [style.width.%]="totalRiskScore" [ngClass]="getRiskLevel(totalRiskScore)"></div></div>
+      </div>
+      <div class="stat-card ml-stat">
+        <span class="label">Segmentés par IA</span>
+        <span class="value ml-value">{{ mlSegmentedCount }}<span class="ml-total"> / {{ claims.length }}</span></span>
       </div>
     </div>
 
@@ -63,7 +67,8 @@
           <th>Référence</th>
           <th>Client</th>
           <th>Score de Risque</th>
-          <th>Analyse IA</th>
+          <th>Règles Métier</th>
+          <th>Segment IA 🤖</th>
           <th>Recommandations</th>
           <th>Statut</th>
           <th>Actions</th>
@@ -73,7 +78,7 @@
         <tr *ngFor="let c of filteredClaims" [class.critical-row]="c.riskScore >= 70">
           <td>#{{ c.id }}</td>
           <td class="ref-col">{{ c.claimReference }}</td>
-          <td>{{ c.voucher?.client?.fullName || 'N/A' }}</td>
+          <td>{{ c.user?.fullName || c.voucher?.client?.fullName || 'N/A' }}</td>
           <td>
             <div class="risk-pill" [ngClass]="c.riskLevel">
                {{ c.riskScore }} pts
@@ -83,6 +88,25 @@
             <span class="level-indicator" [ngClass]="c.riskLevel">
                {{ c.riskLevel }}
             </span>
+          </td>
+          <!-- ML SEGMENT CELL -->
+          <td class="ml-cell">
+            <ng-container *ngIf="c.mlLoading">
+              <span class="ml-spinner">⏳</span>
+            </ng-container>
+            <ng-container *ngIf="!c.mlLoading && c.mlSegment">
+              <div class="ml-badge" [ngClass]="getSegmentClass(c.mlSegment.segment)">
+                <span class="ml-type" *ngIf="c.mlSegment.interpretation?.includes('Fallback')">⚠️ SIM</span>
+                {{ getSegmentIcon(c.mlSegment.segment) }} {{ c.mlSegment.segment }}
+                <span class="confidence">{{ (c.mlSegment.confidence * 100).toFixed(0) }}%</span>
+                <div class="ml-source" *ngIf="c.mlSegment.interpretation?.includes('Fallback')">Rule Engine</div>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="!c.mlLoading && !c.mlSegment">
+              <button class="btn btn-segment" (click)="runSegmentation(c)" title="Analyser avec l'IA">
+                🤖 Analyser
+              </button>
+            </ng-container>
           </td>
           <td class="reco-col">{{ c.recommendation }}</td>
           <td>
@@ -108,26 +132,28 @@
   <div class="modal-overlay" *ngIf="selectedClaim" (click)="closeDetails()">
      <div class="modal-card" (click)="$event.stopPropagation()">
         <div class="modal-header">
-           <h2>🧪 Analyse de Risque Détaillée — {{ selectedClaim.claimReference }}</h2>
+           <h2>🧪 Analyse Détaillée — {{ selectedClaim.claimReference }}</h2>
            <button class="close-btn" (click)="closeDetails()">×</button>
         </div>
-        
+
         <div class="modal-body">
+           <!-- RULE-BASED RISK SUMMARY -->
            <div class="risk-summary">
               <div class="risk-circle" [ngClass]="selectedClaim.riskLevel">
                  <span class="pts">{{ selectedClaim.riskScore }}</span>
                  <span class="lvl">SCORE FINAL</span>
               </div>
               <div class="info-grid">
-                 <div><strong>Client:</strong> {{ selectedClaim.voucher?.client?.fullName }}</div>
-                 <div><strong>Montant:</strong> {{ selectedClaim.voucher?.amount }} TND</div>
+                 <div><strong>Client:</strong> {{ selectedClaim.user?.fullName || selectedClaim.voucher?.client?.fullName }}</div>
+                 <div><strong>Montant:</strong> {{ selectedClaim.amountRequested || selectedClaim.voucher?.amount }} TND</div>
                  <div><strong>Date:</strong> {{ selectedClaim.createdAt | date:'medium' }}</div>
                  <div><strong>Catégorie:</strong> {{ selectedClaim.voucher?.product?.category || 'PRODUIT' }}</div>
               </div>
            </div>
 
+           <!-- BREAKDOWN -->
            <div class="breakdown-section">
-              <h3>📜 Décomposition du score</h3>
+              <h3>📜 Décomposition du score (règles métier)</h3>
               <div class="rule-row" *ngFor="let r of selectedClaim.breakdown">
                  <div class="rule-name">
                     <span class="tag">{{ r.rule }}</span>
@@ -139,6 +165,78 @@
                  Aucun facteur de risque identifié ✅
               </div>
            </div>
+
+           <!-- ======================================= -->
+           <!-- 🤖 ML SEGMENTATION PANEL                -->
+           <!-- ======================================= -->
+           <div class="ml-panel">
+              <div class="ml-panel-header">
+                 <h3>🤖 Segmentation Client par Machine Learning</h3>
+                 <p>Modèle de classification entraîné sur profil client, historique paiements & sinistres</p>
+              </div>
+
+              <!-- Not yet run -->
+              <div *ngIf="!segmentationResult && !segmentationLoading && !segmentationError" class="ml-idle">
+                 <div class="ml-idle-icon">🧠</div>
+                 <p>Lancez l'analyse pour obtenir le segment de risque prédit par le modèle IA.</p>
+                 <button class="btn btn-segment-lg" (click)="runSegmentation(selectedClaim)">
+                   🤖 Lancer la Segmentation IA
+                 </button>
+              </div>
+
+              <!-- Loading -->
+              <div *ngIf="segmentationLoading" class="ml-loading">
+                 <div class="ml-spinner-lg"></div>
+                 <p>Appel du modèle de segmentation...</p>
+              </div>
+
+              <!-- Error -->
+              <div *ngIf="segmentationError" class="ml-error">
+                 <span>⚠️ {{ segmentationError }}</span>
+                 <button class="btn btn-segment-lg" (click)="runSegmentation(selectedClaim)">Réessayer</button>
+              </div>
+
+              <!-- Result -->
+              <div *ngIf="segmentationResult && !segmentationLoading" class="ml-result">
+                 <div class="ml-segment-badge" [ngClass]="getSegmentClass(segmentationResult.segment)">
+                    <span class="ml-seg-icon">{{ getSegmentIcon(segmentationResult.segment) }}</span>
+                    <span class="ml-seg-label">{{ segmentationResult.segment }}</span>
+                    <span class="ml-seg-conf">Confiance : {{ (segmentationResult.confidence * 100).toFixed(1) }}%</span>
+                 </div>
+
+                 <div class="ml-probabilities">
+                    <h4>Probabilités par segment</h4>
+                    <div class="prob-bar-wrapper" *ngFor="let p of getProbabilityEntries(segmentationResult.probabilities)">
+                       <div class="prob-label">{{ p.key }}</div>
+                       <div class="prob-track">
+                          <div class="prob-fill"
+                               [ngClass]="getSegmentClass(p.key)"
+                               [style.width.%]="p.value * 100">
+                          </div>
+                       </div>
+                       <div class="prob-pct">{{ (p.value * 100).toFixed(1) }}%</div>
+                    </div>
+                 </div>
+
+                 <div class="ml-interpretation" [ngClass]="getSegmentClass(segmentationResult.segment)">
+                    <strong>Interprétation :</strong>
+                    <span *ngIf="segmentationResult.segment === 'High Risk'">
+                      Ce client présente un profil à haut risque. Investigation approfondie recommandée avant tout paiement.
+                    </span>
+                    <span *ngIf="segmentationResult.segment === 'Medium Risk'">
+                      Profil intermédiaire. Une revue manuelle est conseillée pour ce sinistre.
+                    </span>
+                    <span *ngIf="segmentationResult.segment === 'Low Risk'">
+                      Profil client favorable. Le sinistre peut être traité en priorité.
+                    </span>
+                 </div>
+
+                 <button class="btn btn-segment-sm" (click)="runSegmentation(selectedClaim)">
+                   🔄 Relancer l'analyse
+                 </button>
+              </div>
+           </div>
+           <!-- END ML PANEL -->
 
            <div class="recommendation-box" [ngClass]="selectedClaim.riskLevel">
               <h3>🏁 Conclusion du moteur :</h3>
@@ -153,4 +251,5 @@
         </div>
      </div>
   </div>
+
 </div>

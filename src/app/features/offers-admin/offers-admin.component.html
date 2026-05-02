@@ -1,0 +1,133 @@
+<div class="admin-container">
+  <div class="header">
+    <h1>📦 Gestion des Offres & Assureurs</h1>
+    <div class="actions">
+      <button class="btn-primary" (click)="showCompanyForm = !showCompanyForm; showOfferForm = false">
+        {{ showCompanyForm ? '✖ Fermer' : '➕ Nouvelle Compagnie' }}
+      </button>
+      <button class="btn-secondary" (click)="showOfferForm = !showOfferForm; showCompanyForm = false">
+        {{ showOfferForm ? '✖ Fermer' : '🛡️ Nouvelle Offre' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="message" class="alert" [class.success]="message.includes('✅')" [class.error]="message.includes('❌')">
+    {{ message }}
+  </div>
+
+  <!-- FORM : NEW COMPANY -->
+  <div *ngIf="showCompanyForm" class="form-card fade-in">
+    <h3>🏢 Enregistrer une Compagnie d'Assurance</h3>
+    <div class="grid-form">
+      <div class="input-group">
+        <label>Nom de la compagnie</label>
+        <input type="text" [(ngModel)]="newCompany.name" placeholder="Ex: STAR, GAT, COMAR...">
+      </div>
+      <div class="input-group">
+        <label>N° Matricule / Registre</label>
+        <input type="text" [(ngModel)]="newCompany.registrationNumber" placeholder="Ex: REG-123456">
+      </div>
+      <div class="input-group">
+        <label>Email de contact</label>
+        <input type="email" [(ngModel)]="newCompany.email" placeholder="contact@assurance.tn">
+      </div>
+      <div class="input-group">
+        <label>Téléphone</label>
+        <input type="text" [(ngModel)]="newCompany.phoneNumber" placeholder="+216 ...">
+      </div>
+    </div>
+    <button class="btn-save" (click)="createCompany()" [disabled]="loading">
+      {{ loading ? 'Enregistrement...' : 'Enregistrer la Compagnie' }}
+    </button>
+  </div>
+
+  <!-- FORM : NEW OFFER -->
+  <div *ngIf="showOfferForm" class="form-card fade-in">
+    <h3>🛡️ Créer une Nouvelle Offre d'Assurance</h3>
+    <div class="grid-form">
+      <div class="input-group">
+        <label>Compagnie d'Assurance</label>
+        <select [(ngModel)]="newOffer.companyId">
+          <option [ngValue]="null">Choisir une compagnie...</option>
+          <option *ngFor="let c of companies" [value]="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Nom de l'offre</label>
+        <input type="text" [(ngModel)]="newOffer.name" placeholder="Ex: Pack Transport Pro">
+      </div>
+      <div class="input-group">
+        <label>Prime Annuelle (TND)</label>
+        <input type="number" [(ngModel)]="newOffer.annualPremium">
+      </div>
+      <div class="input-group">
+        <label>Type de couverture</label>
+        <select [(ngModel)]="newOffer.type">
+          <option value="LIFE">Vie & Santé</option>
+          <option value="PROPERTY">Biens & Matériel</option>
+          <option value="TRANSPORT">Transport</option>
+          <option value="LOAN">Crédit</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Montant Couvert Max (TND)</label>
+        <input type="number" [(ngModel)]="newOffer.coverageAmount" placeholder="Ex: 50000">
+      </div>
+      <div class="input-group">
+        <label>Franchise (TND)</label>
+        <input type="number" [(ngModel)]="newOffer.franchise" placeholder="Ex: 200">
+      </div>
+      <div class="input-group">
+        <label>Taux de Couverture (%)</label>
+        <input type="number" [(ngModel)]="newOffer.coverageRate" placeholder="Ex: 100">
+      </div>
+      <div class="input-group" style="grid-column: span 2;">
+        <label>Détails de l'offre</label>
+        <textarea [(ngModel)]="newOffer.coverageDetails" rows="3" placeholder="Décrivez les garanties..."></textarea>
+      </div>
+    </div>
+    <button class="btn-save" (click)="createOffer()" [disabled]="loading">
+      {{ loading ? 'Création...' : "Publier l'offre" }}
+    </button>
+  </div>
+
+  <!-- LIST OF OFFERS -->
+  <div class="list-section">
+    <h2>📋 Catalogue des Offres Actives</h2>
+    <div class="table-wrapper">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Offre</th>
+            <th>Compagnie</th>
+            <th>Type</th>
+            <th>Prime</th>
+            <th>Couverture</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let o of offers">
+            <td><strong>{{ o.name }}</strong></td>
+            <td>{{ o.companyName || o.insuranceCompany?.name }}</td>
+            <td><span class="type-badge">{{ o.type }}</span></td>
+            <td>{{ o.annualPremium }} TND</td>
+            <td>{{ o.coverageAmount }} TND</td>
+            <td>
+              <span class="status-badge" [class.active]="o.active">
+                {{ o.active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-delete" (click)="deleteOffer(o.id)">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="offers.length === 0">
+            <td colspan="7" class="empty">Aucune offre trouvée. Commencez par en créer une !</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
