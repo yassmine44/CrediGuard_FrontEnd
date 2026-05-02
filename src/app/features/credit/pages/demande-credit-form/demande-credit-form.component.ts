@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DemandeCreditService } from '../../services/demande-credit.service';
 import { UserClientService } from '../../services/user-client.service';
+import { EvaluationRisqueService, ProfilLoanGrade } from '../../services/evaluation-risque.service';
 import { ClientOption } from '../../models/client-option.model';
 import {
   DemandeCreditRequest,
@@ -21,16 +22,24 @@ export class DemandeCreditFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private demandeService = inject(DemandeCreditService);
   private userClientService = inject(UserClientService);
+  private evaluationService = inject(EvaluationRisqueService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   loading = signal(false);
   saving = signal(false);
+  predictionLoading = signal(false);
+
   error = signal('');
+  predictionError = signal('');
+  predictionSuccess = signal('');
+
   isEditMode = signal(false);
 
   clients = signal<ClientOption[]>([]);
+
   readonly typeCredits: TypeCredit[] = ['NUMERAIRE', 'EN_NATURE', 'VOUCHER'];
+  readonly loanGrades: ProfilLoanGrade[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 
   demandeId: number | null = null;
 
@@ -51,6 +60,12 @@ export class DemandeCreditFormComponent implements OnInit {
     clientId: this.fb.control<number | null>(null, [
       Validators.required,
       Validators.min(1),
+    ]),
+    loanGrade: this.fb.control<ProfilLoanGrade>('B', Validators.required),
+    interestRate: this.fb.control<number | null>(11.5, [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(30),
     ]),
   });
 
@@ -146,6 +161,40 @@ export class DemandeCreditFormComponent implements OnInit {
         },
       });
     }
+  }
+
+  runPrediction(): void {
+    if (!this.demandeId) return;
+
+    const loanGrade = this.form.controls.loanGrade.value;
+    const interestRate = this.form.controls.interestRate.value;
+
+    if (!loanGrade || !interestRate) {
+      this.predictionError.set('Loan grade and interest rate are required.');
+      return;
+    }
+
+    this.predictionLoading.set(true);
+    this.predictionSuccess.set('');
+    this.predictionError.set('');
+
+    this.evaluationService.predictWithModel(this.demandeId, {
+      loanGrade,
+      interestRate: Number(interestRate),
+      nSim: 500,
+      noiseFactor: 0.01,
+    }).subscribe({
+      next: () => {
+        this.predictionLoading.set(false);
+        this.predictionSuccess.set('Prediction completed successfully.');
+        this.router.navigate(['/admin/credit/demandes', this.demandeId, 'evaluation']);
+      },
+      error: (err) => {
+        console.error(err);
+        this.predictionLoading.set(false);
+        this.predictionError.set(err?.error?.error || 'Prediction failed.');
+      },
+    });
   }
 
   cancel(): void {

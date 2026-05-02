@@ -1,0 +1,279 @@
+<div class="modalite-page">
+    <div class="page-header">
+      <div>
+        <span class="section-label">Credit Payment Strategy</span>
+        <h1>Modalite de remboursement</h1>
+        <p>
+          Analyse de la capacite du client, choix admin et tableau d'amortissement reel.
+        </p>
+      </div>
+  
+      <div class="header-actions">
+        <button class="btn btn-secondary" type="button" (click)="goBack()">
+          Back to Evaluation
+        </button>
+  
+        <button class="btn btn-light" type="button" (click)="goToDossier()">
+          Back to Dossier
+        </button>
+      </div>
+    </div>
+  
+    <div *ngIf="loading()" class="state-box">
+      Loading modalite...
+    </div>
+  
+    <div *ngIf="error()" class="state-box error">
+      {{ error() }}
+    </div>
+  
+    <div *ngIf="success()" class="state-box success">
+      {{ success() }}
+    </div>
+  
+    <div *ngIf="notFound() && !loading()" class="empty-card">
+      <h3>No modalite generated yet</h3>
+      <p>
+        The ML prediction exists, but the repayment modalite has not been generated yet.
+        Generate it to calculate the recommended strategy.
+      </p>
+  
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="generateModalite()"
+        [disabled]="generating()"
+      >
+        {{ generating() ? 'Generating...' : 'Generate Modalite' }}
+      </button>
+    </div>
+  
+    <div *ngIf="!loading() && modalite() as m" class="modalite-card">
+      <div class="modalite-top">
+        <div>
+          <span class="section-label red">Recommended Modalite</span>
+          <h2>{{ m.modaliteRecommandee }}</h2>
+          <p>{{ m.motif }}</p>
+        </div>
+  
+        <span
+          class="decision-pill"
+          [ngClass]="{
+            accepted: m.decision === 'ACCEPTER',
+            conditional: m.decision === 'CONDITIONNEL',
+            refused: m.decision === 'REFUS'
+          }"
+        >
+          {{ m.decision }}
+        </span>
+      </div>
+  
+      <div class="summary-grid">
+        <div class="summary-card blue">
+          <span>Monthly Capacity</span>
+          <strong>{{ m.capaciteMensuelleMax | number:'1.0-2' }} TND</strong>
+        </div>
+  
+        <div class="summary-card red">
+          <span>Fixed Annual Rate</span>
+          <strong>{{ m.tauxInteretAnnuel | number:'1.0-2' }}%</strong>
+        </div>
+  
+        <div class="summary-card blue">
+          <span>Amortissable Monthly</span>
+          <strong>{{ m.mensualiteAmortissable | number:'1.0-2' }} TND</strong>
+        </div>
+  
+        <div class="summary-card red">
+          <span>In Fine Monthly</span>
+          <strong>{{ m.mensualiteInFine | number:'1.0-2' }} TND</strong>
+        </div>
+      </div>
+  
+      <div class="payment-preview">
+        <div>
+          <span class="section-label white">How the client will pay</span>
+          <h3>{{ selectedModalite || m.modaliteRecommandee }}</h3>
+          <p>{{ selectedExplanation() }}</p>
+        </div>
+  
+        <div class="payment-numbers">
+          <div>
+            <span>Monthly payment</span>
+            <strong>{{ selectedMonthlyAmount() | number:'1.0-2' }} TND</strong>
+          </div>
+  
+          <div>
+            <span>Total estimated cost</span>
+            <strong>{{ selectedTotalCost() | number:'1.0-2' }} TND</strong>
+          </div>
+  
+          <div *ngIf="m.graceActive">
+            <span>Grace period</span>
+            <strong>
+              {{ m.dureeGraceMois }} months at
+              {{ m.mensualiteGrace | number:'1.0-2' }} TND/month
+            </strong>
+          </div>
+        </div>
+      </div>
+  
+      <div class="details-grid">
+        <div class="detail-card">
+          <h3>Recognized Income</h3>
+  
+          <div class="info-row">
+            <span>Current monthly income</span>
+            <strong>{{ m.revenuMensuelActuel | number:'1.0-2' }} TND</strong>
+          </div>
+  
+          <div class="info-row">
+            <span>Recognized future income</span>
+            <strong>{{ m.revenuFuturReconnu | number:'1.0-2' }} TND</strong>
+          </div>
+  
+          <div class="info-row">
+            <span>Total recognized income</span>
+            <strong>{{ m.revenuTotalReconnu | number:'1.0-2' }} TND</strong>
+          </div>
+  
+          <div class="info-row">
+            <span>Monthly charges</span>
+            <strong>{{ m.chargesMensuellesTotales | number:'1.0-2' }} TND</strong>
+          </div>
+        </div>
+  
+        <div class="detail-card">
+          <h3>Risk And Basel Indicators</h3>
+  
+          <div class="info-row">
+            <span>Default probability</span>
+            <strong>{{ m.probabiliteDefaut | percent:'1.0-2' }}</strong>
+          </div>
+  
+          <div class="info-row">
+            <span>VaR 95%</span>
+            <strong>{{ m.var95 | percent:'1.0-2' }}</strong>
+          </div>
+  
+          <div class="info-row">
+            <span>Score credit</span>
+            <strong>{{ m.scoreCredit | number:'1.0-2' }}</strong>
+          </div>
+  
+          <div class="info-row">
+            <span>Payment to income</span>
+            <strong>{{ m.paymentToIncome | percent:'1.0-2' }}</strong>
+          </div>
+  
+          <div class="info-row">
+            <span>Financial stress</span>
+            <strong>{{ m.financialStress ? 'YES' : 'NO' }}</strong>
+          </div>
+        </div>
+      </div>
+  
+      <div class="choice-card">
+        <div>
+          <h3>Admin Choice</h3>
+          <p>
+            Choose the final modalite. This choice will be used to create the amortization table and PDF.
+          </p>
+        </div>
+  
+        <div class="choice-form">
+          <label>
+            Final modalite
+            <select [(ngModel)]="selectedModalite">
+              <option *ngFor="let modalite of availableModalites()" [ngValue]="modalite">
+                {{ modalite }}
+              </option>
+            </select>
+          </label>
+  
+          <label>
+            Admin comment
+            <textarea
+              rows="3"
+              [(ngModel)]="commentaireAdmin"
+              placeholder="Write the reason for the chosen modalite"
+            ></textarea>
+          </label>
+  
+          <label>
+            Chosen by
+            <input type="text" [(ngModel)]="choisiePar" />
+          </label>
+  
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="chooseModalite()"
+            [disabled]="saving()"
+          >
+            {{ saving() ? 'Saving...' : 'Save Modalite Choice' }}
+          </button>
+        </div>
+      </div>
+  
+      <div class="amortization-card" *ngIf="amortissement().length > 0">
+        <div class="amortization-header">
+          <div>
+            <span class="section-label red">Tableau d'amortissement</span>
+            <h3>Calendrier reel de remboursement</h3>
+            <p>
+              Chaque ligne montre la mensualite, les interets, le capital rembourse et le capital restant du.
+            </p>
+          </div>
+  
+          <button
+            class="btn btn-red"
+            type="button"
+            (click)="downloadAmortissementPdf()"
+            [disabled]="pdfLoading()"
+          >
+            {{ pdfLoading() ? 'Preparing PDF...' : 'Download PDF' }}
+          </button>
+        </div>
+  
+        <div class="amortization-table-wrap">
+          <table class="amortization-table">
+            <thead>
+              <tr>
+                <th>Mois</th>
+                <th>Date</th>
+                <th>Phase</th>
+                <th>Mensualite</th>
+                <th>Interet</th>
+                <th>Capital</th>
+                <th>Restant du</th>
+              </tr>
+            </thead>
+  
+            <tbody>
+              <tr *ngFor="let row of amortissement()">
+                <td>#{{ row.numeroEcheance }}</td>
+                <td>{{ row.dateEcheance | date:'mediumDate' }}</td>
+                <td>
+                  <span class="phase-pill" [ngClass]="row.phase.toLowerCase()">
+                    {{ row.phase }}
+                  </span>
+                </td>
+                <td>{{ row.mensualite | number:'1.0-2' }} TND</td>
+                <td>{{ row.interet | number:'1.0-2' }} TND</td>
+                <td>{{ row.capitalRembourse | number:'1.0-2' }} TND</td>
+                <td class="strong">{{ row.capitalRestantDu | number:'1.0-2' }} TND</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  
+      <div class="empty-amortization" *ngIf="m.decision !== 'REFUS' && amortissement().length === 0">
+        <p>
+          Save or generate a valid modalite to display the amortization table.
+        </p>
+      </div>
+    </div>
+  </div>
+  

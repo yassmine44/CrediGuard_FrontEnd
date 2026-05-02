@@ -1,0 +1,199 @@
+<div class="advisor-page">
+    <div class="advisor-loading" *ngIf="loading()">
+      <div class="loader"></div>
+      <p>Preparing your financial roadmap...</p>
+    </div>
+  
+    <div class="advisor-error" *ngIf="error() && !loading()">
+      <h2>Financial advisor unavailable</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="goBack()">Back to requests</button>
+    </div>
+  
+    <ng-container *ngIf="!loading() && !error() && plan() as plan">
+      <section class="advisor-hero">
+        <span class="hero-pill">CrediGuard Financial Roadmap</span>
+  
+        <h1>Your path to a stronger credit file</h1>
+  
+        <p>
+          This report shows practical banking paths to improve your request:
+          repayment gap, own contribution, guarantee value, and safer financing options.
+        </p>
+      </section>
+  
+      <section class="diagnosis-card">
+        <div>
+          <span class="pill blue">Banking Diagnosis</span>
+          <h2>{{ plan.statusTitle }}</h2>
+          <p>{{ plan.statusMessage }}</p>
+        </div>
+  
+        <div class="gap-box" [class.good]="plan.paymentGap <= 0">
+          <span>Payment gap</span>
+          <strong>{{ money(plan.paymentGap) }}</strong>
+          <small>Monthly amount to close</small>
+        </div>
+      </section>
+  
+      <section class="metric-grid">
+        <div class="metric-card blue">
+          <span>Estimated monthly payment</span>
+          <strong>{{ money(plan.monthlyPayment) }}</strong>
+          <p>Expected monthly amount for the credit.</p>
+        </div>
+  
+        <div class="metric-card green">
+          <span>Monthly capacity</span>
+          <strong>{{ money(plan.monthlyCapacity) }}</strong>
+          <p>Safe monthly repayment capacity.</p>
+        </div>
+  
+        <div class="metric-card red">
+          <span>Recommended own contribution</span>
+          <strong>{{ money(plan.recommendedOwnContribution) }}</strong>
+          <p>Amount to cover outside the credit.</p>
+        </div>
+  
+        <div class="metric-card blue">
+          <span>Suggested guarantee value</span>
+          <strong>{{ money(plan.suggestedGuaranteeValue) }}</strong>
+          <p>Indicative collateral or guarantor coverage.</p>
+        </div>
+      </section>
+  
+      <section class="napkin-board">
+        <div class="board-head">
+          <span class="pill red">Napkin Banking Map</span>
+  
+          <h2>How to make this credit file stronger</h2>
+  
+          <p>
+            This map shows the exact banking path from the current request to a stronger,
+            more defensible credit file.
+          </p>
+        </div>
+  
+        <div class="credit-map">
+          <div class="map-node current">
+            <span class="node-step">01</span>
+            <h3>Current request</h3>
+            <p>Estimated monthly payment</p>
+            <strong>{{ money(plan.monthlyPayment) }}</strong>
+          </div>
+  
+          <div class="map-line"></div>
+  
+          <div class="map-node constraint">
+            <span class="node-step">02</span>
+            <h3>Banking constraint</h3>
+            <p>Safe monthly capacity</p>
+            <strong>{{ money(plan.monthlyCapacity) }}</strong>
+          </div>
+  
+          <div class="map-line"></div>
+  
+          <div class="map-node gap" [class.good]="plan.paymentGap <= 0">
+            <span class="node-step">03</span>
+            <h3>{{ plan.paymentGap > 0 ? 'Gap to close' : 'Capacity is sufficient' }}</h3>
+            <p>Monthly repayment gap</p>
+            <strong>{{ money(plan.paymentGap) }}</strong>
+          </div>
+  
+          <div class="map-line"></div>
+  
+          <div class="map-node final">
+            <span class="node-step">04</span>
+            <h3>Stronger file</h3>
+            <p>Best banking reinforcement</p>
+            <strong>{{ primaryPath()?.title || 'Eligible guarantee' }}</strong>
+          </div>
+        </div>
+  
+        <div class="branch-title">
+          <span></span>
+          <h3>Choose the strongest path</h3>
+          <span></span>
+        </div>
+  
+        <div class="path-lanes">
+          <button
+            type="button"
+            class="path-lane"
+            *ngFor="let path of plan.paths"
+            [class.active]="selectedPath()?.id === path.id"
+            (click)="selectPath(path)"
+          >
+            <div class="lane-number">Path {{ path.priority }}</div>
+  
+            <div>
+              <h4>{{ path.title }}</h4>
+              <p>{{ path.subtitle }}</p>
+            </div>
+  
+            <div class="lane-metric">
+              <span>{{ path.amountLabel }}</span>
+              <strong>{{ money(path.amount) }}</strong>
+              <small>{{ path.amountSuffix }}</small>
+            </div>
+          </button>
+        </div>
+      </section>
+  
+      <section class="selected-action" *ngIf="selectedPath() as selected">
+        <div>
+          <span class="pill blue">Recommended Action</span>
+          <h2>{{ selected.title }}</h2>
+          <p>{{ selected.explanation }}</p>
+        </div>
+  
+        <div class="prepare-card">
+          <h3>What to prepare</h3>
+          <p>{{ selected.action }}</p>
+        </div>
+      </section>
+  
+      <section class="timeline-card">
+        <span class="pill red">Action Plan</span>
+  
+        <h2>30 / 60 / 90 day preparation</h2>
+  
+        <p>
+          A simple preparation roadmap before submitting a stronger file.
+        </p>
+  
+        <div class="timeline-grid">
+          <div>
+            <span>Next 30 days</span>
+            <p>
+              Collect invoices, bank statements, supplier quotes, client orders,
+              and proof of activity.
+            </p>
+          </div>
+  
+          <div>
+            <span>Next 60 days</span>
+            <p>
+              Prepare the selected path: guarantee documents, own contribution proof,
+              or signed client commitments.
+            </p>
+          </div>
+  
+          <div>
+            <span>Next 90 days</span>
+            <p>
+              Submit a stronger request with clearer repayment capacity and a more secure
+              financing structure.
+            </p>
+          </div>
+        </div>
+      </section>
+  
+      <div class="page-actions">
+        <button type="button" class="secondary-btn" (click)="goBack()">
+          Back to my requests
+        </button>
+      </div>
+    </ng-container>
+  </div>
+  

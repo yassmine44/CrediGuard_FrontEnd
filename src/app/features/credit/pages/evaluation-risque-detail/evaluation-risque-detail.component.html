@@ -6,6 +6,15 @@
       </div>
   
       <div class="header-actions">
+        <button class="btn btn-primary" type="button" (click)="goToModalite()" *ngIf="evaluation()">
+          Modalite
+        </button>
+        
+        <button class="btn btn-primary" type="button" (click)="goToAdvisor()" *ngIf="evaluation()">
+          Financial Advisor
+        </button>
+        
+      
         <button class="btn btn-secondary" type="button" (click)="goToProfil()">
           Credit Profile
         </button>

@@ -92,13 +92,13 @@ export class CreditComponent implements OnInit {
     this.router.navigate(['/front/credit/history']);
   }
 
-  goToWallet(): void {
+  goToAdvisor(): void {
     if (!this.isLoggedIn()) {
       this.router.navigate(['/auth/sign-in']);
       return;
     }
 
-    this.router.navigate(['/front/credit/wallet']);
+    this.router.navigate(['/front/credit/history']);
   }
 
   goToLogin(): void {

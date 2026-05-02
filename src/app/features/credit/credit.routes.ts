@@ -46,6 +46,13 @@ export const CREDIT_ROUTES: Routes = [
         .then(m => m.CreditWalletAdminComponent),
   },
   {
+    path: 'demandes/:demandeId/advisor',
+    loadComponent: () =>
+      import('./pages/financial-advisor/financial-advisor.component')
+        .then(m => m.FinancialAdvisorComponent),
+  },
+  
+  {
     path: 'demandes/:id',
     component: DemandeCreditDetailComponent,
   },
@@ -61,4 +68,11 @@ export const CREDIT_ROUTES: Routes = [
       import('./pages/decision-credit-form/decision-credit-form.component')
         .then(m => m.DecisionCreditFormComponent),
   },
+  {
+    path: 'demandes/:demandeId/modalite',
+    loadComponent: () =>
+      import('./pages/modalite-detail/modalite-detail.component')
+        .then(m => m.ModaliteDetailComponent),
+  },
+  
 ];

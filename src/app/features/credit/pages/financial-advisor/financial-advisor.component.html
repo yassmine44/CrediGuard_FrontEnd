@@ -1,0 +1,201 @@
+<div class="advisor-page">
+    <div class="advisor-header">
+      <div>
+        <span class="eyebrow">CREDIGUARD FINANCIAL ADVISOR</span>
+        <h1>Personal Financial Advisor</h1>
+        <p>
+          A client-facing improvement roadmap built from credit profile, repayment capacity,
+          scenario simulations, and business context.
+        </p>
+      </div>
+  
+      <div class="header-actions">
+        <button type="button" class="btn ghost" (click)="goBack()">Back to Evaluation</button>
+        <button type="button" class="btn primary" (click)="goToModalite()">Repayment Modalite</button>
+      </div>
+    </div>
+  
+    <div *ngIf="loading()" class="state-card">Loading financial advisor...</div>
+    <div *ngIf="error()" class="state-card error">{{ error() }}</div>
+  
+    <ng-container *ngIf="!loading() && advisor() as a">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <span class="eyebrow red">{{ a.engine }}</span>
+          <h2>{{ a.clientReport.title }}</h2>
+          <p>{{ a.clientReport.headline }}</p>
+          <strong>{{ a.clientReport.businessContext }}</strong>
+        </div>
+  
+        <div class="score-orb">
+          <span>Profile Score</span>
+          <strong>{{ a.baseline.score | number:'1.0-2' }}</strong>
+          <small>{{ a.baseline.decision }}</small>
+        </div>
+      </section>
+  
+      <section class="metrics-grid">
+        <div class="metric-card blue">
+          <span>Current Scenario Risk</span>
+          <strong>{{ riskPercent(a.baseline.scenarioRisk) }}%</strong>
+          <p>Risk under a prudent scenario.</p>
+        </div>
+  
+        <div class="metric-card red">
+          <span>Severe Scenario Risk</span>
+          <strong>{{ riskPercent(a.baseline.severeRisk) }}%</strong>
+          <p>Risk under a stronger adverse case.</p>
+        </div>
+  
+        <div class="metric-card">
+          <span>Stability Level</span>
+          <strong>{{ a.baseline.highUncertainty ? 'Sensitive' : 'Stable' }}</strong>
+          <p>How much the profile changes across scenarios.</p>
+        </div>
+  
+        <div class="metric-card">
+          <span>Best Path</span>
+          <strong>{{ a.bestPath?.title || 'Build stronger evidence' }}</strong>
+          <p>{{ a.bestPath?.message || 'More documentation is required.' }}</p>
+        </div>
+      </section>
+  
+      <section class="advisor-narrative">
+        <div>
+          <span class="eyebrow">CLIENT REPORT</span>
+          <h2>Clear Financial Guidance</h2>
+        </div>
+        <p>{{ a.clientReport.aiNarrative || a.clientReport.clientMessage }}</p>
+      </section>
+  
+      <section class="path-section">
+        <div class="section-title">
+          <span class="eyebrow red">IMPROVEMENT PATHS</span>
+          <h2>What can improve this profile?</h2>
+          <p>
+            Each path shows a practical action and how the profile changes after simulation.
+          </p>
+        </div>
+  
+        <div class="path-map">
+          <div class="path-node current">
+            <span>01</span>
+            <strong>Current profile</strong>
+            <p>Score {{ a.baseline.score | number:'1.0-2' }}</p>
+          </div>
+  
+          <div class="connector"></div>
+  
+          <div class="path-node best">
+            <span>02</span>
+            <strong>{{ a.bestPath?.title || 'Best improvement path' }}</strong>
+            <p>{{ a.bestPath?.action || a.clientReport.mainRecommendation }}</p>
+          </div>
+  
+          <div class="connector"></div>
+  
+          <div class="path-node final">
+            <span>03</span>
+            <strong>New simulation</strong>
+            <p>Use the improved profile for a stronger request.</p>
+          </div>
+        </div>
+  
+        <div class="paths-grid">
+          <article class="path-card" *ngFor="let path of a.improvementPaths; let i = index">
+            <div class="path-rank">Path {{ i + 1 }}</div>
+            <h3>{{ path.title }}</h3>
+            <p>{{ path.message }}</p>
+  
+            <div class="path-stats">
+              <div>
+                <span>Score after</span>
+                <strong>{{ path.scoreAfter | number:'1.0-2' }}</strong>
+              </div>
+              <div>
+                <span>Score gain</span>
+                <strong>{{ path.scoreGain | number:'1.0-2' }}</strong>
+              </div>
+              <div>
+                <span>Risk after</span>
+                <strong>{{ riskPercent(path.riskAfter) }}%</strong>
+              </div>
+            </div>
+  
+            <div class="path-action">
+              <span>Recommended action</span>
+              <strong>{{ path.action }}</strong>
+            </div>
+          </article>
+        </div>
+      </section>
+  
+      <section class="charts-grid">
+        <div class="chart-card">
+          <div>
+            <span class="eyebrow">SCORE CURVE</span>
+            <h3>Profile Score By Path</h3>
+          </div>
+          <div class="chart-box">
+            <canvas baseChart type="bar" [data]="scoreChartData()" [options]="scoreChartOptions"></canvas>
+          </div>
+        </div>
+  
+        <div class="chart-card">
+          <div>
+            <span class="eyebrow red">RISK CURVE</span>
+            <h3>Risk Under Each Path</h3>
+          </div>
+          <div class="chart-box">
+            <canvas baseChart type="line" [data]="riskChartData()" [options]="riskChartOptions"></canvas>
+          </div>
+        </div>
+  
+        <div class="chart-card wide">
+          <div>
+            <span class="eyebrow">PATH IMPACT</span>
+            <h3>Which path improves the profile most?</h3>
+          </div>
+          <div class="chart-box">
+            <canvas baseChart type="bar" [data]="impactChartData()" [options]="impactChartOptions"></canvas>
+          </div>
+        </div>
+      </section>
+  
+      <section class="insight-grid">
+        <div class="insight-card">
+          <span class="eyebrow">STRENGTHS</span>
+          <h3>What supports the profile</h3>
+          <ul>
+            <li *ngFor="let item of a.clientReport.strengths">{{ item }}</li>
+            <li *ngIf="!a.clientReport.strengths.length">No major strength detected yet.</li>
+          </ul>
+        </div>
+  
+        <div class="insight-card warning">
+          <span class="eyebrow red">WEAKNESSES</span>
+          <h3>What must be improved</h3>
+          <ul>
+            <li *ngFor="let item of a.clientReport.weaknesses">{{ item }}</li>
+            <li *ngIf="!a.clientReport.weaknesses.length">No major weakness detected.</li>
+          </ul>
+        </div>
+      </section>
+  
+      <section class="action-plan">
+        <div class="section-title">
+          <span class="eyebrow red">ACTION PLAN</span>
+          <h2>30 / 60 / 90 Day Roadmap</h2>
+          <p>{{ a.clientReport.mainRecommendation }}</p>
+        </div>
+  
+        <div class="timeline">
+          <div class="timeline-step" *ngFor="let step of a.clientReport.actionPlan">
+            <span>{{ step.period }}</span>
+            <strong>{{ step.task }}</strong>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+  </div>
+  

@@ -34,17 +34,10 @@ export const FRONT_CREDIT_ROUTES: Routes = [
         .then(m => m.PlanUtilisationFormComponent),
   },
   {
-    path: 'wallet',
+    path: 'history/:demandeId/advisor',
     canActivate: [FrontAuthGuard],
     loadComponent: () =>
-      import('./pages/credit-wallet/credit-wallet.component')
-        .then(m => m.CreditWalletComponent),
-  },
-  {
-    path: 'wallet/:creditId/echeances',
-    canActivate: [FrontAuthGuard],
-    loadComponent: () =>
-      import('./pages/echeance-list/echeance-list.component')
-        .then(m => m.EcheanceListComponent),
+      import('./pages/financial-advisor-client/financial-advisor-client.component')
+        .then(m => m.FinancialAdvisorClientComponent),
   },
 ];

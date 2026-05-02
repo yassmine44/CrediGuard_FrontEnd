@@ -73,6 +73,58 @@
       </div>
     </div>
 
+    <div class="scoring-card" *ngIf="isEditMode()">
+      <div class="scoring-header">
+        <div>
+          <h3>Bank Scoring Parameters</h3>
+          <p>Choose the bank parameters used by the ML model before running the prediction.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="loanGrade">Loan Grade</label>
+          <select id="loanGrade" formControlName="loanGrade">
+            <option *ngFor="let grade of loanGrades" [ngValue]="grade">
+              {{ grade }}
+            </option>
+          </select>
+          <small class="validation" *ngIf="form.controls.loanGrade.touched && form.controls.loanGrade.invalid">
+            Loan grade is required.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="interestRate">Interest Rate (%)</label>
+          <input
+            id="interestRate"
+            type="number"
+            min="1"
+            max="30"
+            step="0.1"
+            formControlName="interestRate"
+          />
+          <small class="validation" *ngIf="form.controls.interestRate.touched && form.controls.interestRate.invalid">
+            Interest rate must be between 1% and 30%.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-actions scoring-actions">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="runPrediction()"
+          [disabled]="predictionLoading()"
+        >
+          {{ predictionLoading() ? 'Running Prediction...' : 'Run ML Prediction' }}
+        </button>
+      </div>
+
+      <p class="validation" *ngIf="predictionError()">{{ predictionError() }}</p>
+      <p class="success-text" *ngIf="predictionSuccess()">{{ predictionSuccess() }}</p>
+    </div>
+
     <div class="form-actions">
       <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
       <button type="submit" class="btn btn-primary" [disabled]="saving()">

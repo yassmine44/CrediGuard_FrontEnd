@@ -83,4 +83,11 @@ export class EvaluationRisqueDetailComponent {
   downloadPdf(): void {
     // Intentionally empty for now.
   }
+  goToModalite(): void {
+    this.router.navigate(['/admin/credit/demandes', this.demandeId, 'modalite']);
+  }
+  goToAdvisor(): void {
+    this.router.navigate(['/admin/credit/demandes', this.demandeId, 'advisor']);
+  }
+  
 }
