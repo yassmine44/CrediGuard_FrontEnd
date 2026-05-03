@@ -15,6 +15,7 @@ export class DemandeCreditService {
   private authService = inject(AuthService);
 
   private readonly apiUrl = 'http://localhost:8089/api/demandes';
+  private readonly modaliteApiUrl = 'http://localhost:8089/api/modalites';
 
   create(payload: DemandeCreditRequest): Observable<DemandeCreditResponse> {
     return this.http.post<DemandeCreditResponse>(this.apiUrl, payload);
@@ -34,5 +35,14 @@ export class DemandeCreditService {
 
   getById(id: number): Observable<DemandeCreditResponse> {
     return this.http.get<DemandeCreditResponse>(`${this.apiUrl}/${id}`);
+  }
+
+  downloadAmortissementPdf(demandeId: number): Observable<Blob> {
+    const params = new HttpParams().set('demandeId', demandeId);
+
+    return this.http.get(`${this.modaliteApiUrl}/amortissement/pdf`, {
+      params,
+      responseType: 'blob',
+    });
   }
 }

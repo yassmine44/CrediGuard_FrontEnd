@@ -40,12 +40,6 @@ export const CREDIT_ROUTES: Routes = [
         .then(m => m.CreditFormComponent),
   },
   {
-    path: 'wallet/:clientId',
-    loadComponent: () =>
-      import('./pages/credit-wallet-admin/credit-wallet-admin.component')
-        .then(m => m.CreditWalletAdminComponent),
-  },
-  {
     path: 'demandes/:demandeId/advisor',
     loadComponent: () =>
       import('./pages/financial-advisor/financial-advisor.component')

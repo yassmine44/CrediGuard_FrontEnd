@@ -32,6 +32,10 @@
 }
 
 .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
   background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
   border: 1px solid #e2e8f0;
   border-radius: 22px;
@@ -67,6 +71,13 @@
   line-height: 1.6;
 }
 
+.page-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .message {
   border-radius: 16px;
   padding: 16px 18px;
@@ -94,6 +105,76 @@
   padding: 20px;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
   overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #f8fbff;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 240px;
+}
+
+.search-box label {
+  display: block;
+  margin-bottom: 7px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.search-box input {
+  width: 100%;
+  border: 1px solid #d7dfeb;
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: #0f172a;
+  background: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-box input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.status-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.status-tabs button {
+  border: 1px solid #d7dfeb;
+  border-radius: 999px;
+  padding: 10px 13px;
+  color: #334155;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.status-tabs button:hover,
+.status-tabs button.active {
+  border-color: #0f172a;
+  color: #ffffff;
+  background: #0f172a;
 }
 
 .table-wrapper {
@@ -136,6 +217,30 @@ tbody tr:hover {
   color: #0f172a;
 }
 
+.ref small {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.type-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.amount-cell {
+  color: #0b3a75;
+  font-weight: 800;
+}
+
 .purpose-cell {
   max-width: 260px;
   color: #475569;
@@ -145,6 +250,13 @@ tbody tr:hover {
 .actions-col,
 .actions-cell {
   text-align: right;
+}
+
+.actions-cell {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .status-badge {
@@ -210,6 +322,25 @@ tbody tr:hover {
   flex-wrap: wrap;
 }
 
+.empty-filter {
+  margin-top: 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  background: #ffffff;
+}
+
+.empty-filter h3 {
+  margin: 0 0 8px;
+  color: #0f172a;
+}
+
+.empty-filter p {
+  margin: 0;
+  color: #64748b;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -245,9 +376,46 @@ tbody tr:hover {
   background: #f8fafc;
 }
 
+.btn-download {
+  background: #0ea5e9;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(14, 165, 233, 0.16);
+}
+
+.btn-download:hover:not(:disabled) {
+  background: #0284c7;
+  transform: translateY(-1px);
+}
+
+.btn-download:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 @media (max-width: 768px) {
+  .history-page {
+    padding: 28px 14px 44px;
+  }
+
+  .page-header {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 22px;
+  }
+
   .page-header h1 {
     font-size: 30px;
+  }
+
+  .page-actions,
+  .toolbar,
+  .status-tabs {
+    justify-content: stretch;
+  }
+
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .history-card {
@@ -257,6 +425,10 @@ tbody tr:hover {
   .back-btn,
   .btn {
     width: 100%;
+  }
+
+  .actions-cell {
+    justify-content: stretch;
   }
 
   .empty-actions {

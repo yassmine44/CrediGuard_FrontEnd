@@ -7,22 +7,70 @@
     </div>
 
     <div class="page-header">
-      <div class="header-badge">Request Tracking</div>
-      <h1>My Credit Requests</h1>
-      <p>Review the history and current status of your credit requests.</p>
-    </div>
+      <div>
+        <div class="header-badge">Request Tracking</div>
+        <h1>My Credit Requests</h1>
+        <p>Review your credit requests, follow decisions, and download approved documents.</p>
+      </div>
 
-    <div class="page-actions">
-      <a routerLink="/front/credit/request" class="btn btn-primary">New Request</a>
-      <button type="button" class="btn btn-light" (click)="goToProfile()">
-        My Credit Profile
-      </button>
+      <div class="page-actions">
+        <a routerLink="/front/credit/request" class="btn btn-primary">New Request</a>
+        <button type="button" class="btn btn-light" (click)="goToProfile()">
+          My Credit Profile
+        </button>
+      </div>
     </div>
 
     <div *ngIf="loading()" class="message info">Loading requests...</div>
     <div *ngIf="error()" class="message error">{{ error() }}</div>
 
     <div class="history-card" *ngIf="!loading() && !error() && demandes().length > 0">
+      <div class="toolbar">
+        <div class="search-box">
+          <label for="credit-search">Search</label>
+          <input
+            id="credit-search"
+            type="search"
+            placeholder="Reference, purpose, type..."
+            [value]="searchTerm()"
+            (input)="setSearchTerm($any($event.target).value)"
+          />
+        </div>
+
+        <div class="status-tabs">
+          <button
+            type="button"
+            [class.active]="statusFilter() === 'ALL'"
+            (click)="setStatusFilter('ALL')">
+            All
+          </button>
+          <button
+            type="button"
+            [class.active]="statusFilter() === 'SOUMISE'"
+            (click)="setStatusFilter('SOUMISE')">
+            Submitted
+          </button>
+          <button
+            type="button"
+            [class.active]="statusFilter() === 'EN_COURS_D_ETUDE'"
+            (click)="setStatusFilter('EN_COURS_D_ETUDE')">
+            Under review
+          </button>
+          <button
+            type="button"
+            [class.active]="statusFilter() === 'APPROUVEE'"
+            (click)="setStatusFilter('APPROUVEE')">
+            Approved
+          </button>
+          <button
+            type="button"
+            [class.active]="statusFilter() === 'REJETEE'"
+            (click)="setStatusFilter('REJETEE')">
+            Rejected
+          </button>
+        </div>
+      </div>
+
       <div class="table-wrapper">
         <table>
           <thead>
@@ -39,10 +87,15 @@
           </thead>
 
           <tbody>
-            <tr *ngFor="let demande of demandes(); trackBy: trackById">
-              <td class="ref">{{ demande.reference }}</td>
-              <td>{{ demande.typeCredit }}</td>
-              <td>{{ demande.montantDemande | number:'1.0-2' }} TND</td>
+            <tr *ngFor="let demande of filteredDemandes(); trackBy: trackById">
+              <td class="ref">
+                <span>{{ demande.reference }}</span>
+                <small>#{{ demande.id }}</small>
+              </td>
+              <td>
+                <span class="type-pill">{{ demande.typeCredit }}</span>
+              </td>
+              <td class="amount-cell">{{ demande.montantDemande | number:'1.0-2' }} TND</td>
               <td>{{ demande.dureeMois }} months</td>
               <td class="purpose-cell">{{ demande.objetCredit }}</td>
               <td>
@@ -55,7 +108,7 @@
                     'status-rejected': demande.statut === 'REJETEE'
                   }"
                 >
-                  {{ demande.statut }}
+                  {{ statusLabel(demande.statut) }}
                 </span>
               </td>
               <td>{{ demande.dateCreation | date:'mediumDate' }}</td>
@@ -73,10 +126,24 @@
                   [routerLink]="['/front/credit/history', demande.id, 'advisor']">
                   Financial Advisor
                 </button>
+
+                <button
+                  *ngIf="canDownloadModalite(demande)"
+                  type="button"
+                  class="btn btn-download"
+                  [disabled]="downloadingPdfId() === demande.id"
+                  (click)="downloadModalitePdf(demande)">
+                  {{ downloadingPdfId() === demande.id ? 'Preparing PDF...' : 'Download Modalite' }}
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div *ngIf="filteredDemandes().length === 0" class="empty-filter">
+        <h3>No matching request</h3>
+        <p>Try another reference, purpose, type, or status.</p>
       </div>
     </div>
 
